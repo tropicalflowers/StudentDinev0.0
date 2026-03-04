@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Confirmed • Student Dine Portal</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .confirmation-container {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .success-box {
+      background: linear-gradient(135deg, color-mix(in srgb, #22c55e 15%, transparent), color-mix(in srgb, #3b82f6 15%, transparent));
+      border: 2px solid #22c55e;
+      border-radius: 20px;
+      padding: 40px;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .success-icon {
+      font-size: 80px;
+      margin-bottom: 20px;
+      animation: bounce 0.6s;
+    }
+
+    @keyframes bounce {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-20px);
+      }
+    }
+
+    .success-title {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 10px;
+      color: #22c55e;
+    }
+
+    .success-subtitle {
+      font-size: 16px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .order-id {
+      font-family: monospace;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--txt);
+      margin-top: 15px;
+      padding: 12px;
+      background: color-mix(in srgb, var(--txt) 5%, transparent);
+      border-radius: 10px;
+    }
+
+    .confirmation-card {
+      background: var(--card);
+      border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
+      border-radius: 18px;
+      padding: 25px;
+      margin-bottom: 20px;
+    }
+
+    .confirmation-card h3 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px dashed color-mix(in srgb, var(--txt) 8%, transparent);
+      font-size: 14px;
+    }
+
+    .detail-row:last-child {
+      border-bottom: none;
+    }
+
+    .detail-row strong {
+      color: var(--muted);
+    }
+
+    .timeline {
+      position: relative;
+      padding-left: 30px;
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 20px;
+      padding-bottom: 20px;
+      border-left: 2px solid color-mix(in srgb, var(--pri) 30%, transparent);
+      padding-left: 20px;
+    }
+
+    .timeline-item:last-child {
+      border-left-color: var(--pri);
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -8px;
+      top: 0;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: color-mix(in srgb, var(--pri) 30%, transparent);
+      border: 2px solid var(--card);
+    }
+
+    .timeline-item:last-child::before {
+      background: var(--pri);
+    }
+
+    .timeline-time {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .timeline-title {
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .timeline-desc {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .order-items {
+      background: color-mix(in srgb, var(--txt) 2%, transparent);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 0;
+    }
+
+    .order-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      font-size: 13px;
+    }
+
+    .order-item:not(:last-child) {
+      border-bottom: 1px dashed color-mix(in srgb, var(--txt) 8%, transparent);
+      padding-bottom: 8px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 30px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      text-align: center;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--pri), var(--pri-2));
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: color-mix(in srgb, var(--pri) 15%, transparent);
+      color: var(--pri);
+      border: 2px solid var(--pri);
+    }
+
+    .btn-secondary:hover {
+      background: color-mix(in srgb, var(--pri) 25%, transparent);
+    }
+
+    .support-section {
+      text-align: center;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid color-mix(in srgb, var(--txt) 8%, transparent);
+    }
+
+    .support-text {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .support-btn {
+      display: inline-block;
+      padding: 8px 16px;
+      background: color-mix(in srgb, var(--muted) 20%, transparent);
+      border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
+      border-radius: 8px;
+      color: var(--txt);
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .notification {
+      background: color-mix(in srgb, #3b82f6 15%, transparent);
+      border: 1px solid color-mix(in srgb, #3b82f6 30%, transparent);
+      border-left: 4px solid #3b82f6;
+      border-radius: 12px;
+      padding: 12px 15px;
+      margin-bottom: 20px;
+      font-size: 13px;
+    }
+
+    .notification strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .error-box {
+      background: linear-gradient(135deg, color-mix(in srgb, #ef4444 15%, transparent), color-mix(in srgb, #ef4444 5%, transparent));
+      border: 2px solid #ef4444;
+      border-radius: 20px;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .error-icon {
+      font-size: 80px;
+      margin-bottom: 20px;
+    }
+
+    .error-title {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 10px;
+      color: #ef4444;
+    }
+
+    .error-message {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="row">
+      <div class="brand">
+        <div class="logo"></div>
+        <div>Student Dine Portal</div>
+      </div>
+      <div class="menu">
+        <button id="modeToggle">☀️/🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <div style="padding-top: 20px">
+    <div class="confirmation-container">
+      <!-- Success Box -->
+      <div id="successContainer">
+        <div class="success-box">
+          <div class="success-icon">✅</div>
+          <div class="success-title">Order Confirmed!</div>
+          <p class="success-subtitle">Your delicious meal is being prepared</p>
+          <div class="order-id">Order ID: <span id="orderId"></span></div>
+        </div>
+
+        <div class="notification">
+          <strong>📱 Notification</strong>
+          You'll receive SMS and email updates on your order status
+        </div>
+
+        <!-- Order Details -->
+        <div class="confirmation-card">
+          <h3>📋 Order Details</h3>
+          <div class="detail-row">
+            <strong>Order ID:</strong>
+            <span id="orderIdDetail"></span>
+          </div>
+          <div class="detail-row">
+            <strong>Order Date:</strong>
+            <span id="orderDate"></span>
+          </div>
+          <div class="detail-row">
+            <strong>Estimated Delivery:</strong>
+            <span id="estimatedDelivery"></span>
+          </div>
+          <div class="detail-row">
+            <strong>Payment Method:</strong>
+            <span id="paymentMethod"></span>
+          </div>
+          <div class="detail-row">
+            <strong>Delivery Address:</strong>
+            <span id="deliveryAddress"></span>
+          </div>
+        </div>
+
+        <!-- Order Items -->
+        <div class="confirmation-card">
+          <h3>🍽️ Your Order</h3>
+          <div class="order-items" id="orderItems"></div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="confirmation-card">
+          <h3>💰 Order Summary</h3>
+          <div class="detail-row">
+            <strong>Subtotal:</strong>
+            <span id="subtotalAmount"></span>
+          </div>
+          <div class="detail-row" id="discountRow" style="display: none">
+            <strong id="discountLabel">Discount:</strong>
+            <span id="discountAmount" style="color: var(--accent)"></span>
+          </div>
+          <div class="detail-row">
+            <strong>Delivery Fee:</strong>
+            <span>Free</span>
+          </div>
+          <div class="detail-row" style="font-weight: 700; font-size: 16px; border-top: 2px solid color-mix(in srgb, var(--txt) 12%, transparent); padding-top: 12px; margin-top: 8px">
+            <span>Total Paid:</span>
+            <span id="totalAmount"></span>
+          </div>
+        </div>
+
+        <!-- Order Status Timeline -->
+        <div class="confirmation-card">
+          <h3>📍 Order Status</h3>
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="timeline-time">Just now</div>
+              <div class="timeline-title">✅ Order Confirmed</div>
+              <div class="timeline-desc">Your order has been placed successfully</div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-time">In progress</div>
+              <div class="timeline-title">🍳 Order Preparing</div>
+              <div class="timeline-desc">Chef is preparing your food</div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-time">Soon</div>
+              <div class="timeline-title">🚚 On the way</div>
+              <div class="timeline-desc">Delivery partner will pick up and deliver</div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-time">Expected</div>
+              <div class="timeline-title">🎉 Delivered</div>
+              <div class="timeline-desc">Your food will arrive at your doorstep</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="window.location.href='store.html'">🛍️ Order Again</button>
+          <a href="order-history.html" class="btn btn-secondary">📜 View Orders</a>
+        </div>
+
+        <!-- Support Section -->
+        <div class="support-section">
+          <p class="support-text">Need help with your order?</p>
+          <a href="#" class="support-btn">📞 Contact Support</a>
+        </div>
+      </div>
+
+      <!-- Error Container -->
+      <div id="errorContainer" style="display: none">
+        <div class="error-box">
+          <div class="error-icon">❌</div>
+          <div class="error-title">Order Not Found</div>
+          <p class="error-message" id="errorMessage"></p>
+          <button class="btn btn-primary" onclick="window.location.href='store.html'" style="margin-top: 20px">
+            Go Back to Store
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="auth.js"></script>
+  <script>
+    if (!Auth.isAuthenticated()) {
+      window.location.href = 'auth/login.html';
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderId = urlParams.get('orderId');
+    const currentUser = Auth.getCurrentUser();
+
+    function initializeConfirmation() {
+      if (!orderId) {
+        showError('No order ID provided');
+        return;
+      }
+
+      const order = CampusFoodDB.orders.find(o => o.id === orderId && o.userId === currentUser.id);
+
+      if (!order) {
+        showError('Order could not be found. Please check your order history.');
+        return;
+      }
+
+      populateOrderDetails(order);
+    }
+
+    function populateOrderDetails(order) {
+      // Order ID
+      document.getElementById('orderId').innerText = order.id;
+      document.getElementById('orderIdDetail').innerText = order.id;
+
+      // Date
+      const orderDate = new Date(order.createdAt);
+      document.getElementById('orderDate').innerText = orderDate.toLocaleDateString('en-IN', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+
+      // Estimated Delivery
+      const estimatedTime = new Date(new Date().getTime() + 40 * 60000);
+      document.getElementById('estimatedDelivery').innerText = estimatedTime.toLocaleTimeString('en-IN', {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+
+      // Payment Method
+      document.getElementById('paymentMethod').innerText = order.paymentMethod;
+
+      // Delivery Address
+      document.getElementById('deliveryAddress').innerText = order.deliveryAddress;
+
+      // Order Items
+      const itemsHtml = order.items
+        .map(
+          item => `
+        <div class="order-item">
+          <span>${item.quantity}x ${item.name}</span>
+          <span>₹${item.quantity * item.price}</span>
+        </div>
+      `
+        )
+        .join('');
+      document.getElementById('orderItems').innerHTML = itemsHtml;
+
+      // Amounts
+      const subtotal = order.subtotal;
+      const discount = order.discount || 0;
+      const total = order.total;
+
+      document.getElementById('subtotalAmount').innerText = '₹' + subtotal;
+      document.getElementById('totalAmount').innerText = '₹' + total;
+
+      if (discount > 0) {
+        document.getElementById('discountRow').style.display = 'flex';
+        document.getElementById('discountLabel').innerText = `Discount (${order.couponCode || 'Applied'})`;
+        document.getElementById('discountAmount').innerText = '-₹' + discount;
+      }
+    }
+
+    function showError(message) {
+      document.getElementById('successContainer').style.display = 'none';
+      document.getElementById('errorContainer').style.display = 'block';
+      document.getElementById('errorMessage').innerText = message;
+    }
+
+    // Theme toggle
+    const modeToggle = document.getElementById('modeToggle');
+    const theme = localStorage.getItem('campus_food_theme') || 'light';
+    if (theme === 'light') {
+      document.documentElement.classList.add('light');
+    }
+    modeToggle.innerText = theme === 'light' ? '☀️' : '🌙';
+
+    modeToggle.addEventListener('click', () => {
+      document.documentElement.classList.toggle('light');
+      const newTheme = document.documentElement.classList.contains('light') ? 'light' : 'dark';
+      localStorage.setItem('campus_food_theme', newTheme);
+      modeToggle.innerText = newTheme === 'light' ? '☀️' : '🌙';
+    });
+
+    // Initialize
+    initializeConfirmation();
+  </script>
+</body>
+</html>

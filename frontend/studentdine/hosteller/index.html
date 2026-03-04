@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en" class="light">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Campus Food • Hosteller</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Poppins:wght@400;600;800&family=Rubik:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <nav class="nav">
+    <div class="row">
+      <div class="brand">
+        <div class="logo"></div>
+        <div>Campus Food<span class="kbd">beta</span></div>
+      </div>
+      <div class="menu">
+        <div class="dropdown" data-dd="order">
+          <button>🍽️ ORDER FOOD ▾</button>
+          <div class="dropdown-panel">
+            <a href="#" data-action="open-gallery">Browse restaurants</a>
+            <a href="#" data-action="previous-orders">Previous orders</a>
+            <a href="#" data-action="popular-spots">Popular spots</a>
+            <a href="#" data-action="book-table">Book a table</a>
+            <a href="#" data-action="coupons">Coupons</a>
+            <a href="#" data-action="wallet">Wallet</a>
+            <a href="#" data-action="payment-modes">Payment modes</a>
+          </div>
+        </div>
+
+        <!-- Hosteller gets Mess menu -->
+        <div class="dropdown" data-dd="mess">
+          <button>🏷️ MESS FOOD ▾</button>
+          <div class="dropdown-panel">
+            <a href="#" data-action="book-mess">Book mess food</a>
+            <a href="#" data-action="cancel-mess">Cancel mess meal</a>
+            <a href="#" data-action="group-mess">Book for multiple</a>
+            <a href="#" data-action="mess-history">Payment history</a>
+          </div>
+        </div>
+
+        <a href="#" data-action="info">Information</a>
+        <a href="#" data-action="howto">How to order</a>
+        <button id="modeToggle">☀️/🌙</button>
+        <a href="#" data-action="login-again">Login again</a>
+        <a href="../index.html" data-action="switch-role">🔄 Switch Role</a>
+        <a href="#" data-action="about">About creators</a>
+        <div id="google_translate_element"></div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <section class="hero">
+      <div class="hero-card">
+        <div class="role-pill">🏠 <strong>Hosteller</strong> mode</div>
+        <h1>Campus Food Management</h1>
+        <p>Mess bookings + campus-wide ordering in one place.</p>
+        <div class="cta">
+          <button class="btn" id="ctaStartOrder" onclick="window.location.href='../store.html'">Start ordering</button>
+          <button class="btn secondary" id="ctaMess">Book Mess</button>
+        </div>
+        <div class="banner" style="margin-top:14px">
+          Tip: Use the <b>Translate</b> drop-down on the right to view content in Hindi, French, Punjabi or Japanese.
+        </div>
+      </div>
+      <div class="hero-card">
+        <h3>What this website does</h3>
+        <ul>
+          <li>Order from 24 curated campus restaurants and cafés.</li>
+          <li>Smart cart & multi-step payments flow.</li>
+          <li>View previous orders, coupons and wallet.</li>
+          <li>Hostellers: Book/cancel mess, reserve seats, manage subscriptions.</li>
+        </ul>
+        <p class="small">Pretty placeholders are ready for images — just set the <code>src</code> on <code>&lt;img&gt;</code> tags later.</p>
+      </div>
+    </section>
+
+    <section class="section" id="gallerySection">
+      <div class="mb-6 flex items-center space-x-2">
+        <input 
+          type="text" 
+          id="searchMenuInput" 
+          placeholder="🔍 Search menu items, restaurants..." 
+          style="flex: 1; padding: 12px 16px; border-radius: 8px; background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3); color: white; font-size: 14px;"
+        />
+        <button onclick="document.getElementById('searchMenuInput').value = ''; reset_filters()" style="padding: 12px 16px; border-radius: 8px; background: rgba(100,100,100,0.5); border: none; color: white; cursor: pointer;">✕</button>
+      </div>
+
+      <!-- Advanced Filters -->
+      <div class="mb-6" style="padding: 16px; background: rgba(0,212,255,0.05); border: 1px solid rgba(0,212,255,0.3); border-radius: 8px;">
+        <div style="font-size: 12px; font-weight: 600; color: rgba(0,212,255,0.8); margin-bottom: 12px;">🔻 Filters</div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px;">
+          <!-- Veg/Non-veg Filter -->
+          <div>
+            <label style="font-size: 12px; color: #999; display: block; margin-bottom: 6px;">Type</label>
+            <select id="filterType" style="width: 100%; padding: 8px 12px; background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3); border-radius: 6px; color: white; font-size: 13px;">
+              <option value="">All types</option>
+              <option value="veg">🥬 Veg</option>
+              <option value="non-veg">🍗 Non-Veg</option>
+            </select>
+          </div>
+          <!-- Category Filter -->
+          <div>
+            <label style="font-size: 12px; color: #999; display: block; margin-bottom: 6px;">Category</label>
+            <select id="filterCategory" style="width: 100%; padding: 8px 12px; background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3); border-radius: 6px; color: white; font-size: 13px;">
+              <option value="">All categories</option>
+              <option value="starter">Starter</option>
+              <option value="main">Main</option>
+              <option value="drinks">Drinks</option>
+            </select>
+          </div>
+          <!-- Price Filter -->
+          <div>
+            <label style="font-size: 12px; color: #999; display: block; margin-bottom: 6px;">Max Price</label>
+            <select id="filterPrice" style="width: 100%; padding: 8px 12px; background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3); border-radius: 6px; color: white; font-size: 13px;">
+              <option value="">All prices</option>
+              <option value="100">₹100</option>
+              <option value="200">₹200</option>
+              <option value="300">₹300</option>
+              <option value="500">₹500+</option>
+            </select>
+          </div>
+          <!-- Rating Filter -->
+          <div>
+            <label style="font-size: 12px; color: #999; display: block; margin-bottom: 6px;">Min Rating</label>
+            <select id="filterRating" style="width: 100%; padding: 8px 12px; background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3); border-radius: 6px; color: white; font-size: 13px;">
+              <option value="">All ratings</option>
+              <option value="3">⭐ 3.0+</option>
+              <option value="4">⭐ 4.0+</option>
+              <option value="4.5">⭐ 4.5+</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <div id="searchResults" style="display: none; margin-bottom: 24px; padding: 16px; background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3); border-radius: 8px;">
+        <h3 style="font-weight: bold; margin-bottom: 12px;">Search Results</h3>
+        <div id="searchResultsList" class="grid"></div>
+      </div>
+
+      <h2>Restaurants & Shops</h2>
+      <div id="gallery" class="grid"></div>
+    </section>
+
+    <section class="section">
+      <h2>Benefits</h2>
+      <div class="grid">
+        <div class="card"><div class="title">⚡ Fast</div><p class="small">Skip queues, order in a few taps.</p></div>
+        <div class="card"><div class="title">🎯 Accurate</div><p class="small">Clear menus with descriptions & prices.</p></div>
+        <div class="card"><div class="title">🪄 Helpful</div><p class="small">Coupons, wallet, and previous orders.</p></div>
+        <div class="card"><div class="title">🔒 Secure</div><p class="small">Role-based access & re-login.</p></div>
+      </div>
+    </section>
+
+    <footer>© 2025 Campus Food • All rights reserved.</footer>
+  </div>
+
+  <!-- Login Modal -->
+  <div class="modal" id="loginModal">
+    <div class="sheet">
+      <h2>Welcome • Hosteller Login</h2>
+      <p class="small">Enter your details to continue.</p>
+      <div class="form-row">
+        <div><label>Name</label><input class="input" id="inpName" placeholder="Your full name"/></div>
+        <div><label>Roll Number</label><input class="input" id="inpRoll" placeholder="e.g. 23CS001"/></div>
+      </div>
+      <div class="form-row">
+        <div>
+          <label>Role</label>
+          <select id="inpRole" class="input">
+            <option selected>Hosteller</option>
+          </select>
+          <p class="small">This page is dedicated to the <b>Hosteller</b> portal. Separate login pages exist for other roles.</p>
+        </div>
+        <div style="display:flex;align-items:flex-end;justify-content:flex-end">
+          <button class="btn" id="btnLogin">Continue</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <!-- Google Translate widget -->
+  <script type="text/javascript">
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({pageLanguage: 'en', includedLanguages:'hi,fr,pa,ja'}, 'google_translate_element');
+    }
+  </script>
+  <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</body>
+</html>

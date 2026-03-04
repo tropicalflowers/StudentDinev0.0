@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en" class="light">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Student Dine Portal • Choose Your Role</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Poppins:wght@400;600;800&family=Rubik:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <nav class="nav">
+    <div class="row">
+      <div class="brand">
+        <div class="logo"></div>
+        <div>Student Dine Portal<span class="kbd">beta</span></div>
+      </div>
+      <div class="menu">
+        <button id="modeToggle">☀️/🌙</button>
+        <a href="#" data-action="about">About</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <section class="hero">
+      <div class="hero-card" style="text-align: center; grid-column: 1 / -1;">
+        <div class="role-pill">🎓 <strong>Student Dine Portal Network</strong></div>
+        <h1>Welcome to Student Dine Portal</h1>
+        <p>Select your role to access personalized food ordering & services</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 style="text-align: center;">Choose Your Access Portal</h2>
+      <div class="grid" id="roleGrid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); margin-top: 40px;">
+        <!-- Roles will be inserted here by JavaScript -->
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 style="text-align: center;">Why Student Dine Portal?</h2>
+      <div class="grid">
+        <div class="card">
+          <div class="title">⚡ Fast & Easy</div>
+          <p class="small">Order from 24+ campus restaurants without waiting in queues.</p>
+        </div>
+        <div class="card">
+          <div class="title">🍽️ Curated Options</div>
+          <p class="small">Browse menus, see prices, and order exactly what you want.</p>
+        </div>
+        <div class="card">
+          <div class="title">💰 Smart Payments</div>
+          <p class="small">Multiple payment modes, wallets, and exclusive coupons.</p>
+        </div>
+        <div class="card">
+          <div class="title">🏠 Role-Based</div>
+          <p class="small">Tailored experience for Day Scholars, Hostellers, and Managers.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer>© 2025 Student Dine Portal • All rights reserved.</footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

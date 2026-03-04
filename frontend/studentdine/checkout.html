@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout • Student Dine Portal</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .checkout-container {
+      display: grid;
+      grid-template-columns: 1fr 350px;
+      gap: 30px;
+      max-width: 1200px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    .checkout-main {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .checkout-card {
+      background: var(--card);
+      border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
+      border-radius: 18px;
+      padding: 25px;
+    }
+
+    .checkout-card h2 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
+      border-radius: 12px;
+      background: transparent;
+      color: var(--txt);
+      font-size: 14px;
+      font-weight: 600;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--pri);
+    }
+
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+      color: color-mix(in srgb, var(--txt) 30%, transparent);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .cart-items {
+      border-top: 1px solid color-mix(in srgb, var(--txt) 8%, transparent);
+      padding-top: 20px;
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px dashed color-mix(in srgb, var(--txt) 8%, transparent);
+    }
+
+    .cart-item-name {
+      flex: 1;
+    }
+
+    .cart-item-name strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .cart-item-meta {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .cart-item-price {
+      text-align: right;
+      font-weight: 700;
+      min-width: 80px;
+    }
+
+    .payment-methods {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .payment-method {
+      position: relative;
+    }
+
+    .payment-method input[type='radio'] {
+      display: none;
+    }
+
+    .payment-method-label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 15px;
+      border: 2px solid color-mix(in srgb, var(--txt) 12%, transparent);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: transparent;
+      text-align: center;
+    }
+
+    .payment-method-label:hover {
+      border-color: var(--pri);
+    }
+
+    .payment-method input[type='radio']:checked + .payment-method-label {
+      background: color-mix(in srgb, var(--pri) 10%, transparent);
+      border-color: var(--pri);
+    }
+
+    .payment-icon {
+      font-size: 32px;
+    }
+
+    .payment-name {
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .coupon-section {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .coupon-section input {
+      flex: 1;
+      padding: 12px 14px;
+      border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
+      border-radius: 12px;
+      background: transparent;
+      color: var(--txt);
+      font-size: 14px;
+      font-weight: 600;
+      outline: none;
+    }
+
+    .coupon-section input::placeholder {
+      color: color-mix(in srgb, var(--txt) 30%, transparent);
+    }
+
+    .coupon-section button {
+      padding: 12px 16px;
+      background: color-mix(in srgb, var(--pri) 80%, transparent);
+      color: var(--pri);
+      border: 2px solid var(--pri);
+      border-radius: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .coupon-section button:hover {
+      background: var(--pri);
+      color: white;
+    }
+
+    .summary-section {
+      position: sticky;
+      top: 30px;
+      background: var(--card);
+      border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
+      border-radius: 18px;
+      padding: 25px;
+      height: fit-content;
+    }
+
+    .summary-section h3 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      font-size: 14px;
+    }
+
+    .summary-row.total {
+      border-top: 2px solid color-mix(in srgb, var(--txt) 12%, transparent);
+      padding-top: 12px;
+      margin-top: 12px;
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .summary-row.discount {
+      color: var(--accent);
+    }
+
+    .pay-btn {
+      width: 100%;
+      padding: 14px;
+      margin-top: 20px;
+      background: linear-gradient(135deg, var(--pri), var(--pri-2));
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .pay-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .pay-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .empty-cart {
+      text-align: center;
+      padding: 60px 20px;
+      background: var(--card);
+      border-radius: 18px;
+      border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
+    }
+
+    .empty-cart-icon {
+      font-size: 60px;
+      margin-bottom: 20px;
+    }
+
+    .empty-cart-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .empty-cart-text {
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    .empty-cart-btn {
+      padding: 12px 24px;
+      background: linear-gradient(135deg, var(--pri), var(--pri-2));
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .alert {
+      padding: 12px 15px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      display: none;
+      font-size: 14px;
+    }
+
+    .alert.show {
+      display: block;
+    }
+
+    .alert-danger {
+      background: color-mix(in srgb, #ef4444 15%, transparent);
+      color: #fca5a5;
+      border: 1px solid color-mix(in srgb, #ef4444 30%, transparent);
+    }
+
+    .alert-success {
+      background: color-mix(in srgb, #22c55e 15%, transparent);
+      color: #86efac;
+      border: 1px solid color-mix(in srgb, #22c55e 30%, transparent);
+    }
+
+    @media (max-width: 768px) {
+      .checkout-container {
+        grid-template-columns: 1fr;
+      }
+
+      .summary-section {
+        position: relative;
+        top: 0;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .payment-methods {
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="row">
+      <div class="brand">
+        <div class="logo"></div>
+        <div>Student Dine Portal</div>
+      </div>
+      <div class="menu">
+        <a href="store.html">🔙 Back to Menu</a>
+        <button id="modeToggle">☀️/🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <div style="padding-top: 20px">
+    <h1 style="text-align: center; margin-bottom: 30px">🛒 Checkout</h1>
+
+    <div id="emptyCartContainer" style="display: none">
+      <div class="empty-cart">
+        <div class="empty-cart-icon">🛒</div>
+        <div class="empty-cart-title">Cart is Empty</div>
+        <p class="empty-cart-text">Add some delicious food to your cart!</p>
+        <button class="empty-cart-btn" onclick="window.location.href='store.html'">
+          Continue Shopping
+        </button>
+      </div>
+    </div>
+
+    <form id="checkoutForm" style="display: none">
+      <div class="checkout-container">
+        <!-- Main Content -->
+        <div class="checkout-main">
+          <!-- Cart Items -->
+          <div class="checkout-card">
+            <h2>📦 Order Summary</h2>
+            <div class="cart-items" id="cartItemsContainer"></div>
+          </div>
+
+          <!-- Delivery Address -->
+          <div class="checkout-card">
+            <h2>📍 Delivery Address</h2>
+            <div class="form-group">
+              <label>Delivery Address</label>
+              <textarea
+                id="deliveryAddress"
+                placeholder="e.g. Room 101, Block A, Hostel B"
+                rows="3"
+                required
+              ></textarea>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Phone Number</label>
+                <input type="tel" id="phoneNumber" placeholder="9876543210" required />
+              </div>
+              <div class="form-group">
+                <label>Building/Hostel</label>
+                <select id="building" required>
+                  <option value="">Select Building</option>
+                  <option value="hostela">Hostel A</option>
+                  <option value="hostelb">Hostel B</option>
+                  <option value="hostelc">Hostel C</option>
+                  <option value="academic">Academic Block</option>
+                  <option value="dayscholar">Day Scholar Area</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Special Instructions (Optional)</label>
+              <textarea
+                id="specialInstructions"
+                placeholder="Any special requests? (e.g., No onion, Extra spice)"
+                rows="2"
+              ></textarea>
+            </div>
+          </div>
+
+          <!-- Payment Method -->
+          <div class="checkout-card">
+            <h2>💳 Payment Method</h2>
+            <div class="payment-methods" id="paymentMethods">
+              <div class="payment-method">
+                <input type="radio" id="upi" name="payment" value="UPI" />
+                <label for="upi" class="payment-method-label">
+                  <div class="payment-icon">📱</div>
+                  <div class="payment-name">UPI</div>
+                  <div style="font-size: 10px; color: var(--muted); margin-top: 4px;">Quick & Easy</div>
+                </label>
+              </div>
+              <div class="payment-method">
+                <input type="radio" id="card" name="payment" value="Card" />
+                <label for="card" class="payment-method-label">
+                  <div class="payment-icon">💳</div>
+                  <div class="payment-name">Card</div>
+                  <div style="font-size: 10px; color: var(--muted); margin-top: 4px;">Debit/Credit</div>
+                </label>
+              </div>
+              <div class="payment-method">
+                <input type="radio" id="googlepay" name="payment" value="Google Pay" />
+                <label for="googlepay" class="payment-method-label">
+                  <div class="payment-icon">🔵</div>
+                  <div class="payment-name">Google Pay</div>
+                  <div style="font-size: 10px; color: var(--muted); margin-top: 4px;">Instant</div>
+                </label>
+              </div>
+              <div class="payment-method">
+                <input type="radio" id="wallet" name="payment" value="Wallet" />
+                <label for="wallet" class="payment-method-label">
+                  <div class="payment-icon">💰</div>
+                  <div class="payment-name">Wallet</div>
+                  <div id="walletBalance" style="font-size: 10px; color: var(--muted); margin-top: 4px;">₹0 Available</div>
+                </label>
+              </div>
+              <div class="payment-method">
+                <input type="radio" id="cash" name="payment" value="Cash" />
+                <label for="cash" class="payment-method-label">
+                  <div class="payment-icon">💵</div>
+                  <div class="payment-name">Cash</div>
+                  <div style="font-size: 10px; color: var(--muted); margin-top: 4px;">Pay @ Counter</div>
+                </label>
+              </div>
+            </div>
+
+            <!-- UPI Payment Section -->
+            <div id="upiSection" style="display: none; margin-top: 20px; padding: 15px; background: color-mix(in srgb, var(--pri) 5%, transparent); border-radius: 12px; border: 1px solid color-mix(in srgb, var(--pri) 20%, transparent);">
+              <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 10px;">UPI ID / Mobile Number</label>
+              <input type="text" id="upiId" placeholder="yourname@upi or 10-digit mobile" style="width: 100%; padding: 12px 14px; border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent); border-radius: 8px; background: transparent; color: var(--txt); font-size: 14px;"/>
+            </div>
+
+            <!-- Card Payment Section -->
+            <div id="cardSection" style="display: none; margin-top: 20px; padding: 15px; background: color-mix(in srgb, var(--pri) 5%, transparent); border-radius: 12px; border: 1px solid color-mix(in srgb, var(--pri) 20%, transparent);">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                <div>
+                  <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px;">Card Number</label>
+                  <input type="text" placeholder="1234 5678 9012 3456" maxlength="19" style="width: 100%; padding: 12px 14px; border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent); border-radius: 8px; background: transparent; color: var(--txt); font-size: 14px;"/>
+                </div>
+                <div>
+                  <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px;">Card Holder Name</label>
+                  <input type="text" placeholder="Name on card" style="width: 100%; padding: 12px 14px; border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent); border-radius: 8px; background: transparent; color: var(--txt); font-size: 14px;"/>
+                </div>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div>
+                  <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px;">MM/YY</label>
+                  <input type="text" placeholder="MM/YY" maxlength="5" style="width: 100%; padding: 12px 14px; border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent); border-radius: 8px; background: transparent; color: var(--txt); font-size: 14px;"/>
+                </div>
+                <div>
+                  <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px;">CVV</label>
+                  <input type="text" placeholder="•••" maxlength="4" style="width: 100%; padding: 12px 14px; border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent); border-radius: 8px; background: transparent; color: var(--txt); font-size: 14px;"/>
+                </div>
+              </div>
+            </div>
+
+            <!-- Wallet Section -->
+            <div id="walletSection" style="display: none; margin-top: 20px; padding: 15px; background: color-mix(in srgb, var(--pri) 5%, transparent); border-radius: 12px; border: 1px solid color-mix(in srgb, var(--pri) 20%, transparent);">
+              <div style="margin-bottom: 15px;">
+                <div style="font-size: 12px; color: var(--muted); margin-bottom: 8px;">Your Wallet Balance</div>
+                <div style="font-size: 28px; font-weight: 700; color: var(--pri);" id="walletDisplayBalance">₹0.00</div>
+              </div>
+              <div id="walletWarning" style="padding: 10px 12px; background: color-mix(in srgb, #f59e0b 15%, transparent); border-radius: 8px; color: #fbbf24; font-size: 12px; display: none;">Insufficient wallet balance. Add funds or choose another payment method.</div>
+            </div>
+
+            <!-- Coupon Section -->
+            <div class="checkout-card" style="margin-top: 20px; padding: 0; background: transparent; border: none">
+              <h3 style="margin: 0 0 15px 0; font-size: 16px">🎟️ Coupon Code</h3>
+              <div class="coupon-section">
+                <input
+                  type="text"
+                  id="couponCode"
+                  placeholder="Enter coupon code (e.g. FRESH50, FIRST100)"
+                  autocomplete="off"
+                />
+                <button type="button" onclick="applyCoupon()">Apply</button>
+              </div>
+              <div id="couponAlert" class="alert"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Summary Sidebar -->
+        <div class="summary-section">
+          <h3>Order Total</h3>
+
+          <div class="summary-row">
+            <span>Subtotal</span>
+            <span id="subtotal">₹0</span>
+          </div>
+
+          <div class="summary-row">
+            <span>Delivery Fee</span>
+            <span id="deliveryFee">₹0 (Free)</span>
+          </div>
+
+          <div class="summary-row discount" id="discountRow" style="display: none">
+            <span id="discountLabel">Discount</span>
+            <span id="discount">-₹0</span>
+          </div>
+
+          <div class="summary-row total">
+            <span>Total</span>
+            <span id="total">₹0</span>
+          </div>
+
+          <p style="font-size: 12px; color: var(--muted); margin: 15px 0">
+            <strong>Note:</strong> Orders are delivered within 30-45 minutes.
+          </p>
+
+          <button
+            type="submit"
+            class="pay-btn"
+            id="payBtn"
+            onclick="processPayment(event)"
+          >
+            Place Order
+          </button>
+
+          <a href="store.html" style="text-align: center; margin-top: 10px; color: var(--muted); text-decoration: none; font-size: 12px">
+            ← Continue Shopping
+          </a>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="auth.js"></script>
+  <script src="cart.js"></script>
+  <script>
+    if (!Auth.isAuthenticated()) {
+      window.location.href = 'auth/login.html';
+    }
+
+    const form = document.getElementById('checkoutForm');
+    const emptyContainer = document.getElementById('emptyCartContainer');
+    let appliedDiscount = 0;
+    let appliedCoupon = null;
+
+    // Check cart
+    function initializeCheckout() {
+      if (Cart.isEmpty()) {
+        form.style.display = 'none';
+        emptyContainer.style.display = 'block';
+      } else {
+        form.style.display = 'block';
+        emptyContainer.style.display = 'none';
+        renderCartItems();
+        updateSummary();
+      }
+    }
+
+    // Render cart items
+    function renderCartItems() {
+      const container = document.getElementById('cartItemsContainer');
+      container.innerHTML = Cart.items
+        .map(
+          item => `
+        <div class="cart-item">
+          <div class="cart-item-name">
+            <strong>${item.name}</strong>
+            <div class="cart-item-meta">
+              ${item.restaurantName} • Qty: ${item.quantity}
+            </div>
+          </div>
+          <div class="cart-item-price">₹${item.price * item.quantity}</div>
+        </div>
+      `
+        )
+        .join('');
+    }
+
+    // Update summary
+    function updateSummary() {
+      const subtotal = Cart.getTotal();
+      const deliveryFee = 0;
+      let total = subtotal + deliveryFee - appliedDiscount;
+
+      document.getElementById('subtotal').innerText = '₹' + subtotal;
+      document.getElementById('deliveryFee').innerText = '₹' + deliveryFee + ' (Free)';
+      document.getElementById('total').innerText = '₹' + total;
+
+      if (appliedDiscount > 0) {
+        document.getElementById('discountRow').style.display = 'flex';
+        document.getElementById('discount').innerText = '-₹' + appliedDiscount;
+      }
+    }
+
+    // Apply coupon
+    function applyCoupon() {
+      const code = document.getElementById('couponCode').value.trim().toUpperCase();
+      const alert = document.getElementById('couponAlert');
+
+      if (!code) {
+        showCouponAlert('Please enter a coupon code', 'danger');
+        return;
+      }
+
+      const subtotal = Cart.getTotal();
+      const validation = CampusFoodDB.validateCoupon(code, subtotal);
+
+      if (!validation.valid) {
+        showCouponAlert(validation.message, 'danger');
+      } else {
+        appliedCoupon = code;
+        appliedDiscount = validation.discount;
+        showCouponAlert(`✅ Coupon "${code}" applied! You saved ₹${validation.discount}`, 'success');
+        updateSummary();
+      }
+    }
+
+    function showCouponAlert(message, type) {
+      const alert = document.getElementById('couponAlert');
+      alert.className = `alert alert-${type} show`;
+      alert.innerText = message;
+    }
+
+    // Process payment
+    async function processPayment(e) {
+      e.preventDefault();
+
+      const paymentMethod = document.querySelector('input[name="payment"]:checked');
+      if (!paymentMethod) {
+        alert('Please select a payment method');
+        return;
+      }
+
+      const deliveryAddress = document.getElementById('deliveryAddress').value.trim();
+      const phoneNumber = document.getElementById('phoneNumber').value.trim();
+
+      if (!deliveryAddress || !phoneNumber) {
+        alert('Please fill in delivery details');
+        return;
+      }
+
+      // Validate payment method specific fields
+      const method = paymentMethod.value;
+      if (method === 'UPI') {
+        const upiId = document.getElementById('upiId').value.trim();
+        if (!upiId) {
+          alert('Please enter your UPI ID or mobile number');
+          return;
+        }
+      } else if (method === 'Card') {
+        const cardNumber = document.querySelector('input[placeholder="1234 5678 9012 3456"]').value.trim();
+        if (!cardNumber || cardNumber.replace(/\s/g, '').length < 13) {
+          alert('Please enter a valid card number');
+          return;
+        }
+      } else if (method === 'Wallet') {
+        const total = parseFloat(document.getElementById('total').innerText.replace('₹', ''));
+        const userWallet = CampusFoodDB.users.find(u => u.id === Auth.currentUser.id).wallet;
+        if (userWallet < total) {
+          alert('Insufficient wallet balance. Please add funds or choose another payment method.');
+          return;
+        }
+      }
+
+      const orderDetails = {
+        paymentMethod: paymentMethod.value,
+        deliveryAddress,
+        phoneNumber,
+        specialInstructions: document.getElementById('specialInstructions').value.trim(),
+        couponCode: appliedCoupon,
+        discount: appliedDiscount,
+      };
+
+      const result = await Cart.checkout(orderDetails);
+
+      if (result.success) {
+        alert(`✅ ${result.message}\nOrder ID: ${result.orderId}`);
+        window.location.href = `order-confirmation.html?orderId=${result.orderId}`;
+      } else {
+        alert(`❌ ${result.message}`);
+      }
+    }
+
+    // Handle payment method visibility
+    function handlePaymentMethodChange() {
+      const selectedMethod = document.querySelector('input[name="payment"]:checked')?.value;
+      
+      // Hide all sections
+      document.getElementById('upiSection').style.display = 'none';
+      document.getElementById('cardSection').style.display = 'none';
+      document.getElementById('walletSection').style.display = 'none';
+      
+      // Show selected section
+      if (selectedMethod === 'UPI') {
+        document.getElementById('upiSection').style.display = 'block';
+      } else if (selectedMethod === 'Card') {
+        document.getElementById('cardSection').style.display = 'block';
+      } else if (selectedMethod === 'Wallet') {
+        document.getElementById('walletSection').style.display = 'block';
+        updateWalletDisplay();
+      }
+    }
+
+    function updateWalletDisplay() {
+      const user = CampusFoodDB.users.find(u => u.id === Auth.currentUser.id);
+      const walletBalance = user.wallet || 0;
+      const total = parseFloat(document.getElementById('total').innerText.replace('₹', ''));
+      
+      document.getElementById('walletBalance').innerText = `₹${walletBalance} Available`;
+      document.getElementById('walletDisplayBalance').innerText = `₹${walletBalance.toFixed(2)}`;
+      
+      if (walletBalance < total) {
+        document.getElementById('walletWarning').style.display = 'block';
+      } else {
+        document.getElementById('walletWarning').style.display = 'none';
+      }
+    }
+
+    // Add event listeners for payment methods
+    document.querySelectorAll('input[name="payment"]').forEach(radio => {
+      radio.addEventListener('change', handlePaymentMethodChange);
+    });
+
+    // Theme toggle
+    const modeToggle = document.getElementById('modeToggle');
+    const theme = localStorage.getItem('campus_food_theme') || 'light';
+    if (theme === 'light') {
+      document.documentElement.classList.add('light');
+    }
+    modeToggle.innerText = theme === 'light' ? '☀️' : '🌙';
+
+    modeToggle.addEventListener('click', () => {
+      document.documentElement.classList.toggle('light');
+      const newTheme = document.documentElement.classList.contains('light') ? 'light' : 'dark';
+      localStorage.setItem('campus_food_theme', newTheme);
+      modeToggle.innerText = newTheme === 'light' ? '☀️' : '🌙';
+    });
+
+    // Initialize
+    initializeCheckout();
+    document.getElementById('upi').checked = true;
+    handlePaymentMethodChange();
+  </script>
+</body>
+</html>

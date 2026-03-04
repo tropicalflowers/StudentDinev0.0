@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard • Student Dine Portal</title>
+  <link rel="stylesheet" href="../style.css" />
+  <style>
+    .admin-container {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      min-height: 100vh;
+    }
+
+    .admin-sidebar {
+      background: var(--card);
+      border-right: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
+      padding: 20px;
+      position: fixed;
+      width: 250px;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .admin-sidebar h3 {
+      margin-top: 0;
+      font-size: 14px;
+      color: var(--muted);
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .admin-sidebar .nav-link {
+      display: block;
+      padding: 12px 14px;
+      border-radius: 10px;
+      margin: 4px 0;
+      color: var(--txt);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      border: none;
+      background: transparent;
+      width: 100%;
+      text-align: left;
+    }
+
+    .admin-sidebar .nav-link:hover,
+    .admin-sidebar .nav-link.active {
+      background: color-mix(in srgb, var(--pri) 20%, transparent);
+      color: var(--pri);
+    }
+
+    .admin-content {
+      margin-left: 250px;
+      padding: 30px;
+    }
+
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+
+    .admin-header h1 {
+      margin: 0;
+      font-size: 32px;
+    }
+
+    .admin-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-small {
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
+      background: transparent;
+      color: var(--txt);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 12px;
+      transition: background 0.2s;
+    }
+
+    .btn-small:hover {
+      background: color-mix(in srgb, var(--txt) 8%, transparent);
+    }
+
+    .btn-small.primary {
+      background: var(--pri);
+      color: white;
+      border-color: var(--pri);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: var(--card);
+      border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
+      border-radius: 18px;
+      padding: 20px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 600;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .stat-change {
+      font-size: 12px;
+      color: var(--accent);
+    }
+
+    .table-container {
+      background: var(--card);
+      border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
+      border-radius: 18px;
+      padding: 20px;
+      overflow-x: auto;
+      margin-bottom: 30px;
+    }
+
+    .table-container h3 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      text-align: left;
+      padding: 12px 0;
+      border-bottom: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      padding: 12px 0;
+      border-bottom: 1px solid color-mix(in srgb, var(--txt) 8%, transparent);
+      font-size: 14px;
+    }
+
+    tr:hover {
+      background: color-mix(in srgb, var(--txt) 3%, transparent);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-pending {
+      background: color-mix(in srgb, #f59e0b 20%, transparent);
+      color: #fbbf24;
+    }
+
+    .badge-confirmed {
+      background: color-mix(in srgb, #22c55e 20%, transparent);
+      color: #86efac;
+    }
+
+    .badge-delivered {
+      background: color-mix(in srgb, #06b6d4 20%, transparent);
+      color: #67e8f9;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
+      border-radius: 12px;
+      background: transparent;
+      color: var(--txt);
+      font-size: 14px;
+      font-weight: 600;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--pri);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .chart-container {
+      background: var(--card);
+      border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
+      border-radius: 18px;
+      padding: 20px;
+      margin-bottom: 30px;
+    }
+
+    .chart-container h3 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      font-size: 18px;
+    }
+
+    .chart-bar {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+      gap: 10px;
+    }
+
+    .chart-label {
+      width: 80px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .chart-fill {
+      flex: 1;
+      height: 24px;
+      background: linear-gradient(90deg, var(--pri), var(--pri-2));
+      border-radius: 8px;
+      position: relative;
+    }
+
+    .chart-value {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 30px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      color: var(--txt);
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    @media (max-width: 768px) {
+      .admin-container {
+        grid-template-columns: 1fr;
+      }
+
+      .admin-sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
+        display: flex;
+        gap: 20px;
+        overflow-x: auto;
+        padding: 15px;
+      }
+
+      .admin-sidebar h3 {
+        display: none;
+      }
+
+      .admin-sidebar .nav-link {
+        white-space: nowrap;
+        margin: 0;
+      }
+
+      .admin-content {
+        margin-left: 0;
+        padding: 20px;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .admin-header h1 {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar Navigation -->
+  <div class="admin-container">
+    <div class="admin-sidebar">
+      <h3>📊 Admin</h3>
+      <button class="nav-link active" data-section="analytics">📈 Analytics</button>
+      <button class="nav-link" data-section="orders">📦 Orders</button>
+      <button class="nav-link" data-section="menu">🍔 Menu Management</button>
+      <button class="nav-link" data-section="users">👥 Users</button>
+      <button class="nav-link" data-section="coupons">🎟️ Coupons</button>
+
+      <h3 style="margin-top: 30px">User</h3>
+      <div id="userDisplay" style="padding: 10px 0; font-size: 13px">Loading...</div>
+      <button class="nav-link" onclick="Auth.logout()" style="color: #ef4444">
+        🚪 Logout
+      </button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="admin-content">
+      <!-- Analytics Section -->
+      <div class="section active" id="analytics">
+        <div class="admin-header">
+          <h1>📊 Analytics Dashboard</h1>
+          <div class="admin-actions">
+            <button class="btn-small">Today</button>
+            <button class="btn-small">Week</button>
+            <button class="btn-small">Month</button>
+          </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">📦 Orders Today</div>
+            <div class="stat-value" id="todayOrders">12</div>
+            <div class="stat-change">↑ 8% from yesterday</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">💰 Revenue Today</div>
+            <div class="stat-value" id="todayRevenue">₹3,450</div>
+            <div class="stat-change">↑ 12% from yesterday</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">🍔 Popular Item</div>
+            <div class="stat-value" id="popularItem" style="font-size: 18px">
+              Loading...
+            </div>
+            <div class="stat-change">Most ordered today</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">👥 Active Users</div>
+            <div class="stat-value" id="activeUsers">450</div>
+            <div class="stat-change">This month</div>
+          </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="chart-container">
+          <h3>📈 Top 5 Items</h3>
+          <div id="topItemsChart"></div>
+        </div>
+
+        <div class="chart-container">
+          <h3>🏪 Restaurant Performance</h3>
+          <div id="restaurantChart"></div>
+        </div>
+      </div>
+
+      <!-- Orders Section -->
+      <div class="section" id="orders">
+        <div class="admin-header">
+          <h1>📦 Manage Orders</h1>
+          <div class="admin-actions">
+            <select id="orderFilter" style="padding: 8px 12px; border-radius: 8px; border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent); background: transparent; color: var(--txt); font-weight: 600">
+              <option value="">All Orders</option>
+              <option value="Pending">Pending</option>
+              <option value="Confirmed">Confirmed</option>
+              <option value="Delivered">Delivered</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table id="ordersTable">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Items</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="ordersTableBody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Menu Management Section -->
+      <div class="section" id="menu">
+        <div class="admin-header">
+          <h1>🍔 Menu Management</h1>
+          <div style="display: flex; gap: 10px;">
+            <input type="text" id="menuSearchInput" placeholder="Search items..." style="padding: 8px 12px; border-radius: 8px; border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent); background: transparent; color: var(--txt); font-weight: 600; width: 200px;"/>
+            <button class="btn-small primary" id="addMenuBtn">➕ Add Item</button>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table id="menuTable">
+            <thead>
+              <tr>
+                <th>Item Name</th>
+                <th>Restaurant</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Type</th>
+                <th>Available</th>
+                <th>Rating</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="menuTableBody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Users Section -->
+      <div class="section" id="users">
+        <div class="admin-header">
+          <h1>👥 User Management</h1>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Roll</th>
+                <th>Role</th>
+                <th>Wallet</th>
+                <th>Joined</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Coupons Section -->
+      <div class="section" id="coupons">
+        <div class="admin-header">
+          <h1>🎟️ Coupon Management</h1>
+          <button class="btn-small primary" id="addCouponBtn">➕ Add Coupon</button>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Discount</th>
+                <th>Min Order</th>
+                <th>Used</th>
+                <th>Status</th>
+                <th>Valid Till</th>
+              </tr>
+            </thead>
+            <tbody id="couponsTableBody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Menu Item Modal -->
+  <div class="modal" id="addMenuModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Add Menu Item</h2>
+        <button class="close-btn" onclick="closeModal('addMenuModal')">✕</button>
+      </div>
+      <form id="addMenuForm">
+        <div class="form-group">
+          <label>Item Name</label>
+          <input type="text" id="itemName" placeholder="e.g. Paneer Tikka" required />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Price (₹)</label>
+            <input type="number" id="itemPrice" placeholder="250" min="0" required />
+          </div>
+          <div class="form-group">
+            <label>Restaurant</label>
+            <select id="itemRestaurant" required>
+              <option value="">Select restaurant</option>
+              <option value="royal-thali">Royal Thali</option>
+              <option value="bean-bloom">Bean & Bloom</option>
+              <option value="pizza-piazza">Pizza Piazza</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Category</label>
+            <select id="itemCategory" required>
+              <option value="">Select category</option>
+              <option value="starter">Starter</option>
+              <option value="main">Main Course</option>
+              <option value="drinks">Drinks</option>
+              <option value="dessert">Dessert</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Type</label>
+            <select id="itemType" required>
+              <option value="">Select type</option>
+              <option value="veg">Vegetarian</option>
+              <option value="non-veg">Non-Vegetarian</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <input type="text" id="itemDescription" placeholder="Brief description" required />
+        </div>
+        <div class="admin-actions" style="justify-content: flex-end">
+          <button type="button" class="btn-small" onclick="closeModal('addMenuModal')">Cancel</button>
+          <button type="submit" class="btn-small primary">Add Item</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../data.js"></script>
+  <script src="../auth.js"></script>
+  <script>
+    // Check authentication
+    if (!Auth.isAuthenticated() || Auth.getCurrentUser().role !== 'manager') {
+      window.location.href = '../auth/login.html';
+    }
+
+    // Navigation
+    document.querySelectorAll('.nav-link').forEach(link => {
+      link.addEventListener('click', (e) => {
+        if (e.target.dataset.section) {
+          document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+          document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+          document.getElementById(e.target.dataset.section).classList.add('active');
+          e.target.classList.add('active');
+        }
+      });
+    });
+
+    // Display user info
+    function displayUser() {
+      const user = Auth.getCurrentUser();
+      document.getElementById('userDisplay').innerHTML = `
+        <strong>${user.name}</strong><br>
+        <small>${user.role}</small>
+      `;
+    }
+
+    // Load analytics
+    function loadAnalytics() {
+      const analytics = CampusFoodDB.analytics || {
+        todayOrders: 0,
+        todayRevenue: 0,
+        popularItem: 'Loading...',
+        activeUsers: 0
+      };
+      
+      // Calculate real metrics from orders
+      const orders = CampusFoodDB.orders || [];
+      const totalRevenue = orders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+      const totalOrders = orders.length;
+      const activeUsers = CampusFoodDB.users.filter(u => u.role === 'student' || u.role === 'hosteller').length;
+      
+      // Calculate today's metrics
+      const today = new Date().toDateString();
+      const todayOrders = orders.filter(o => {
+        const orderDate = new Date(o.createdAt || o.orderDate).toDateString();
+        return orderDate === today;
+      }).length;
+      
+      const todayRevenue = orders.filter(o => {
+        const orderDate = new Date(o.createdAt || o.orderDate).toDateString();
+        return orderDate === today;
+      }).reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+
+      // Get most popular item from menu
+      const popularItem = CampusFoodDB.menuItems && CampusFoodDB.menuItems.length > 0 
+        ? CampusFoodDB.menuItems[0].name 
+        : 'Paneer Butter Masala';
+
+      // Update UI
+      document.getElementById('todayOrders').innerText = todayOrders || 12;
+      document.getElementById('todayRevenue').innerText = '₹' + (todayRevenue || 3450).toLocaleString();
+      document.getElementById('popularItem').innerText = popularItem;
+      document.getElementById('activeUsers').innerText = activeUsers || 450;
+
+      // Generate enhanced chart
+      const topItems = [
+        { name: 'Paneer Butter Masala', orders: 45, revenue: 12600 },
+        { name: 'Cappuccino', orders: 38, revenue: 4940 },
+        { name: 'Biryani', orders: 32, revenue: 8000 },
+        { name: 'Chicken Panini', orders: 28, revenue: 6160 },
+        { name: 'Aloo Tikki', orders: 24, revenue: 2640 },
+      ];
+
+      const chart = document.getElementById('topItemsChart');
+      const maxOrders = Math.max(...topItems.map(i => i.orders));
+      
+      chart.innerHTML = topItems
+        .map(item => {
+          const percentage = (item.orders / maxOrders) * 100;
+          return `
+            <div class="chart-bar" style="margin-bottom: 12px;">
+              <div class="chart-label">${item.name}</div>
+              <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+                <div class="chart-fill" style="flex: 1; background: linear-gradient(90deg, #6366f1 0%, #4f46e5 100%); height: 20px; border-radius: 4px; width: ${percentage}%"></div>
+                <span style="min-width: 40px; text-align: right; font-size: 12px; color: rgba(255,255,255,0.7);">${item.orders} orders</span>
+              </div>
+            </div>
+          `;
+        })
+        .join('');
+
+      // Restaurant performance chart
+      const restaurants = [
+        { name: 'Royal Thali', orders: 234, revenue: 45230 },
+        { name: 'Bean & Bloom', orders: 198, revenue: 38950 },
+        { name: 'Spice Route', orders: 187, revenue: 41230 },
+        { name: 'Campus Caffeine', orders: 156, revenue: 28450 },
+        { name: 'Levain Lab', orders: 142, revenue: 35680 },
+      ];
+
+      const restChart = document.getElementById('restaurantChart');
+      const maxRestOrders = Math.max(...restaurants.map(r => r.orders));
+      
+      restChart.innerHTML = restaurants
+        .map(rest => {
+          const percentage = (rest.orders / maxRestOrders) * 100;
+          return `
+            <div style="margin-bottom: 12px;">
+              <div class="chart-label" style="margin-bottom: 6px; display: flex; justify-content: space-between;">
+                <span>${rest.name}</span>
+                <span style="font-size: 12px; color: #10b981;">₹${(rest.revenue / 1000).toFixed(1)}K</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="flex: 1; background: linear-gradient(90deg, #10b981 0%, #059669 100%); height: 20px; border-radius: 4px; width: ${percentage}%"></div>
+                <span style="min-width: 50px; text-align: right; font-size: 12px; color: rgba(255,255,255,0.7);">${rest.orders}</span>
+              </div>
+            </div>
+          `;
+        })
+        .join('');
+    }
+
+
+    // Load orders table
+    function loadOrders() {
+      const tbody = document.getElementById('ordersTableBody');
+      const allOrders = CampusFoodDB.orders;
+
+      tbody.innerHTML = allOrders
+        .map(order => `
+          <tr>
+            <td><strong>${order.id}</strong></td>
+            <td>${order.userName}</td>
+            <td>${order.items.length} items</td>
+            <td>₹${order.totalAmount}</td>
+            <td>
+              <span class="badge badge-${order.status.toLowerCase()}">
+                ${order.status}
+              </span>
+            </td>
+            <td>${order.orderDate}</td>
+            <td>
+              <button class="btn-small" onclick="editOrder('${order.id}')">View</button>
+            </td>
+          </tr>
+        `)
+        .join('');
+    }
+
+    // Load menu table
+    function loadMenu(filter = '') {
+      const tbody = document.getElementById('menuTableBody');
+      let items = CampusFoodDB.menuItems || [];
+      
+      if (filter) {
+        items = items.filter(item => 
+          item.name.toLowerCase().includes(filter.toLowerCase()) ||
+          item.restaurantName.toLowerCase().includes(filter.toLowerCase()) ||
+          item.category.toLowerCase().includes(filter.toLowerCase())
+        );
+      }
+
+      tbody.innerHTML = items
+        .map(item => `
+          <tr>
+            <td>${item.image || '🍔'} <strong>${item.name}</strong></td>
+            <td>${item.restaurantName || 'N/A'}</td>
+            <td><span class="badge" style="background: rgba(99, 102, 241, 0.2); color: #6366f1;">${item.category}</span></td>
+            <td><strong>₹${item.price}</strong></td>
+            <td>${item.type === 'veg' ? '🥬 Veg' : '🍗 Non-Veg'}</td>
+            <td>
+              <input type="checkbox" ${item.available ? 'checked' : ''} onchange="toggleMenuItemAvailability(${item.id})" style="cursor: pointer; width: 18px; height: 18px;">
+            </td>
+            <td>⭐ ${(item.rating || 4).toFixed(1)}</td>
+            <td>
+              <button class="btn-small" onclick="editMenuItem(${item.id})">✏️ Edit</button>
+              <button class="btn-small" onclick="deleteMenuItemConfirm(${item.id})">🗑️ Delete</button>
+            </td>
+          </tr>
+        `)
+        .join('');
+    }
+
+    // Toggle item availability
+    function toggleMenuItemAvailability(id) {
+      const item = CampusFoodDB.menuItems.find(i => i.id === id);
+      if (item) {
+        item.available = !item.available;
+        loadMenu(document.getElementById('menuSearchInput').value);
+      }
+    }
+
+    // Delete with confirmation
+    function deleteMenuItemConfirm(id) {
+      const item = CampusFoodDB.menuItems.find(i => i.id === id);
+      if (confirm(`Delete "${item.name}"? This action cannot be undone.`)) {
+        deleteMenuItem(id);
+      }
+    }
+
+    // Edit menu item
+    function editMenuItem(id) {
+      const item = CampusFoodDB.menuItems.find(i => i.id === id);
+      if (item) {
+        document.getElementById('itemName').value = item.name;
+        document.getElementById('itemPrice').value = item.price;
+        document.getElementById('itemCategory').value = item.category;
+        document.getElementById('itemType').value = item.type;
+        document.getElementById('itemDescription').value = item.description || '';
+        document.getElementById('itemRestaurant').value = item.restaurantId || '';
+        
+        // Switch form to edit mode
+        const form = document.getElementById('addMenuForm');
+        form.dataset.editMode = 'true';
+        form.dataset.editId = id;
+        
+        const modal = document.getElementById('addMenuModal');
+        const header = modal.querySelector('.modal-header h2');
+        header.innerText = 'Edit Menu Item';
+        
+        modal.classList.add('show');
+      }
+    }
+
+    // Load users table
+    function loadUsers() {
+      const tbody = document.getElementById('usersTableBody');
+      tbody.innerHTML = CampusFoodDB.users
+        .map(user => `
+          <tr>
+            <td>${user.name}</td>
+            <td>${user.email}</td>
+            <td>${user.rollNumber}</td>
+            <td>${user.role}</td>
+            <td>₹${user.wallet}</td>
+            <td>${user.createdAt}</td>
+          </tr>
+        `)
+        .join('');
+    }
+
+    // Load coupons table
+    function loadCoupons() {
+      const tbody = document.getElementById('couponsTableBody');
+      tbody.innerHTML = CampusFoodDB.coupons
+        .map(coupon => `
+          <tr>
+            <td><strong>${coupon.code}</strong></td>
+            <td>${coupon.discount}${coupon.discountType === 'percent' ? '%' : '₹'}</td>
+            <td>₹${coupon.minOrder}</td>
+            <td>${coupon.usedCount} / ${coupon.maxUses}</td>
+            <td>${coupon.active ? '✅ Active' : '❌ Inactive'}</td>
+            <td>${coupon.validTill}</td>
+          </tr>
+        `)
+        .join('');
+    }
+
+    // Modal functions
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('show');
+    }
+
+    document.getElementById('addMenuBtn').addEventListener('click', () => {
+      document.getElementById('addMenuModal').classList.add('show');
+    });
+
+    document.getElementById('addMenuForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const item = {
+        restaurantId: document.getElementById('itemRestaurant').value,
+        restaurantName: CampusFoodDB.restaurants.find(
+          r => r.id === document.getElementById('itemRestaurant').value
+        ).name,
+        name: document.getElementById('itemName').value,
+        description: document.getElementById('itemDescription').value,
+        price: parseInt(document.getElementById('itemPrice').value),
+        category: document.getElementById('itemCategory').value,
+        type: document.getElementById('itemType').value,
+        image: '🍔',
+        available: true,
+        rating: 4.5,
+      };
+
+      CampusFoodDB.addMenuItem(item);
+      closeModal('addMenuModal');
+      loadMenu();
+      document.getElementById('addMenuForm').reset();
+    });
+
+    function deleteMenuItem(id) {
+      if (confirm('Delete this item?')) {
+        CampusFoodDB.deleteMenuItem(id);
+        loadMenu();
+      }
+    }
+
+    // Initialize
+    displayUser();
+    loadAnalytics();
+    loadOrders();
+    loadMenu();
+    loadUsers();
+    loadCoupons();
+  </script>
+</body>
+</html>

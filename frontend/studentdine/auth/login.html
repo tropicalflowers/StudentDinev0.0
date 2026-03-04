@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login • Student Dine Portal</title>
+  <link rel="stylesheet" href="../style.css" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--txt);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    /* Top Navigation with Search */
+    .top-nav {
+      background: var(--card);
+      border-bottom: 1px solid color-mix(in srgb, var(--txt) 10%, transparent);
+      padding: 16px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .brand {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      font-weight: 700;
+      font-size: 18px;
+      white-space: nowrap;
+    }
+
+    .logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--pri), var(--pri-2));
+    }
+
+    .search-bar-wrapper {
+      flex: 1 1 400px;
+      max-width: 600px;
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background: color-mix(in srgb, var(--txt) 5%, transparent);
+      border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
+      border-radius: 24px;
+      padding: 10px 16px;
+      gap: 8px;
+    }
+
+    .search-bar input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--txt);
+      font-size: 14px;
+      outline: none;
+    }
+
+    .search-bar input::placeholder {
+      color: color-mix(in srgb, var(--txt) 40%, transparent);
+    }
+
+    .search-bar-icon {
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .nav-right {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      white-space: nowrap;
+    }
+
+    .nav-btn {
+      background: transparent;
+      border: none;
+      color: var(--txt);
+      font-size: 14px;
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+
+    .nav-btn:hover {
+      background: color-mix(in srgb, var(--txt) 10%, transparent);
+    }
+
+    /* Main Content */
+    .main-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 30px 20px;
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 30px;
+    }
+
+    /* Auth Card */
+    .auth-card {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 40px;
+      border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
+      height: fit-content;
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .auth-header h1 {
+      font-size: 28px;
+      margin: 0 0 8px;
+      font-weight: 800;
+    }
+
+    .auth-header p {
+      font-size: 14px;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
+      border-radius: 12px;
+      background: transparent;
+      color: var(--txt);
+      font-size: 14px;
+      font-weight: 600;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus {
+      border-color: var(--pri);
+    }
+
+    .form-group input::placeholder {
+      color: color-mix(in srgb, var(--txt) 30%, transparent);
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--pri), var(--pri-2));
+      color: white;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+    }
+
+    .divider {
+      text-align: center;
+      color: var(--muted);
+      position: relative;
+      margin: 20px 0;
+      font-size: 12px;
+    }
+
+    .divider::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: color-mix(in srgb, var(--txt) 10%, transparent);
+      z-index: 0;
+    }
+
+    .divider span {
+      background: var(--card);
+      padding: 0 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .demo-users {
+      background: color-mix(in srgb, var(--pri) 10%, transparent);
+      border: 1px dashed color-mix(in srgb, var(--pri) 30%, transparent);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 16px;
+      font-size: 12px;
+    }
+
+    .demo-users strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--pri);
+    }
+
+    .demo-users code {
+      display: block;
+      color: var(--muted);
+      margin: 4px 0;
+      font-size: 11px;
+    }
+
+    .auth-footer {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 13px;
+    }
+
+    .auth-footer a {
+      color: var(--pri);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .auth-footer a:hover {
+      text-decoration: underline;
+    }
+
+    .back-link {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 12px;
+    }
+
+    .back-link a {
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    .back-link a:hover {
+      color: var(--txt);
+    }
+
+    /* Menu Items Grid */
+    .menu-section {
+      background: var(--card);
+      border-radius: 20px;
+      border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
+      padding: 20px;
+      height: fit-content;
+    }
+
+    .menu-section h3 {
+      font-size: 16px;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+
+    .menu-items {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      max-height: 600px;
+      overflow-y: auto;
+    }
+
+    .menu-item {
+      padding: 12px;
+      background: color-mix(in srgb, var(--txt) 2%, transparent);
+      border-radius: 12px;
+      border: 1px solid color-mix(in srgb, var(--txt) 8%, transparent);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .menu-item:hover {
+      background: color-mix(in srgb, var(--pri) 10%, transparent);
+      border-color: var(--pri);
+    }
+
+    .menu-item-name {
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 2px;
+    }
+
+    .menu-item-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .menu-item-price {
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .alert {
+      padding: 12px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      display: none;
+      font-size: 13px;
+    }
+
+    .alert.show {
+      display: block;
+    }
+
+    .alert-success {
+      background: color-mix(in srgb, #22c55e 15%, transparent);
+      color: #86efac;
+      border: 1px solid color-mix(in srgb, #22c55e 30%, transparent);
+    }
+
+    .alert-error {
+      background: color-mix(in srgb, #ef4444 15%, transparent);
+      color: #fca5a5;
+      border: 1px solid color-mix(in srgb, #ef4444 30%, transparent);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 20px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media (max-width: 768px) {
+      .main-content {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-container {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .search-bar-wrapper {
+        max-width: 100%;
+      }
+
+      .auth-card {
+        padding: 24px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .nav-container {
+        flex-wrap: wrap;
+      }
+
+      .brand {
+        flex: 1 1 100%;
+        order: 0;
+      }
+
+      .search-bar-wrapper {
+        flex: 1 1 100%;
+        order: 2;
+        max-width: 100%;
+      }
+
+      .nav-right {
+        flex: 1 1 100%;
+        order: 3;
+        justify-content: center;
+      }
+
+      .auth-card {
+        padding: 20px;
+      }
+
+      .auth-header h1 {
+        font-size: 24px;
+      }
+
+      .search-bar input {
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Top Navigation -->
+  <div class="top-nav">
+    <div class="nav-container">
+      <div class="brand">
+        <div class="logo"></div>
+        <span>Student Dine Portal</span>
+      </div>
+      <div class="search-bar-wrapper">
+        <div class="search-bar">
+          <span class="search-bar-icon">🔍</span>
+          <input 
+            type="text" 
+            id="searchInput" 
+            placeholder="Search menu items, restaurants..."
+          />
+        </div>
+      </div>
+      <div class="nav-right">
+        <button class="nav-btn">📍 Help</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Login Form -->
+    <div class="auth-card">
+      <div class="auth-header">
+        <h1>Welcome Back</h1>
+        <p>Log in to your account</p>
+      </div>
+
+      <div class="alert alert-success" id="successMsg"></div>
+      <div class="alert alert-error" id="errorMsg"></div>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input 
+            type="email" 
+            id="email" 
+            name="email" 
+            placeholder="student@campus.edu"
+            required 
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input 
+            type="password" 
+            id="password" 
+            name="password" 
+            placeholder="••••••••"
+            required 
+          />
+        </div>
+
+        <button type="submit" class="btn-primary">Sign In</button>
+      </form>
+
+      <div class="divider"><span>OR</span></div>
+
+      <div class="demo-users">
+        <strong>Demo Accounts:</strong>
+        <code><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0477707160616a70446765697471772a616071">[email&#160;protected]</a> / pass123</code>
+        <code><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="50383f2324353c3c35221033313d2025237e353425">[email&#160;protected]</a> / pass123</code>
+        <code><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="e38e828d82848691a380828e939690cd868796">[email&#160;protected]</a> / pass123</code>
+      </div>
+
+      <div class="auth-footer">
+        Don't have an account? <a href="register.html">Sign up</a>
+      </div>
+
+      <div class="back-link">
+        <a href="../index.html">← Back to Home</a>
+      </div>
+    </div>
+
+    <!-- Menu Browse Section -->
+    <div class="menu-section">
+      <h3>📋 Featured Menu</h3>
+      <div class="menu-items" id="browseMenu">
+        <div class="empty-state">Loading menu items...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="../data.js"></script>
+  <script src="../auth.js"></script>
+  <script src="../cart.js"></script>
+  <script>
+    // Load menu items — async because it fetches from backend
+    async function loadMenuItems() {
+      const browseMenu = document.getElementById('browseMenu');
+      browseMenu.innerHTML = '<div class="empty-state">Loading...</div>';
+      const items = await CampusFoodDB.getMenu();
+
+      if (!items || items.length === 0) {
+        browseMenu.innerHTML = '<div class="empty-state">No menu items available</div>';
+        return;
+      }
+
+      browseMenu.innerHTML = items.map(item => `
+        <div class="menu-item">
+          <div class="menu-item-name">${item.name}</div>
+          <div class="menu-item-info">
+            <span>${item.restaurantName}</span>
+            <span class="menu-item-price">₹${item.price}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Search — async
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', async (e) => {
+      const query = e.target.value.trim();
+      const browseMenu = document.getElementById('browseMenu');
+
+      if (!query) {
+        loadMenuItems();
+        return;
+      }
+
+      const items = await CampusFoodDB.getMenu({ search: query });
+
+      if (!items || items.length === 0) {
+        browseMenu.innerHTML = '<div class="empty-state">No items found</div>';
+        return;
+      }
+
+      browseMenu.innerHTML = items.map(item => `
+        <div class="menu-item">
+          <div class="menu-item-name">${item.name}</div>
+          <div class="menu-item-info">
+            <span>${item.restaurantName}</span>
+            <span class="menu-item-price">₹${item.price}</span>
+          </div>
+        </div>
+      `).join('');
+    });
+
+    // Login form — async
+    const loginForm = document.getElementById('loginForm');
+    const successMsg = document.getElementById('successMsg');
+    const errorMsg = document.getElementById('errorMsg');
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+
+      if (!email || !password) {
+        showError('Please fill in all fields');
+        return;
+      }
+
+      const result = await Auth.login(email, password);
+
+      if (result.success) {
+        showSuccess('Login successful! Redirecting...');
+        setTimeout(() => {
+          const user = Auth.getCurrentUser();
+          if (user.role === 'manager') {
+            window.location.href = '../admin/dashboard.html';
+          } else if (user.role === 'hosteller') {
+            window.location.href = '../hosteller/index.html';
+          } else {
+            window.location.href = '../day-scholar/index.html';
+          }
+        }, 1500);
+      } else {
+        showError(result.message);
+      }
+    });
+
+    function showSuccess(msg) {
+      successMsg.textContent = msg;
+      successMsg.classList.add('show');
+      errorMsg.classList.remove('show');
+    }
+
+    function showError(msg) {
+      errorMsg.textContent = msg;
+      errorMsg.classList.add('show');
+      successMsg.classList.remove('show');
+    }
+
+    // Load menu on page load
+    loadMenuItems();
+  </script>
+</body>
+</html>
