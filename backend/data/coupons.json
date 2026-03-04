@@ -1,0 +1,42 @@
+[
+  {
+    "code": "FRESH50",
+    "discount": 50,
+    "discountType": "fixed",
+    "minOrder": 200,
+    "maxUses": 100,
+    "usedCount": 45,
+    "validTill": "2026-12-31",
+    "active": true
+  },
+  {
+    "code": "FIRST100",
+    "discount": 100,
+    "discountType": "fixed",
+    "minOrder": 500,
+    "maxUses": 50,
+    "usedCount": 12,
+    "validTill": "2026-12-31",
+    "active": true
+  },
+  {
+    "code": "STUDENT20",
+    "discount": 20,
+    "discountType": "percent",
+    "minOrder": 150,
+    "maxUses": 1000,
+    "usedCount": 234,
+    "validTill": "2026-12-31",
+    "active": true
+  },
+  {
+    "code": "VEGAN50",
+    "discount": 50,
+    "discountType": "fixed",
+    "minOrder": 300,
+    "maxUses": 75,
+    "usedCount": 23,
+    "validTill": "2026-12-31",
+    "active": true
+  }
+]

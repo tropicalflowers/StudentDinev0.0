@@ -1,0 +1,66 @@
+[
+  {
+    "id": "MESS001",
+    "userId": 2,
+    "userName": "Hosteller User",
+    "meal": "Lunch",
+    "menuOption": "Option 1",
+    "date": "2025-01-15",
+    "time": "12:30",
+    "seat": 42,
+    "status": "confirmed",
+    "createdAt": "2025-01-14"
+  },
+  {
+    "id": "MESS002",
+    "userId": 2,
+    "userName": "Hosteller",
+    "meal": "Lunch",
+    "menuOption": "Option 4",
+    "date": "2026-02-25",
+    "time": "17:20",
+    "seat": 192,
+    "status": "confirmed",
+    "guests": [],
+    "createdAt": "2026-03-04"
+  },
+  {
+    "id": "MESS003",
+    "userId": 2,
+    "userName": "Hosteller",
+    "meal": "Lunch",
+    "menuOption": "Option 4",
+    "date": "2026-02-25",
+    "time": "17:20",
+    "seat": 187,
+    "status": "confirmed",
+    "guests": [],
+    "createdAt": "2026-03-04"
+  },
+  {
+    "id": "MESS004",
+    "userId": 2,
+    "userName": "Hosteller",
+    "meal": "Dinner",
+    "menuOption": "Option 2",
+    "date": "2026-03-10",
+    "time": "16:23",
+    "seat": 150,
+    "status": "confirmed",
+    "guests": [],
+    "createdAt": "2026-03-04"
+  },
+  {
+    "id": "MESS005",
+    "userId": 2,
+    "userName": "Hosteller",
+    "meal": "Lunch",
+    "menuOption": "Option 5",
+    "date": "2026-03-12",
+    "time": "16:34",
+    "seat": 58,
+    "status": "confirmed",
+    "guests": [],
+    "createdAt": "2026-03-04"
+  }
+]

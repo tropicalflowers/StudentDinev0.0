@@ -1,0 +1,41 @@
+[
+  {
+    "id": 1,
+    "email": "student@campus.edu",
+    "rollNumber": "23CS001",
+    "password": "password123",
+    "name": "Aarav Sharma",
+    "role": "student",
+    "wallet": 1500,
+    "createdAt": "2026-01-15"
+  },
+  {
+    "id": 2,
+    "email": "hosteller@campus.edu",
+    "rollNumber": "23HO002",
+    "password": "password123",
+    "name": "Priya Verma",
+    "role": "hosteller",
+    "wallet": 2000,
+    "createdAt": "2026-01-20"
+  },
+  {
+    "id": 3,
+    "email": "manager@campus.edu",
+    "rollNumber": "23MG001",
+    "password": "password123",
+    "name": "Rajesh Gupta",
+    "role": "manager",
+    "wallet": 0,
+    "createdAt": "2025-12-01"
+  },
+  {
+    "id": 4,
+    "email": "jiya2@test.com",
+    "name": "Jiya",
+    "password": "test123",
+    "role": "student",
+    "wallet": 500,
+    "createdAt": "2026-03-03"
+  }
+]
