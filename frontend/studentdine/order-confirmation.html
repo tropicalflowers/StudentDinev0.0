@@ -373,6 +373,28 @@
           </div>
         </div>
 
+        <!-- Feedback Form -->
+        <div class="confirmation-card" id="feedbackCard">
+          <h3>⭐ Rate Your Experience</h3>
+          <p style="font-size:13px; color:var(--muted); margin-bottom:14px">How was your order? Your feedback helps us improve!</p>
+          <div style="display:flex; gap:10px; margin-bottom:14px; font-size:28px" id="starRow">
+            <span style="cursor:pointer" onclick="setRating(1)" id="star1">☆</span>
+            <span style="cursor:pointer" onclick="setRating(2)" id="star2">☆</span>
+            <span style="cursor:pointer" onclick="setRating(3)" id="star3">☆</span>
+            <span style="cursor:pointer" onclick="setRating(4)" id="star4">☆</span>
+            <span style="cursor:pointer" onclick="setRating(5)" id="star5">☆</span>
+          </div>
+          <textarea id="feedbackComment" placeholder="Tell us about your experience..." rows="3"
+            style="width:100%; padding:12px; border-radius:10px; border:1px solid color-mix(in srgb, var(--txt) 12%, transparent);
+            background:transparent; color:var(--txt); font-size:13px; font-family:inherit; resize:none; outline:none; box-sizing:border-box"></textarea>
+          <button onclick="submitFeedback()" id="feedbackBtn"
+            style="margin-top:10px; padding:10px 20px; background:linear-gradient(135deg,var(--pri),var(--pri-2));
+            color:white; border:none; border-radius:10px; font-weight:700; cursor:pointer; font-size:14px">
+            Submit Feedback
+          </button>
+          <div id="feedbackMsg" style="margin-top:10px; font-size:13px; display:none"></div>
+        </div>
+
         <!-- Action Buttons -->
         <div class="btn-group">
           <button class="btn btn-primary" onclick="window.location.href='store.html'">🛍️ Order Again</button>
@@ -411,19 +433,10 @@
     const orderId = urlParams.get('orderId');
     const currentUser = Auth.getCurrentUser();
 
-    function initializeConfirmation() {
-      if (!orderId) {
-        showError('No order ID provided');
-        return;
-      }
-
-      const order = CampusFoodDB.orders.find(o => o.id === orderId && o.userId === currentUser.id);
-
-      if (!order) {
-        showError('Order could not be found. Please check your order history.');
-        return;
-      }
-
+    async function initializeConfirmation() {
+      if (!orderId) { showError('No order ID provided'); return; }
+      const order = await CampusFoodDB.getOrder(orderId);
+      if (!order) { showError('Order could not be found. Please check your order history.'); return; }
       populateOrderDetails(order);
     }
 
@@ -503,6 +516,35 @@
       localStorage.setItem('campus_food_theme', newTheme);
       modeToggle.innerText = newTheme === 'light' ? '☀️' : '🌙';
     });
+
+    // Feedback
+    let selectedRating = 0;
+    function setRating(r) {
+      selectedRating = r;
+      for (let i = 1; i <= 5; i++) {
+        document.getElementById('star' + i).innerText = i <= r ? '⭐' : '☆';
+      }
+    }
+    async function submitFeedback() {
+      if (!selectedRating) { alert('Please select a star rating!'); return; }
+      const comment = document.getElementById('feedbackComment').value.trim();
+      const user = Auth.getCurrentUser();
+      try {
+        const res = await fetch('http://localhost:3000/api/manager/feedback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user.id, userName: user.name, orderId, rating: selectedRating, comment })
+        });
+        const data = await res.json();
+        document.getElementById('feedbackBtn').style.display = 'none';
+        const msg = document.getElementById('feedbackMsg');
+        msg.style.display = 'block';
+        msg.style.color = data.success ? 'var(--accent)' : '#ef4444';
+        msg.innerText = data.success ? '✅ Thanks for your feedback!' : '❌ ' + data.message;
+      } catch(e) {
+        alert('Could not submit feedback. Is the server running?');
+      }
+    }
 
     // Initialize
     initializeConfirmation();

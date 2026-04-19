@@ -77,72 +77,7 @@
       </div>
     </section>
 
-    <section class="section" id="gallerySection">
-      <div class="mb-6 flex items-center space-x-2">
-        <input 
-          type="text" 
-          id="searchMenuInput" 
-          placeholder="🔍 Search menu items, restaurants..." 
-          style="flex: 1; padding: 12px 16px; border-radius: 8px; background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3); color: white; font-size: 14px;"
-        />
-        <button onclick="document.getElementById('searchMenuInput').value = ''; reset_filters()" style="padding: 12px 16px; border-radius: 8px; background: rgba(100,100,100,0.5); border: none; color: white; cursor: pointer;">✕</button>
-      </div>
-
-      <!-- Advanced Filters -->
-      <div class="mb-6" style="padding: 16px; background: rgba(0,212,255,0.05); border: 1px solid rgba(0,212,255,0.3); border-radius: 8px;">
-        <div style="font-size: 12px; font-weight: 600; color: rgba(0,212,255,0.8); margin-bottom: 12px;">🔻 Filters</div>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px;">
-          <!-- Veg/Non-veg Filter -->
-          <div>
-            <label style="font-size: 12px; color: #999; display: block; margin-bottom: 6px;">Type</label>
-            <select id="filterType" style="width: 100%; padding: 8px 12px; background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3); border-radius: 6px; color: white; font-size: 13px;">
-              <option value="">All types</option>
-              <option value="veg">🥬 Veg</option>
-              <option value="non-veg">🍗 Non-Veg</option>
-            </select>
-          </div>
-          <!-- Category Filter -->
-          <div>
-            <label style="font-size: 12px; color: #999; display: block; margin-bottom: 6px;">Category</label>
-            <select id="filterCategory" style="width: 100%; padding: 8px 12px; background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3); border-radius: 6px; color: white; font-size: 13px;">
-              <option value="">All categories</option>
-              <option value="starter">Starter</option>
-              <option value="main">Main</option>
-              <option value="drinks">Drinks</option>
-            </select>
-          </div>
-          <!-- Price Filter -->
-          <div>
-            <label style="font-size: 12px; color: #999; display: block; margin-bottom: 6px;">Max Price</label>
-            <select id="filterPrice" style="width: 100%; padding: 8px 12px; background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3); border-radius: 6px; color: white; font-size: 13px;">
-              <option value="">All prices</option>
-              <option value="100">₹100</option>
-              <option value="200">₹200</option>
-              <option value="300">₹300</option>
-              <option value="500">₹500+</option>
-            </select>
-          </div>
-          <!-- Rating Filter -->
-          <div>
-            <label style="font-size: 12px; color: #999; display: block; margin-bottom: 6px;">Min Rating</label>
-            <select id="filterRating" style="width: 100%; padding: 8px 12px; background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3); border-radius: 6px; color: white; font-size: 13px;">
-              <option value="">All ratings</option>
-              <option value="3">⭐ 3.0+</option>
-              <option value="4">⭐ 4.0+</option>
-              <option value="4.5">⭐ 4.5+</option>
-            </select>
-          </div>
-        </div>
-      </div>
-      
-      <div id="searchResults" style="display: none; margin-bottom: 24px; padding: 16px; background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3); border-radius: 8px;">
-        <h3 style="font-weight: bold; margin-bottom: 12px;">Search Results</h3>
-        <div id="searchResultsList" class="grid"></div>
-      </div>
-
-      <h2>Restaurants & Shops</h2>
-      <div id="gallery" class="grid"></div>
-    </section>
+    
 
     <section class="section">
       <h2>Benefits</h2>

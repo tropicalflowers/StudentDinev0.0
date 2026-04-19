@@ -6,6 +6,8 @@ const menuRoutes = require('./routes/menuRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const couponRoutes = require('./routes/couponRoutes');
 const messRoutes = require('./routes/messRoutes');
+const managerRoutes = require('./routes/managerRoutes');
+
 
 const app = express();
 
@@ -25,6 +27,8 @@ app.use('/api/menu',    menuRoutes);
 app.use('/api/orders',  orderRoutes);
 app.use('/api/coupons', couponRoutes);
 app.use('/api/mess',    messRoutes);
+app.use('/api/manager', managerRoutes);
+
 
 // ── Health check ────────────────────────────────────────────
 app.get('/', (req, res) => {

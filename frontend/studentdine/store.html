@@ -6,328 +6,176 @@
   <title>Order Food • Student Dine Portal</title>
   <link rel="stylesheet" href="style.css" />
   <style>
+    /* ── Layout ── */
     .store-container {
       display: grid;
-      grid-template-columns: 280px 1fr;
+      grid-template-columns: 260px 1fr;
       gap: 20px;
       padding: 20px;
       max-width: 1800px;
       margin: 0 auto;
     }
-
     .sidebar {
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 16px;
       height: fit-content;
       position: sticky;
       top: 100px;
     }
-
     .filter-card {
       background: var(--card);
       border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
       border-radius: 18px;
-      padding: 20px;
+      padding: 18px;
     }
-
-    .filter-card h3 {
-      margin-top: 0;
-      margin-bottom: 15px;
-      font-size: 16px;
-      font-weight: 700;
-    }
-
-    .filter-option {
-      margin-bottom: 12px;
-    }
-
-    .filter-option label {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      cursor: pointer;
-      font-size: 14px;
-      color: var(--txt);
-    }
-
-    .filter-option input[type='checkbox'],
-    .filter-option input[type='radio'] {
-      cursor: pointer;
-    }
-
+    .filter-card h3 { margin: 0 0 12px; font-size: 15px; font-weight: 700; }
+    .filter-option { margin-bottom: 10px; }
+    .filter-option label { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px; color: var(--txt); }
     .search-container {
       background: var(--card);
       border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
       border-radius: 18px;
-      padding: 20px;
-      margin-bottom: 20px;
+      padding: 18px;
     }
-
-    .search-box {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 15px;
-    }
-
+    .search-box { display: flex; gap: 10px; }
     .search-box input {
-      flex: 1;
-      padding: 12px 14px;
+      flex: 1; padding: 12px 14px;
       border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
-      border-radius: 12px;
-      background: transparent;
-      color: var(--txt);
-      font-size: 14px;
-      outline: none;
+      border-radius: 12px; background: transparent; color: var(--txt); font-size: 14px; outline: none;
     }
-
-    .search-box input::placeholder {
-      color: color-mix(in srgb, var(--txt) 30%, transparent);
-    }
-
+    .search-box input::placeholder { color: color-mix(in srgb, var(--txt) 30%, transparent); }
     .search-box button {
       padding: 12px 16px;
       background: linear-gradient(135deg, var(--pri), var(--pri-2));
-      color: white;
-      border: none;
-      border-radius: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: transform 0.2s;
+      color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer;
+    }
+    .main-content { display: flex; flex-direction: column; gap: 20px; }
+    .header-strip {
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 15px;
+    }
+    .header-strip h2 { margin: 0; font-size: 22px; }
+    .sort-by { display: flex; gap: 10px; align-items: center; }
+    .sort-by select {
+      padding: 10px 12px; border-radius: 10px;
+      border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
+      background: transparent; color: var(--txt); font-weight: 600; cursor: pointer;
     }
 
-    .search-box button:hover {
-      transform: translateY(-2px);
-    }
-
-    .main-content {
-      display: flex;
-      flex-direction: column;
+    /* ── Restaurant Cards ── */
+    .restaurant-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
       gap: 20px;
     }
-
-    .header-strip {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 15px;
-    }
-
-    .header-strip h2 {
-      margin: 0;
-      font-size: 24px;
-    }
-
-    .sort-by {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .sort-by select {
-      padding: 10px 12px;
-      border-radius: 10px;
+    .restaurant-card {
+      background: var(--card);
       border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
-      background: transparent;
-      color: var(--txt);
-      font-weight: 600;
-      cursor: pointer;
+      border-radius: 18px; padding: 24px; cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .restaurant-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(0,0,0,0.25); }
+    .restaurant-emoji { font-size: 48px; text-align: center; }
+    .restaurant-name { font-weight: 800; font-size: 18px; }
+    .restaurant-type { font-size: 13px; color: var(--muted); }
+    .restaurant-meta { display: flex; gap: 12px; font-size: 13px; color: var(--muted); }
+    .restaurant-badge {
+      display: inline-block; padding: 4px 10px; border-radius: 999px;
+      background: color-mix(in srgb, var(--pri) 15%, transparent);
+      color: var(--pri); font-size: 12px; font-weight: 600; width: fit-content;
+    }
+    .explore-btn {
+      margin-top: 6px; padding: 10px 16px;
+      background: linear-gradient(135deg, var(--pri), var(--pri-2));
+      color: white; border: none; border-radius: 12px;
+      font-weight: 700; cursor: pointer; font-size: 14px;
     }
 
+    /* ── Menu Cards ── */
     .menu-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
       gap: 20px;
     }
-
     .menu-card {
       background: var(--card);
       border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
-      border-radius: 16px;
-      overflow: hidden;
-      transition: transform 0.3s, box-shadow 0.3s;
+      border-radius: 16px; overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
     }
-
-    .menu-card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
-    }
-
-    .menu-card-image {
-      display: none;
-    }
-
-    .menu-card-body {
-      padding: 15px;
-    }
-
-    .menu-card-name {
-      font-weight: 700;
-      font-size: 15px;
-      margin-bottom: 4px;
-    }
-
-    .menu-card-restaurant {
-      font-size: 12px;
-      color: var(--muted);
-      margin-bottom: 8px;
-    }
-
-    .menu-card-description {
-      font-size: 12px;
-      color: var(--muted);
-      margin-bottom: 12px;
-      min-height: 24px;
-    }
-
-    .menu-card-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .menu-card-price {
-      font-weight: 800;
-      font-size: 14px;
-    }
-
-    .menu-card-rating {
-      font-size: 12px;
-      color: var(--accent);
-    }
-
+    .menu-card:hover { transform: translateY(-6px); box-shadow: 0 12px 30px rgba(0,0,0,0.2); }
+    .menu-card-emoji { font-size: 40px; text-align: center; padding: 18px 0 8px; }
+    .menu-card-body { padding: 14px; }
+    .menu-card-name { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+    .menu-card-restaurant { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    .menu-card-description { font-size: 12px; color: var(--muted); margin-bottom: 12px; min-height: 24px; }
+    .menu-card-footer { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .menu-card-price { font-weight: 800; font-size: 15px; }
+    .menu-card-rating { font-size: 12px; color: var(--accent); }
     .add-to-cart-btn {
-      padding: 8px 12px;
+      padding: 8px 14px;
       background: linear-gradient(135deg, var(--pri), var(--pri-2));
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-weight: 700;
-      font-size: 12px;
-      cursor: pointer;
-      transition: transform 0.2s;
+      color: white; border: none; border-radius: 10px;
+      font-weight: 700; font-size: 13px; cursor: pointer;
+      transition: transform 0.15s;
     }
-
-    .add-to-cart-btn:hover {
-      transform: scale(1.05);
-    }
-
+    .add-to-cart-btn:hover { transform: scale(1.05); }
     .quantity-selector {
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      display: flex; align-items: center; gap: 6px;
       border: 1px solid color-mix(in srgb, var(--pri) 30%, transparent);
-      border-radius: 8px;
-      padding: 4px;
+      border-radius: 8px; padding: 4px;
     }
-
     .quantity-selector button {
-      background: none;
-      border: none;
-      color: var(--pri);
-      cursor: pointer;
-      font-weight: 700;
-      width: 20px;
-      height: 20px;
-      padding: 0;
+      background: none; border: none; color: var(--pri);
+      cursor: pointer; font-weight: 700; width: 22px; height: 22px; padding: 0;
     }
+    .quantity-selector span { min-width: 20px; text-align: center; font-size: 13px; font-weight: 700; }
 
-    .quantity-selector span {
-      min-width: 20px;
-      text-align: center;
-      font-size: 12px;
-      font-weight: 700;
+    /* ── Back button ── */
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 16px; border-radius: 12px;
+      border: 1px solid color-mix(in srgb, var(--txt) 15%, transparent);
+      background: transparent; color: var(--txt);
+      cursor: pointer; font-weight: 600; font-size: 14px;
+      transition: background 0.15s;
     }
+    .back-btn:hover { background: color-mix(in srgb, var(--txt) 8%, transparent); }
 
-    .empty-state {
-      text-align: center;
-      padding: 60px 20px;
-    }
-
-    .empty-state-icon {
-      font-size: 60px;
-      margin-bottom: 20px;
-    }
-
-    .empty-state-title {
-      font-size: 20px;
-      font-weight: 700;
-      margin-bottom: 10px;
-    }
-
-    .empty-state-text {
-      color: var(--muted);
-      margin-bottom: 20px;
-    }
-
+    /* ── Cart badge ── */
     .cart-badge {
-      position: fixed;
-      bottom: 30px;
-      right: 30px;
+      position: fixed; bottom: 30px; right: 30px;
       background: linear-gradient(135deg, var(--pri), var(--pri-2));
-      color: white;
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-      transition: transform 0.2s;
+      color: white; width: 60px; height: 60px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; cursor: pointer;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3); transition: transform 0.2s;
     }
+    .cart-badge:hover { transform: scale(1.1); }
 
-    .cart-badge:hover {
-      transform: scale(1.1);
-    }
+    /* ── Empty state ── */
+    .empty-state { text-align: center; padding: 60px 20px; grid-column: 1 / -1; }
+    .empty-state-icon { font-size: 60px; margin-bottom: 16px; }
+    .empty-state-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+    .empty-state-text { color: var(--muted); }
 
+    /* ── Responsive ── */
     @media (max-width: 1024px) {
-      .store-container {
-        grid-template-columns: 1fr;
-      }
-
-      .sidebar {
-        position: relative;
-        top: 0;
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 15px;
-      }
-
-      .menu-grid {
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      }
+      .store-container { grid-template-columns: 1fr; }
+      .sidebar { position: relative; top: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
     }
-
     @media (max-width: 640px) {
-      .store-container {
-        padding: 15px;
-      }
-
-      .sidebar {
-        grid-template-columns: 1fr;
-      }
-
-      .menu-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 15px;
-      }
-
-      .cart-badge {
-        bottom: 20px;
-        right: 20px;
-        width: 50px;
-        height: 50px;
-        font-size: 20px;
-      }
+      .store-container { padding: 12px; }
+      .sidebar { grid-template-columns: 1fr; }
+      .menu-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .restaurant-grid { grid-template-columns: 1fr 1fr; }
     }
   </style>
 </head>
 <body>
-  <!-- Navigation Bar -->
+  <!-- Nav -->
   <nav class="nav">
     <div class="row">
       <div class="brand">
@@ -345,15 +193,11 @@
 
   <div style="padding-top: 20px; max-width: 1800px; margin: 0 auto">
     <!-- Welcome Banner -->
-    <div
-      style="
-        background: linear-gradient(135deg, color-mix(in srgb, var(--pri) 20%, transparent), color-mix(in srgb, var(--pri-2) 20%, transparent));
-        border-radius: 18px;
-        padding: 30px;
-        margin-bottom: 30px;
-        border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
-      "
-    >
+    <div style="
+      background: linear-gradient(135deg, color-mix(in srgb, var(--pri) 20%, transparent), color-mix(in srgb, var(--pri-2) 20%, transparent));
+      border-radius: 18px; padding: 28px; margin: 0 20px 24px;
+      border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
+    ">
       <h1 style="margin-top: 0; margin-bottom: 5px">Welcome Back! 👋</h1>
       <p style="color: var(--muted); margin: 0" id="walletDisplay">Wallet: ₹500</p>
     </div>
@@ -361,115 +205,64 @@
     <div class="store-container">
       <!-- Sidebar Filters -->
       <div class="sidebar">
-        <!-- Search -->
         <div class="search-container">
           <div class="search-box">
-            <input
-              type="text"
-              id="searchInput"
-              placeholder="Search food..."
-              autocomplete="off"
-            />
+            <input type="text" id="searchInput" placeholder="Search food..." autocomplete="off" />
             <button onclick="performSearch()">🔍</button>
           </div>
         </div>
 
-        <!-- Filters -->
         <div class="filter-card">
           <h3>🥗 Type</h3>
           <div class="filter-option">
-            <label>
-              <input type="radio" name="type" value="all" checked onchange="applyFilters()" />
-              All items
-            </label>
+            <label><input type="radio" name="type" value="all" checked onchange="applyFilters()" /> All items</label>
           </div>
           <div class="filter-option">
-            <label>
-              <input
-                type="radio"
-                name="type"
-                value="veg"
-                onchange="applyFilters()"
-              />
-              Vegetarian
-            </label>
+            <label><input type="radio" name="type" value="veg" onchange="applyFilters()" /> Vegetarian</label>
           </div>
           <div class="filter-option">
-            <label>
-              <input
-                type="radio"
-                name="type"
-                value="non-veg"
-                onchange="applyFilters()"
-              />
-              Non-Vegetarian
-            </label>
+            <label><input type="radio" name="type" value="non-veg" onchange="applyFilters()" /> Non-Vegetarian</label>
           </div>
         </div>
 
         <div class="filter-card">
           <h3>🏷️ Category</h3>
           <div class="filter-option">
-            <label>
-              <input type="checkbox" value="all" onchange="this.form?.reset(); applyFilters()" />
-              All
-            </label>
+            <label><input type="checkbox" value="starter" onchange="applyFilters()" /> Starters</label>
           </div>
           <div class="filter-option">
-            <label>
-              <input type="checkbox" value="starter" onchange="applyFilters()" />
-              Starters
-            </label>
+            <label><input type="checkbox" value="main" onchange="applyFilters()" /> Main Course</label>
           </div>
           <div class="filter-option">
-            <label>
-              <input type="checkbox" value="main" onchange="applyFilters()" />
-              Main Course
-            </label>
-          </div>
-          <div class="filter-option">
-            <label>
-              <input type="checkbox" value="drinks" onchange="applyFilters()" />
-              Drinks
-            </label>
+            <label><input type="checkbox" value="drinks" onchange="applyFilters()" /> Drinks</label>
           </div>
         </div>
 
         <div class="filter-card">
           <h3>💰 Price Range</h3>
           <div class="filter-option">
-            <label>
-              <input type="checkbox" value="under-100" onchange="applyFilters()" />
-              Under ₹100
-            </label>
+            <label><input type="checkbox" value="under-100" onchange="applyFilters()" /> Under ₹100</label>
           </div>
           <div class="filter-option">
-            <label>
-              <input type="checkbox" value="100-250" onchange="applyFilters()" />
-              ₹100 - ₹250
-            </label>
+            <label><input type="checkbox" value="100-250" onchange="applyFilters()" /> ₹100 - ₹250</label>
           </div>
           <div class="filter-option">
-            <label>
-              <input type="checkbox" value="250-500" onchange="applyFilters()" />
-              ₹250 - ₹500
-            </label>
+            <label><input type="checkbox" value="250-500" onchange="applyFilters()" /> ₹250 - ₹500</label>
           </div>
           <div class="filter-option">
-            <label>
-              <input type="checkbox" value="above-500" onchange="applyFilters()" />
-              Above ₹500
-            </label>
+            <label><input type="checkbox" value="above-500" onchange="applyFilters()" /> Above ₹500</label>
           </div>
         </div>
       </div>
 
       <!-- Main Content -->
       <div class="main-content">
-        <!-- Header -->
         <div class="header-strip">
-          <h2 id="contentTitle">🍽️ All Items</h2>
-          <div class="sort-by">
+          <div style="display:flex; align-items:center; gap:12px">
+            <button class="back-btn" id="backBtn" style="display:none" onclick="showRestaurants()">← All Restaurants</button>
+            <h2 id="contentTitle">🏪 Restaurants & Shops</h2>
+          </div>
+          <div class="sort-by" id="sortSection" style="display:none">
             <label>Sort by:</label>
             <select id="sortBy" onchange="applyFilters()">
               <option value="popular">Popular</option>
@@ -480,16 +273,19 @@
           </div>
         </div>
 
-        <!-- Menu Grid -->
-        <div class="menu-grid" id="menuGrid"></div>
+        <!-- Restaurant Grid -->
+        <div class="restaurant-grid" id="restaurantGrid"></div>
+
+        <!-- Menu Grid (hidden initially) -->
+        <div class="menu-grid" id="menuGrid" style="display:none"></div>
       </div>
     </div>
   </div>
 
   <!-- Cart Badge -->
   <div class="cart-badge" onclick="window.location.href='checkout.html'" id="cartBadge">
-    <div style="text-align: center">
-      <div style="font-size: 12px">🛒</div>
+    <div style="text-align:center">
+      <div style="font-size:12px">🛒</div>
       <div id="cartCount">0</div>
     </div>
   </div>
@@ -498,168 +294,247 @@
   <script src="auth.js"></script>
   <script src="cart.js"></script>
   <script>
-    // Check authentication
     if (!Auth.isAuthenticated()) {
       window.location.href = 'auth/login.html';
     }
 
     let allMenuItems = [];
     let filteredItems = [];
+    let currentRestaurant = null; // null = showing all restaurants
+    let restaurants = [];         // derived from menu items
 
-    // Update wallet display
+    // ── Wallet & cart ──────────────────────────────────────
     function updateWalletDisplay() {
       const user = Auth.getCurrentUser();
       document.getElementById('walletDisplay').innerText = `Wallet: ₹${user.wallet}`;
     }
-
-    // Update cart badge
     function updateCartBadge() {
       document.getElementById('cartCount').innerText = Cart.getTotalItems();
     }
 
-    // Search
-    function performSearch() {
-      const query = document.getElementById('searchInput').value.trim();
-      if (query) {
-        CampusFoodDB.getMenu({ search: query }).then(items => { filteredItems = items; renderMenu(); }); return;
-        document.getElementById('contentTitle').innerText = `🔍 Search Results for "${query}"`;
-      } else {
-        filteredItems = [...allMenuItems];
-        document.getElementById('contentTitle').innerText = '🍽️ All Items';
+    // ── Build restaurant list from menu items ──────────────
+    function buildRestaurants(items) {
+      const map = {};
+      items.forEach(item => {
+        if (!map[item.restaurantId]) {
+          map[item.restaurantId] = {
+            id: item.restaurantId,
+            name: item.restaurantName,
+            items: [],
+          };
+        }
+        map[item.restaurantId].items.push(item);
+      });
+      return Object.values(map);
+    }
+
+    // ── Restaurant emoji map ───────────────────────────────
+    const RESTAURANT_EMOJI = {
+      'royal-thali':    '🍛',
+      'bean-bloom':     '☕',
+      'pizza-piazza':   '🍕',
+      'spice-route':    '🌶️',
+      'campus-caffeine':'🧋',
+      'java-jar':       '🫙',
+      'brew-buddy':     '🍵',
+      'cake-corner':    '🎂',
+      'levain-lab':     '🥖',
+      'eclair-atelier': '🥐',
+      'ramen-rush':     '🍜',
+      'taco-trail':     '🌮',
+      'slice-street':   '🍕',
+      'tadka-house':    '🍲',
+    };
+
+    // ── Show restaurant grid ───────────────────────────────
+    function showRestaurants() {
+      currentRestaurant = null;
+      document.getElementById('backBtn').style.display = 'none';
+      document.getElementById('sortSection').style.display = 'none';
+      document.getElementById('contentTitle').innerText = '🏪 Restaurants & Shops';
+      document.getElementById('restaurantGrid').style.display = 'grid';
+      document.getElementById('menuGrid').style.display = 'none';
+      // reset filters
+      document.querySelector('input[name="type"][value="all"]').checked = true;
+      document.querySelectorAll('.filter-card input[type="checkbox"]').forEach(cb => cb.checked = false);
+      renderRestaurants(restaurants);
+    }
+
+    // ── Render restaurant cards ────────────────────────────
+    function renderRestaurants(list) {
+      const grid = document.getElementById('restaurantGrid');
+      if (!list.length) {
+        grid.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🏪</div><div class="empty-state-title">No restaurants found</div></div>`;
+        return;
       }
+      grid.innerHTML = list.map(r => {
+        const emoji = RESTAURANT_EMOJI[r.id] || '🍽️';
+        const avgRating = (r.items.reduce((s, i) => s + i.rating, 0) / r.items.length).toFixed(1);
+        const minPrice = Math.min(...r.items.map(i => i.price));
+        const types = [...new Set(r.items.map(i => i.type))];
+        const typeBadge = types.includes('veg') && types.includes('non-veg') ? 'Veg & Non-Veg' : types[0] === 'veg' ? '🥬 Veg' : '🍗 Non-Veg';
+        return `
+          <div class="restaurant-card" onclick="showRestaurantMenu('${r.id}')">
+            <div class="restaurant-emoji">${emoji}</div>
+            <div class="restaurant-name">${r.name}</div>
+            <div class="restaurant-meta">
+              <span>★ ${avgRating}</span>
+              <span>•</span>
+              <span>From ₹${minPrice}</span>
+              <span>•</span>
+              <span>${r.items.length} items</span>
+            </div>
+            <div class="restaurant-badge">${typeBadge}</div>
+            <button class="explore-btn">Explore Menu →</button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ── Show menu for a specific restaurant ───────────────
+    function showRestaurantMenu(restaurantId) {
+      currentRestaurant = restaurantId;
+      const restaurant = restaurants.find(r => r.id === restaurantId);
+      filteredItems = [...restaurant.items];
+
+      document.getElementById('backBtn').style.display = 'inline-flex';
+      document.getElementById('sortSection').style.display = 'flex';
+      document.getElementById('contentTitle').innerText = `${RESTAURANT_EMOJI[restaurantId] || '🍽️'} ${restaurant.name}`;
+      document.getElementById('restaurantGrid').style.display = 'none';
+      document.getElementById('menuGrid').style.display = 'grid';
+
       renderMenu();
     }
 
-    document.getElementById('searchInput').addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        performSearch();
-      }
+    // ── Search ─────────────────────────────────────────────
+    function performSearch() {
+      const query = document.getElementById('searchInput').value.trim().toLowerCase();
+      if (!query) { showRestaurants(); return; }
+
+      // Search across all items
+      filteredItems = allMenuItems.filter(item =>
+        item.name.toLowerCase().includes(query) ||
+        item.restaurantName.toLowerCase().includes(query) ||
+        item.description.toLowerCase().includes(query)
+      );
+
+      currentRestaurant = 'search';
+      document.getElementById('backBtn').style.display = 'inline-flex';
+      document.getElementById('sortSection').style.display = 'flex';
+      document.getElementById('contentTitle').innerText = `🔍 Results for "${query}"`;
+      document.getElementById('restaurantGrid').style.display = 'none';
+      document.getElementById('menuGrid').style.display = 'grid';
+      renderMenu();
+    }
+
+    document.getElementById('searchInput').addEventListener('keypress', e => {
+      if (e.key === 'Enter') performSearch();
     });
 
-    // Apply filters
+    // ── Filters (only apply when in menu view) ────────────
     function applyFilters() {
+      if (!currentRestaurant) return; // on restaurant grid, filters don't apply
+
+      const baseItems = currentRestaurant === 'search'
+        ? allMenuItems.filter(item => {
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
+            return item.name.toLowerCase().includes(query) || item.restaurantName.toLowerCase().includes(query);
+          })
+        : restaurants.find(r => r.id === currentRestaurant)?.items || [];
+
       const selectedType = document.querySelector('input[name="type"]:checked').value;
-      const selectedCategories = Array.from(
-        document.querySelectorAll('input[value="starter"], input[value="main"], input[value="drinks"]')
-      )
-        .filter(cb => cb.checked)
-        .map(cb => cb.value);
-      const selectedPrices = Array.from(document.querySelectorAll('input[value*="-"], input[value="under-100"], input[value="above-500"]'))
-        .filter(cb => cb.checked)
-        .map(cb => cb.value);
+      const selectedCategories = Array.from(document.querySelectorAll('input[value="starter"], input[value="main"], input[value="drinks"]'))
+        .filter(cb => cb.checked).map(cb => cb.value);
+      const selectedPrices = Array.from(document.querySelectorAll('input[value="under-100"], input[value="100-250"], input[value="250-500"], input[value="above-500"]'))
+        .filter(cb => cb.checked).map(cb => cb.value);
 
-      filteredItems = allMenuItems.filter(item => {
-        // Type filter
+      filteredItems = baseItems.filter(item => {
         if (selectedType !== 'all' && item.type !== selectedType) return false;
-
-        // Category filter
         if (selectedCategories.length > 0 && !selectedCategories.includes(item.category)) return false;
-
-        // Price filter
         if (selectedPrices.length > 0) {
-          let priceMatch = false;
+          let match = false;
           selectedPrices.forEach(range => {
-            if (range === 'under-100' && item.price < 100) priceMatch = true;
-            if (range === '100-250' && item.price >= 100 && item.price <= 250) priceMatch = true;
-            if (range === '250-500' && item.price > 250 && item.price <= 500) priceMatch = true;
-            if (range === 'above-500' && item.price > 500) priceMatch = true;
+            if (range === 'under-100' && item.price < 100) match = true;
+            if (range === '100-250' && item.price >= 100 && item.price <= 250) match = true;
+            if (range === '250-500' && item.price > 250 && item.price <= 500) match = true;
+            if (range === 'above-500' && item.price > 500) match = true;
           });
-          if (!priceMatch) return false;
+          if (!match) return false;
         }
-
         return true;
       });
 
-      // Sort
       const sortBy = document.getElementById('sortBy').value;
-      if (sortBy === 'price-low') {
-        filteredItems.sort((a, b) => a.price - b.price);
-      } else if (sortBy === 'price-high') {
-        filteredItems.sort((a, b) => b.price - a.price);
-      } else if (sortBy === 'rating') {
-        filteredItems.sort((a, b) => b.rating - a.rating);
-      }
+      if (sortBy === 'price-low') filteredItems.sort((a, b) => a.price - b.price);
+      else if (sortBy === 'price-high') filteredItems.sort((a, b) => b.price - a.price);
+      else if (sortBy === 'rating') filteredItems.sort((a, b) => b.rating - a.rating);
 
       renderMenu();
     }
 
-    // Render menu
+    // ── Render menu items ──────────────────────────────────
     function renderMenu() {
       const grid = document.getElementById('menuGrid');
-
       if (filteredItems.length === 0) {
         grid.innerHTML = `
-          <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px">
+          <div class="empty-state">
             <div class="empty-state-icon">🔍</div>
             <div class="empty-state-title">No items found</div>
             <p class="empty-state-text">Try different filters or search terms</p>
-          </div>
-        `;
+          </div>`;
         return;
       }
-
-      grid.innerHTML = filteredItems
-        .map(item => {
-          const cartItem = Cart.items.find(ci => ci.id === item.id);
-          const quantity = cartItem ? cartItem.quantity : 0;
-
-          return `
-            <div class="menu-card">
-              <div class="menu-card-body">
-                <div class="menu-card-name">${item.name}</div>
-                <div class="menu-card-restaurant">${item.restaurantName}</div>
-                <div class="menu-card-description">${item.description}</div>
-                <div class="menu-card-footer">
-                  <div>
-                    <div class="menu-card-price">₹${item.price}</div>
-                    <div class="menu-card-rating">★ ${item.rating}</div>
-                  </div>
-                  <div>
-                    ${quantity > 0
-                      ? `
-                        <div class="quantity-selector">
-                          <button onclick="updateItemQuantity(${item.id}, ${quantity - 1})">−</button>
-                          <span>${quantity}</span>
-                          <button onclick="updateItemQuantity(${item.id}, ${quantity + 1})">+</button>
-                        </div>
-                      `
-                      : `<button class="add-to-cart-btn" onclick="addToCart(${JSON.stringify(item).replace(/"/g, '&quot;')})">Add</button>`}
-                  </div>
+      grid.innerHTML = filteredItems.map(item => {
+        const cartItem = Cart.items.find(ci => ci.id === item.id);
+        const quantity = cartItem ? cartItem.quantity : 0;
+        const emoji = item.image || '🍽️';
+        return `
+          <div class="menu-card">
+            <div class="menu-card-emoji">${emoji}</div>
+            <div class="menu-card-body">
+              <div class="menu-card-name">${item.name}</div>
+              <div class="menu-card-restaurant">${item.restaurantName}</div>
+              <div class="menu-card-description">${item.description}</div>
+              <div class="menu-card-footer">
+                <div>
+                  <div class="menu-card-price">₹${item.price}</div>
+                  <div class="menu-card-rating">★ ${item.rating}</div>
+                </div>
+                <div>
+                  ${quantity > 0
+                    ? `<div class="quantity-selector">
+                        <button onclick="updateItemQuantity(${item.id}, ${quantity - 1})">−</button>
+                        <span>${quantity}</span>
+                        <button onclick="updateItemQuantity(${item.id}, ${quantity + 1})">+</button>
+                      </div>`
+                    : `<button class="add-to-cart-btn" onclick="addToCart(${JSON.stringify(item).replace(/"/g, '&quot;')})">Add</button>`
+                  }
                 </div>
               </div>
             </div>
-          `;
-        })
-        .join('');
+          </div>`;
+      }).join('');
     }
 
-    // Add to cart
+    // ── Cart actions ───────────────────────────────────────
     function addToCart(item) {
       Cart.addItem(item, 1);
       updateCartBadge();
       renderMenu();
-      alert('✅ Item added to cart!');
     }
 
-    // Update item quantity
     function updateItemQuantity(itemId, newQuantity) {
-      if (newQuantity <= 0) {
-        Cart.removeItem(itemId);
-      } else {
-        Cart.updateQuantity(itemId, newQuantity);
-      }
+      if (newQuantity <= 0) Cart.removeItem(itemId);
+      else Cart.updateQuantity(itemId, newQuantity);
       updateCartBadge();
       renderMenu();
     }
 
-    // Theme toggle
+    // ── Theme toggle ───────────────────────────────────────
     const modeToggle = document.getElementById('modeToggle');
-    const theme = localStorage.getItem('campus_food_theme') || 'light';
-    if (theme === 'light') {
-      document.documentElement.classList.add('light');
-    }
+    const theme = localStorage.getItem('campus_food_theme') || 'dark';
+    if (theme === 'light') document.documentElement.classList.add('light');
     modeToggle.innerText = theme === 'light' ? '☀️' : '🌙';
-
     modeToggle.addEventListener('click', () => {
       document.documentElement.classList.toggle('light');
       const newTheme = document.documentElement.classList.contains('light') ? 'light' : 'dark';
@@ -667,10 +542,14 @@
       modeToggle.innerText = newTheme === 'light' ? '☀️' : '🌙';
     });
 
-    // Initialize
+    // ── Init ───────────────────────────────────────────────
     updateWalletDisplay();
     updateCartBadge();
-    CampusFoodDB.getMenu().then(items => { allMenuItems = items; filteredItems = [...items]; renderMenu(); });
+    CampusFoodDB.getMenu().then(items => {
+      allMenuItems = items;
+      restaurants = buildRestaurants(items);
+      renderRestaurants(restaurants);
+    });
   </script>
 </body>
 </html>

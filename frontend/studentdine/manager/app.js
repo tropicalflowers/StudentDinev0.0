@@ -195,7 +195,7 @@ $("#btnLogin")?.addEventListener("click",()=>{
 });
 
 /* CTA buttons */
-$("#ctaStartOrder")?.addEventListener("click",()=>openGallery());
+$("#ctaStartOrder")?.addEventListener("click",()=>window.location.href="../store.html");
 $("#ctaMess")?.addEventListener("click",()=>openMessBooking());
 $("#ctaManage")?.addEventListener("click",()=>openManage('day'));
 
@@ -580,9 +580,29 @@ function openMessHistory(){
 }
 
 /* Manager: dashboards */
-function openManage(scope){
+async function openManage(scope){
   const fontMap = {"day":"'Poppins',sans-serif","hostel":"'Rubik',sans-serif","staff":"'Inter',sans-serif"};
-  const stats = getManagerStats(scope);
+
+  // Fetch real stats from backend
+  let stats = { totalSales:0, todaySales:0, totalServed:0, todayOrders:0, popularDish:'No orders yet', avgRating:'N/A', totalFeedback:0 };
+  let feedbackRows = '<tr><td colspan="4" style="color:#888">No feedback yet</td></tr>';
+
+  try {
+    const statsRes = await fetch('http://localhost:3000/api/manager/stats');
+    const statsData = await statsRes.json();
+    if (statsData.success) stats = statsData.stats;
+
+    const fbRes = await fetch('http://localhost:3000/api/manager/feedback');
+    const fbData = await fbRes.json();
+    if (fbData.success && fbData.feedback.length) {
+      feedbackRows = fbData.feedback.slice(-5).reverse().map(f =>
+        `<tr><td>${f.orderId}</td><td>${f.userName}</td><td>${'⭐'.repeat(Math.round(f.rating))} ${f.rating}</td><td>${f.comment}</td></tr>`
+      ).join('');
+    }
+  } catch(e) {
+    feedbackRows = '<tr><td colspan="4" style="color:#f87">Could not connect to backend</td></tr>';
+  }
+
   const w = window.open("", "_blank");
   const html = `<!doctype html><html><head><title>Manage ${scope}</title><style>
     :root{--bg:#0b1020;--txt:#eef2ff;--pri:#7c5cff}
@@ -590,20 +610,21 @@ function openManage(scope){
     .wrap{max-width:1100px;margin:0 auto;padding:22px}
     .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
     .card{background:#121936;border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:14px}
-    .wide{grid-column: span 2}
+    .wide{grid-column:span 2}
     table{width:100%;border-collapse:collapse}
     th,td{padding:8px;border-bottom:1px solid rgba(255,255,255,.15);text-align:left}
     .row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
     input,select{padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:transparent;color:#eef2ff}
     button{border:0;background:linear-gradient(135deg,#7c5cff,#00d4ff);color:white;padding:10px 12px;border-radius:10px;cursor:pointer}
+    .live{font-size:11px;color:#00d4ff;margin-left:8px}
   </style></head><body>
     <div class="wrap">
-      <h1>🧰 Manage • ${scope.toUpperCase()}</h1>
+      <h1>🧰 Manage • ${scope.toUpperCase()} <span class="live">● LIVE DATA</span></h1>
       <div class="grid">
-        <div class="card"><h3>Daily Sales</h3><div style="font-size:28px;font-weight:800">₹${stats.sales}</div></div>
-        <div class="card"><h3>Popular Dish</h3><div style="font-size:22px;font-weight:800">${stats.popular}</div></div>
-        <div class="card"><h3>Total Served</h3><div style="font-size:28px;font-weight:800">${stats.served}</div></div>
-        <div class="card"><h3>Active Staff</h3><div style="font-size:28px;font-weight:800">${stats.staff}</div></div>
+        <div class="card"><h3>Today's Sales</h3><div style="font-size:28px;font-weight:800">₹${stats.todaySales}</div><div style="font-size:12px;color:#9fb0d3">All-time: ₹${stats.totalSales}</div></div>
+        <div class="card"><h3>Popular Dish</h3><div style="font-size:22px;font-weight:800">${stats.popularDish}</div></div>
+        <div class="card"><h3>Total Orders</h3><div style="font-size:28px;font-weight:800">${stats.totalServed}</div><div style="font-size:12px;color:#9fb0d3">Today: ${stats.todayOrders}</div></div>
+        <div class="card"><h3>Avg Rating</h3><div style="font-size:28px;font-weight:800">${stats.avgRating} ⭐</div><div style="font-size:12px;color:#9fb0d3">${stats.totalFeedback} reviews</div></div>
         <div class="card wide"><h3>Staff Management</h3>
           <div class="row">
             <input placeholder="Name"/>
@@ -612,24 +633,13 @@ function openManage(scope){
           </div>
           <button style="margin-top:8px">Add / Update</button>
         </div>
-        <div class="card wide"><h3>Customer Feedback (sample)</h3>
-          <table><thead><tr><th>Order #</th><th>Rating</th><th>Feedback</th></tr></thead>
-            <tbody>
-              <tr><td>10421</td><td>4.5</td><td>Great taste and quick service.</td></tr>
-              <tr><td>10422</td><td>3.8</td><td>Could be hotter.</td></tr>
-            </tbody>
+        <div class="card wide"><h3>Customer Feedback <span class="live">● LIVE</span></h3>
+          <table><thead><tr><th>Order #</th><th>User</th><th>Rating</th><th>Comment</th></tr></thead>
+            <tbody>${feedbackRows}</tbody>
           </table>
         </div>
       </div>
     </div>
   </body></html>`;
   w.document.open(); w.document.write(html); w.document.close();
-}
-function getManagerStats(scope){
-  const base = {day:7000, hostel:13000, staff:250}[scope];
-  const served = Math.floor(base * (0.15 + Math.random()*0.35));
-  const sales = served * (120 + Math.floor(Math.random()*180));
-  const popular = ["Butter Chicken","Margherita","Shoyu Ramen","Mango Lassi","Veg Burger"][Math.floor(Math.random()*5)];
-  const staff = scope==='staff' ? 250 : 120 + Math.floor(Math.random()*60);
-  return {served, sales, popular, staff};
 }
