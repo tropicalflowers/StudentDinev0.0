@@ -8,6 +8,8 @@ const couponRoutes = require('./routes/couponRoutes');
 const messRoutes = require('./routes/messRoutes');
 const managerRoutes = require('./routes/managerRoutes');
 
+const loggerMiddleware = require('./middleware/logger');
+const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 
@@ -20,6 +22,9 @@ app.use(cors({
 
 // Parse incoming JSON requests
 app.use(express.json());
+
+// Logger Middleware
+app.use(loggerMiddleware);
 
 // ── Routes ──────────────────────────────────────────────────
 app.use('/api/auth',    authRoutes);
@@ -41,9 +46,6 @@ app.use((req, res) => {
 });
 
 // ── Global Error Handler ────────────────────────────────────
-app.use((err, req, res, next) => {
-  console.error('Error:', err.message);
-  res.status(500).json({ success: false, message: 'Internal server error' });
-});
+app.use(errorHandler);
 
 module.exports = app;
