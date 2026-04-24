@@ -14,10 +14,33 @@ const errorHandler = require('./middleware/errorHandler');
 const app = express();
 
 // ── Middleware ──────────────────────────────────────────────
-// Allow frontend (localhost:8000) to talk to backend (localhost:3000)
+// CORS configuration - Allow frontend to talk to backend
+const allowedOrigins = [
+  'http://localhost:8000',
+  'http://localhost:3001',
+  'http://127.0.0.1:8000',
+  'http://127.0.0.1:3001',
+];
+
 app.use(cors({
-  origin: 'http://localhost:8000',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      // In development, allow any localhost origin
+      if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
 }));
 
 // Parse incoming JSON requests

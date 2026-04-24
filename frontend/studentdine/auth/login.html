@@ -361,6 +361,84 @@
       font-size: 12px;
     }
 
+    /* Password Input with Toggle */
+    .password-input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .password-input-wrapper input {
+      padding-right: 44px;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 8px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+    }
+
+    .toggle-password:hover {
+      opacity: 1;
+    }
+
+    .eye-icon {
+      font-size: 16px;
+    }
+
+    /* Field Errors */
+    .field-error {
+      display: block;
+      font-size: 11px;
+      color: #ef4444;
+      margin-top: 4px;
+      min-height: 16px;
+    }
+
+    /* Input validation states */
+    .form-group input.error {
+      border-color: #ef4444;
+    }
+
+    .form-group input.valid {
+      border-color: #22c55e;
+    }
+
+    /* Button loading state */
+    .btn-primary:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-loader {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-loader::before {
+      content: '';
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
     @media (max-width: 768px) {
       .main-content {
         grid-template-columns: 1fr;
@@ -452,30 +530,42 @@
       <div class="alert alert-success" id="successMsg"></div>
       <div class="alert alert-error" id="errorMsg"></div>
 
-      <form id="loginForm">
+      <form id="loginForm" novalidate>
         <div class="form-group">
-          <label for="email">Email</label>
+          <label for="identifier">Email or Roll Number</label>
           <input 
-            type="email" 
-            id="email" 
-            name="email" 
-            placeholder="student@campus.edu"
+            type="text" 
+            id="identifier" 
+            name="identifier" 
+            placeholder="student@campus.edu or CS2024001"
+            autocomplete="username"
             required 
           />
+          <span class="field-error" id="identifierError"></span>
         </div>
 
         <div class="form-group">
           <label for="password">Password</label>
-          <input 
-            type="password" 
-            id="password" 
-            name="password" 
-            placeholder="••••••••"
-            required 
-          />
+          <div class="password-input-wrapper">
+            <input 
+              type="password" 
+              id="password" 
+              name="password" 
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              required 
+            />
+            <button type="button" class="toggle-password" aria-label="Toggle password visibility">
+              <span class="eye-icon">👁️</span>
+            </button>
+          </div>
+          <span class="field-error" id="passwordError"></span>
         </div>
 
-        <button type="submit" class="btn-primary">Sign In</button>
+        <button type="submit" class="btn-primary" id="submitBtn">
+          <span class="btn-text">Sign In</span>
+          <span class="btn-loader" style="display: none;">Signing in...</span>
+        </button>
       </form>
 
       <div class="divider"><span>OR</span></div>
@@ -561,23 +651,112 @@
       `).join('');
     });
 
-    // Login form — async
+    // Login form with improved validation and UX
     const loginForm = document.getElementById('loginForm');
     const successMsg = document.getElementById('successMsg');
     const errorMsg = document.getElementById('errorMsg');
+    const submitBtn = document.getElementById('submitBtn');
 
+    // Field references
+    const identifierInput = document.getElementById('identifier');
+    const passwordInput = document.getElementById('password');
+    const identifierError = document.getElementById('identifierError');
+    const passwordError = document.getElementById('passwordError');
+
+    // Real-time validation
+    identifierInput.addEventListener('blur', () => validateField('identifier'));
+    passwordInput.addEventListener('blur', () => validateField('password'));
+
+    // Password visibility toggle
+    document.querySelector('.toggle-password').addEventListener('click', (e) => {
+      const wrapper = e.currentTarget.closest('.password-input-wrapper');
+      const input = wrapper.querySelector('input');
+      const icon = e.currentTarget.querySelector('.eye-icon');
+      
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.textContent = '🙈';
+      } else {
+        input.type = 'password';
+        icon.textContent = '👁️';
+      }
+    });
+
+    // Field validation
+    function validateField(field) {
+      let isValid = true;
+      
+      switch(field) {
+        case 'identifier':
+          const identifier = identifierInput.value.trim();
+          if (!identifier) {
+            identifierError.textContent = 'Please enter your email or roll number';
+            identifierInput.classList.add('error');
+            identifierInput.classList.remove('valid');
+            isValid = false;
+          } else {
+            identifierError.textContent = '';
+            identifierInput.classList.remove('error');
+            identifierInput.classList.add('valid');
+          }
+          break;
+
+        case 'password':
+          const password = passwordInput.value;
+          if (!password) {
+            passwordError.textContent = 'Please enter your password';
+            passwordInput.classList.add('error');
+            passwordInput.classList.remove('valid');
+            isValid = false;
+          } else {
+            passwordError.textContent = '';
+            passwordInput.classList.remove('error');
+            passwordInput.classList.add('valid');
+          }
+          break;
+      }
+      
+      return isValid;
+    }
+
+    // Set loading state
+    function setLoading(loading) {
+      const btnText = submitBtn.querySelector('.btn-text');
+      const btnLoader = submitBtn.querySelector('.btn-loader');
+      
+      if (loading) {
+        submitBtn.disabled = true;
+        btnText.style.display = 'none';
+        btnLoader.style.display = 'inline-flex';
+      } else {
+        submitBtn.disabled = false;
+        btnText.style.display = 'inline';
+        btnLoader.style.display = 'none';
+      }
+    }
+
+    // Form submission
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value.trim();
+      // Validate all fields
+      const isIdentifierValid = validateField('identifier');
+      const isPasswordValid = validateField('password');
 
-      if (!email || !password) {
-        showError('Please fill in all fields');
+      if (!isIdentifierValid || !isPasswordValid) {
+        showError('Please fix the errors above');
         return;
       }
 
-      const result = await Auth.login(email, password);
+      const identifier = identifierInput.value.trim();
+      const password = passwordInput.value;
+
+      setLoading(true);
+      hideMessages();
+
+      const result = await Auth.login(identifier, password);
+
+      setLoading(false);
 
       if (result.success) {
         showSuccess('Login successful! Redirecting...');
@@ -590,9 +769,12 @@
           } else {
             window.location.href = '../day-scholar/index.html';
           }
-        }, 1500);
+        }, 1000);
       } else {
-        showError(result.message);
+        showError(result.message || 'Login failed. Please check your credentials.');
+        // Clear password on failed login
+        passwordInput.value = '';
+        passwordInput.classList.remove('valid');
       }
     });
 
@@ -600,12 +782,31 @@
       successMsg.textContent = msg;
       successMsg.classList.add('show');
       errorMsg.classList.remove('show');
+      successMsg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     function showError(msg) {
       errorMsg.textContent = msg;
       errorMsg.classList.add('show');
       successMsg.classList.remove('show');
+      errorMsg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function hideMessages() {
+      successMsg.classList.remove('show');
+      errorMsg.classList.remove('show');
+    }
+
+    // Check if already logged in
+    if (Auth.isAuthenticated()) {
+      const user = Auth.getCurrentUser();
+      if (user.role === 'manager') {
+        window.location.href = '../admin/dashboard.html';
+      } else if (user.role === 'hosteller') {
+        window.location.href = '../hosteller/index.html';
+      } else {
+        window.location.href = '../day-scholar/index.html';
+      }
     }
 
     // Load menu on page load
