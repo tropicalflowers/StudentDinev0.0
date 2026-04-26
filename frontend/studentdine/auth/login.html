@@ -761,14 +761,7 @@
       if (result.success) {
         showSuccess('Login successful! Redirecting...');
         setTimeout(() => {
-          const user = Auth.getCurrentUser();
-          if (user.role === 'manager') {
-            window.location.href = '../admin/dashboard.html';
-          } else if (user.role === 'hosteller') {
-            window.location.href = '../hosteller/index.html';
-          } else {
-            window.location.href = '../day-scholar/index.html';
-          }
+          window.location.href = getPostAuthRedirect();
         }, 1000);
       } else {
         showError(result.message || 'Login failed. Please check your credentials.');
@@ -799,14 +792,19 @@
 
     // Check if already logged in
     if (Auth.isAuthenticated()) {
+      window.location.href = getPostAuthRedirect();
+    }
+
+    function getPostAuthRedirect() {
       const user = Auth.getCurrentUser();
-      if (user.role === 'manager') {
-        window.location.href = '../admin/dashboard.html';
-      } else if (user.role === 'hosteller') {
-        window.location.href = '../hosteller/index.html';
-      } else {
-        window.location.href = '../day-scholar/index.html';
+
+      if (user?.role === 'manager') {
+        localStorage.removeItem('campus_food_role');
+        return '../admin/dashboard.html';
       }
+
+      localStorage.removeItem('campus_food_role');
+      return '../store.html';
     }
 
     // Load menu on page load

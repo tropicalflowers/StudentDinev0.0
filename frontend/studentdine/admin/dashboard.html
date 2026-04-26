@@ -675,9 +675,9 @@
       
       // Calculate real metrics from orders
       const orders = CampusFoodDB.orders || [];
-      const totalRevenue = orders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+      const totalRevenue = orders.reduce((sum, o) => sum + (o.totalAmount || o.total || 0), 0);
       const totalOrders = orders.length;
-      const activeUsers = CampusFoodDB.users.filter(u => u.role === 'student' || u.role === 'hosteller').length;
+      const activeUsers = (CampusFoodDB.users || []).filter(u => u.role === 'student' || u.role === 'hosteller').length;
       
       // Calculate today's metrics
       const today = new Date().toDateString();
@@ -689,7 +689,7 @@
       const todayRevenue = orders.filter(o => {
         const orderDate = new Date(o.createdAt || o.orderDate).toDateString();
         return orderDate === today;
-      }).reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+      }).reduce((sum, o) => sum + (o.totalAmount || o.total || 0), 0);
 
       // Get most popular item from menu
       const popularItem = CampusFoodDB.menuItems && CampusFoodDB.menuItems.length > 0 
@@ -764,7 +764,7 @@
     // Load orders table
     function loadOrders() {
       const tbody = document.getElementById('ordersTableBody');
-      const allOrders = CampusFoodDB.orders;
+      const allOrders = CampusFoodDB.orders || [];
 
       tbody.innerHTML = allOrders
         .map(order => `
@@ -772,13 +772,13 @@
             <td><strong>${order.id}</strong></td>
             <td>${order.userName}</td>
             <td>${order.items.length} items</td>
-            <td>₹${order.totalAmount}</td>
+            <td>₹${order.totalAmount || order.total || 0}</td>
             <td>
               <span class="badge badge-${order.status.toLowerCase()}">
                 ${order.status}
               </span>
             </td>
-            <td>${order.orderDate}</td>
+            <td>${order.orderDate || order.createdAt || ''}</td>
             <td>
               <button class="btn-small" onclick="editOrder('${order.id}')">View</button>
             </td>
@@ -865,7 +865,7 @@
     // Load users table
     function loadUsers() {
       const tbody = document.getElementById('usersTableBody');
-      tbody.innerHTML = CampusFoodDB.users
+      tbody.innerHTML = (CampusFoodDB.users || [])
         .map(user => `
           <tr>
             <td>${user.name}</td>
@@ -882,7 +882,7 @@
     // Load coupons table
     function loadCoupons() {
       const tbody = document.getElementById('couponsTableBody');
-      tbody.innerHTML = CampusFoodDB.coupons
+      tbody.innerHTML = (CampusFoodDB.coupons || [])
         .map(coupon => `
           <tr>
             <td><strong>${coupon.code}</strong></td>
@@ -909,9 +909,9 @@
       e.preventDefault();
       const item = {
         restaurantId: document.getElementById('itemRestaurant').value,
-        restaurantName: CampusFoodDB.restaurants.find(
+        restaurantName: (CampusFoodDB.restaurants.find(
           r => r.id === document.getElementById('itemRestaurant').value
-        ).name,
+        ) || { name: 'Campus Kitchen' }).name,
         name: document.getElementById('itemName').value,
         description: document.getElementById('itemDescription').value,
         price: parseInt(document.getElementById('itemPrice').value),
@@ -935,13 +935,34 @@
       }
     }
 
+    async function initializeDashboard() {
+      const [orders, menuItems, coupons] = await Promise.all([
+        CampusFoodDB.getOrders(),
+        CampusFoodDB.getMenu(),
+        CampusFoodDB.getCoupons(),
+      ]);
+
+      CampusFoodDB.orders = orders;
+      CampusFoodDB.menuItems = menuItems;
+      CampusFoodDB.coupons = coupons;
+      CampusFoodDB.users = [Auth.getCurrentUser()].filter(Boolean);
+      CampusFoodDB.restaurants = Array.from(
+        new Map(menuItems.map(item => [
+          item.restaurantId || 'campus',
+          { id: item.restaurantId || 'campus', name: item.restaurantName || 'Campus Kitchen' }
+        ])).values()
+      );
+
+      displayUser();
+      loadAnalytics();
+      loadOrders();
+      loadMenu();
+      loadUsers();
+      loadCoupons();
+    }
+
     // Initialize
-    displayUser();
-    loadAnalytics();
-    loadOrders();
-    loadMenu();
-    loadUsers();
-    loadCoupons();
+    initializeDashboard();
   </script>
 </body>
 </html>

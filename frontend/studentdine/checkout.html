@@ -624,7 +624,7 @@
     }
 
     // Apply coupon
-    function applyCoupon() {
+    async function applyCoupon() {
       const code = document.getElementById('couponCode').value.trim().toUpperCase();
       const alert = document.getElementById('couponAlert');
 
@@ -634,13 +634,13 @@
       }
 
       const subtotal = Cart.getTotal();
-      const validation = CampusFoodDB.validateCoupon(code, subtotal);
+      const validation = await CampusFoodDB.validateCoupon(code, subtotal);
 
-      if (!validation.valid) {
+      if (!validation.success) {
         showCouponAlert(validation.message, 'danger');
       } else {
         appliedCoupon = code;
-        appliedDiscount = validation.discount;
+        appliedDiscount = validation.discount || 0;
         showCouponAlert(`✅ Coupon "${code}" applied! You saved ₹${validation.discount}`, 'success');
         updateSummary();
       }
@@ -686,7 +686,7 @@
         }
       } else if (method === 'Wallet') {
         const total = parseFloat(document.getElementById('total').innerText.replace('₹', ''));
-        const userWallet = CampusFoodDB.users.find(u => u.id === Auth.currentUser.id).wallet;
+        const userWallet = Number(Auth.getCurrentUser()?.wallet) || 0;
         if (userWallet < total) {
           alert('Insufficient wallet balance. Please add funds or choose another payment method.');
           return;
@@ -733,8 +733,7 @@
     }
 
     function updateWalletDisplay() {
-      const user = CampusFoodDB.users.find(u => u.id === Auth.currentUser.id);
-      const walletBalance = user.wallet || 0;
+      const walletBalance = Number(Auth.getCurrentUser()?.wallet) || 0;
       const total = parseFloat(document.getElementById('total').innerText.replace('₹', ''));
       
       document.getElementById('walletBalance').innerText = `₹${walletBalance} Available`;

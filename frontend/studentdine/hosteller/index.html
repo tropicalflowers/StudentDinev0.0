@@ -43,7 +43,7 @@
         <a href="#" data-action="info">Information</a>
         <a href="#" data-action="howto">How to order</a>
         <button id="modeToggle">☀️/🌙</button>
-        <a href="#" data-action="login-again">Login again</a>
+        <a href="#" data-action="login-again">Logout</a>
         <a href="../index.html" data-action="switch-role">🔄 Switch Role</a>
         <a href="#" data-action="about">About creators</a>
         <div id="google_translate_element"></div>
@@ -91,31 +91,7 @@
 
     <footer>© 2025 Campus Food • All rights reserved.</footer>
   </div>
-
-  <!-- Login Modal -->
-  <div class="modal" id="loginModal">
-    <div class="sheet">
-      <h2>Welcome • Hosteller Login</h2>
-      <p class="small">Enter your details to continue.</p>
-      <div class="form-row">
-        <div><label>Name</label><input class="input" id="inpName" placeholder="Your full name"/></div>
-        <div><label>Roll Number</label><input class="input" id="inpRoll" placeholder="e.g. 23CS001"/></div>
-      </div>
-      <div class="form-row">
-        <div>
-          <label>Role</label>
-          <select id="inpRole" class="input">
-            <option selected>Hosteller</option>
-          </select>
-          <p class="small">This page is dedicated to the <b>Hosteller</b> portal. Separate login pages exist for other roles.</p>
-        </div>
-        <div style="display:flex;align-items:flex-end;justify-content:flex-end">
-          <button class="btn" id="btnLogin">Continue</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
+  <script src="../auth.js"></script>
   <script src="app.js"></script>
   <!-- Google Translate widget -->
   <script type="text/javascript">

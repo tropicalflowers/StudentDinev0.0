@@ -6,10 +6,10 @@
 
 const Auth = {
   // Dynamic backend URL - works in development and production
-  BACKEND: window.location.hostname === 'localhost' 
+  BACKEND: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || !window.location.hostname
     ? 'http://localhost:3000' 
     : `${window.location.protocol}//${window.location.hostname}:3000`,
-  SOCKET_URL: window.location.hostname === 'localhost' 
+  SOCKET_URL: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || !window.location.hostname
     ? 'http://localhost:3000' 
     : `${window.location.protocol}//${window.location.hostname}:3000`,
   currentUser: null,
@@ -329,7 +329,7 @@ const Auth = {
 
   // Update wallet balance locally (will be handled by backend in future)
   updateWallet(userId, amount) {
-    if (this.currentUser && this.currentUser._id === userId) {
+    if (this.currentUser && (this.currentUser.id === userId || this.currentUser._id === userId)) {
       this.currentUser.wallet += amount;
       localStorage.setItem('campusFoodCurrentUser', JSON.stringify(this.currentUser));
     }

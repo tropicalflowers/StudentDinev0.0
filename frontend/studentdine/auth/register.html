@@ -1025,12 +1025,7 @@
         // Clear form
         registerForm.reset();
         setTimeout(() => {
-          const user = Auth.getCurrentUser();
-          if (user.role === 'hosteller') {
-            window.location.href = '../hosteller/index.html';
-          } else {
-            window.location.href = '../day-scholar/index.html';
-          }
+          window.location.href = '../store.html';
         }, 1500);
       } else {
         showError(result.message || 'Registration failed. Please try again.');

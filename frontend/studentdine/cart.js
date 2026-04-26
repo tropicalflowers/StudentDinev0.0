@@ -4,7 +4,9 @@
  */
 
 const Cart = {
-  BACKEND: 'http://localhost:3000',
+  BACKEND: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || !window.location.hostname
+    ? 'http://localhost:3000'
+    : `${window.location.protocol}//${window.location.hostname}:3000`,
   items: [],
 
   // Load cart from localStorage
@@ -88,6 +90,11 @@ const Cart = {
     if (!user) {
       return { success: false, message: 'User not authenticated' };
     }
+    const userId = user.id || user._id;
+
+    if (!userId) {
+      return { success: false, message: 'User session is invalid. Please login again.' };
+    }
 
     let totalAmount = this.getTotal();
     let discount = 0;
@@ -124,7 +131,7 @@ const Cart = {
       if (user.wallet < totalAmount) {
         return { success: false, message: `Insufficient wallet balance. You have ₹${user.wallet}` };
       }
-      Auth.updateWallet(user.id, -totalAmount);
+      Auth.updateWallet(userId, -totalAmount);
     }
 
     // Place order via backend
@@ -133,7 +140,7 @@ const Cart = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userId: user.id,
+          userId,
           userName: user.name,
           items: this.items.map(item => ({
             itemId: item.itemId,

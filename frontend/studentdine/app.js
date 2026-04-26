@@ -61,15 +61,19 @@ function initializeRoleGrid() {
 
 // Select a role and redirect to that page
 function selectRole(roleId) {
-  // Set flags in localStorage to bypass login
   localStorage.setItem('campus_food_role', roleId);
-  localStorage.setItem('campus_food_bypass_login', 'true');
-  // Set default user data
-  localStorage.setItem('campus_food_user_name', `${roleId.replace('-', ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')} User`);
-  localStorage.setItem('campus_food_user_roll', `23${roleId.substring(0, 2).toUpperCase()}001`);
-  
-  // Redirect to the role's page
-  window.location.href = `./${roleId}/index.html`;
+
+  if (!window.Auth || !Auth.isAuthenticated()) {
+    window.location.href = './auth/login.html';
+    return;
+  }
+
+  if (roleId === 'manager' && Auth.getCurrentUser()?.role === 'manager') {
+    window.location.href = './admin/dashboard.html';
+    return;
+  }
+
+  window.location.href = './store.html';
 }
 
 // Toggle dark/light mode

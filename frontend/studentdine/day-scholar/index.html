@@ -100,11 +100,11 @@
             👋 Welcome, <span id="userNameDisplay">Guest</span>!
         </div>
         <h1 class="text-4xl font-extrabold mb-3">Grab-and-Go Ordering</h1>
-        <p class="text-gray-400 mb-6">Order from 24 curated campus restaurants and cafés. Click 'Start Ordering' to jump to the menu gallery below.</p>
+        <p class="text-gray-400 mb-6">Order from curated campus restaurants and cafés through the authenticated store and checkout flow.</p>
         <button class="btn-primary text-white font-bold py-3 px-6 rounded-xl hover:opacity-90 transition" onclick="window.location.href='../store.html'">
             Start Ordering
         </button>
-        <button onclick="APP.reLogin()" class="ml-4 text-gray-400 hover:text-white transition">Change Login</button>
+        <button onclick="Auth.logout()" class="ml-4 text-gray-400 hover:text-white transition">Logout</button>
       </div>
 
       <!-- Wallet & Info Card -->
@@ -167,33 +167,7 @@
       </div>
     </div>
   </div>
-
-
-  <!-- Login Modal -->
-  <div class="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4" id="loginModal">
-    <div class="card-base p-8 rounded-2xl w-full max-w-lg">
-      <h2 class="text-3xl font-bold mb-2">Welcome • Day Scholar</h2>
-      <p class="text-gray-400 mb-6">Enter your details to continue. Role: <span class="text-purple-400 font-semibold">Day Scholar</span>.</p>
-      
-      <div class="space-y-4">
-        <div>
-          <label for="inpName" class="text-sm font-medium text-gray-400">Full Name</label>
-          <input type="text" id="inpName" class="w-full mt-1 p-3 rounded-lg bg-gray-800/50 border border-gray-700 focus:ring-purple-500 focus:border-purple-500" placeholder="Your full name" />
-        </div>
-        <div>
-          <label for="inpRoll" class="text-sm font-medium text-gray-400">Roll Number</label>
-          <input type="text" id="inpRoll" class="w-full mt-1 p-3 rounded-lg bg-gray-800/50 border border-gray-700 focus:ring-purple-500 focus:border-purple-500" placeholder="e.g. 23CS001" />
-        </div>
-      </div>
-
-      <div class="mt-6 flex justify-end">
-        <button class="btn-primary text-white font-bold py-3 px-6 rounded-xl hover:opacity-90 transition" id="btnLogin">
-            Continue to App
-        </button>
-      </div>
-    </div>
-  </div>
-
+  <script src="../auth.js"></script>
   <script>
     // --- START CORE JAVASCRIPT ---
 
@@ -339,20 +313,34 @@
 
     const APP = {
       init() {
-        if (!STATE.user) {
-          $("#loginModal").classList.remove("hidden");
-        } else {
-          APP.updateUI();
-          this.renderGallery();
+        if (!Auth.isAuthenticated()) {
+          window.location.href = '../auth/login.html';
+          return;
         }
+
+        const currentUser = Auth.getCurrentUser();
+        STATE.user = {
+          name: currentUser.name,
+          roll: currentUser.rollNumber || currentUser.id || currentUser._id,
+          role: currentUser.role
+        };
+        STATE.wallet = Number(currentUser.wallet) || 0;
+        $("#loginModal")?.classList.add("hidden");
+        APP.updateUI();
+        this.renderGallery();
         this.setupListeners();
       },
 
       updateUI() {
-        $("#userNameDisplay").textContent = STATE.user?.name || "Guest";
-        $("#walletBalance").textContent = STATE.wallet.toFixed(0);
-        $("#cartCount").textContent = STATE.cart.length;
-        $("#restCount").textContent = RESTAURANTS.length;
+        const setText = (selector, value) => {
+          const element = $(selector);
+          if (element) element.textContent = value;
+        };
+
+        setText("#userNameDisplay", STATE.user?.name || "Guest");
+        setText("#walletBalance", STATE.wallet.toFixed(0));
+        setText("#cartCount", STATE.cart.length);
+        setText("#restCount", RESTAURANTS.length);
         localStorage.setItem('campusUser', JSON.stringify(STATE.user));
         localStorage.setItem('campusCart', JSON.stringify(STATE.cart));
         localStorage.setItem('campusOrders', JSON.stringify(STATE.orders));
@@ -383,9 +371,7 @@
       },
 
       reLogin() {
-        STATE.user = null;
-        APP.updateUI();
-        $("#loginModal").classList.remove("hidden");
+        Auth.logout();
       },
 
       // --- Drawer/Modal Management (Single Source of Popups) ---
@@ -408,6 +394,9 @@
 
       // --- Gallery & Menu Rendering ---
       renderGallery() {
+        const gallery = $("#gallery");
+        if (!gallery) return;
+
         const cardHtml = (r) => `
           <div class="card-base p-3 rounded-xl hover:ring-2 ring-purple-500/50 transition">
             <img class="w-full h-28 object-cover rounded-lg mb-2" src="${r.img}" alt="${r.name} placeholder" loading="lazy"/>
@@ -417,7 +406,7 @@
               <button class="text-xs font-medium text-white bg-purple-600 hover:bg-purple-700 py-1 px-3 rounded-lg" onclick="APP.openMenuDrawer('${r.id}')">Menu</button>
             </div>
           </div>`;
-        $("#gallery").innerHTML = RESTAURANTS.map(cardHtml).join("");
+        gallery.innerHTML = RESTAURANTS.map(cardHtml).join("");
       },
 
       openMenuDrawer(id) {

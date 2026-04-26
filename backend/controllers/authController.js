@@ -1,10 +1,34 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const path = require('path');
 
 // Validation patterns
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const ROLL_NUMBER_REGEX = /^[A-Za-z0-9]{4,20}$/;
-const VALID_ROLES = ['student', 'hosteller', 'manager'];
+
+const DEFAULT_USERS = require(path.join(__dirname, '../data/users.json'));
+
+async function seedDefaultUsersIfEmpty() {
+  const userCount = await User.estimatedDocumentCount();
+  if (userCount > 0) return;
+
+  const seedUsers = DEFAULT_USERS
+    .filter(user => user.email && user.rollNumber && user.password && user.name)
+    .map(user => ({
+      email: String(user.email).toLowerCase(),
+      rollNumber: String(user.rollNumber).toUpperCase(),
+      name: user.name,
+      password: user.password,
+      role: ['student', 'hosteller', 'manager'].includes(user.role) ? user.role : 'student',
+      wallet: Number.isFinite(user.wallet) ? user.wallet : 500,
+    }));
+
+  for (const user of seedUsers) {
+    await User.create(user);
+  }
+
+  if (seedUsers.length > 0) console.log(`Seeded ${seedUsers.length} default users`);
+}
 
 // Generate JWT Token with enhanced security
 function generateToken(userId) {
@@ -24,6 +48,8 @@ function sanitizeInput(input) {
 // POST /api/auth/register
 async function register(req, res) {
   try {
+    await seedDefaultUsersIfEmpty();
+
     let { email, rollNumber, name, password, role } = req.body;
 
     // Sanitize inputs
@@ -159,6 +185,8 @@ async function register(req, res) {
 // POST /api/auth/login
 async function login(req, res) {
   try {
+    await seedDefaultUsersIfEmpty();
+
     let { identifier, password } = req.body;
 
     // Sanitize and validate

@@ -149,18 +149,21 @@ const $$ = (q,root=document) => [...root.querySelectorAll(q)];
 
 function toast(msg){ alert(msg); } // placeholder
 
-/* Bypass login if coming from landing page */
+/* Use the real auth session instead of the old portal-only login modal. */
 function initializeFromLanding() {
-  const bypassLogin = localStorage.getItem('campus_food_bypass_login') === 'true';
-  if (bypassLogin) {
-    const userName = localStorage.getItem('campus_food_user_name') || 'User';
-    const userRoll = localStorage.getItem('campus_food_user_roll') || '23HO001';
-    STATE.user = { name: userName, roll: userRoll, role: STATE.role };
-    $("#loginModal")?.classList.add("hidden");
-    localStorage.removeItem('campus_food_bypass_login'); // clear flag after use
-    localStorage.removeItem('campus_food_user_name');
-    localStorage.removeItem('campus_food_user_roll');
+  if (!window.Auth || !Auth.isAuthenticated()) {
+    window.location.href = '../auth/login.html';
+    return;
   }
+
+  const currentUser = Auth.getCurrentUser();
+  STATE.user = {
+    name: currentUser.name,
+    roll: currentUser.rollNumber || currentUser.id || currentUser._id,
+    role: currentUser.role
+  };
+  STATE.wallet = Number(currentUser.wallet) || 0;
+  $("#loginModal")?.classList.add("hidden");
 }
 
 /* Theme toggle */
@@ -517,7 +520,7 @@ function openWallet(){ alert("Your campus wallet balance: ₹"+STATE.wallet); }
 function openPaymentModes(){ alert("Supported: UPI, Card, Wallet, Cash"); }
 function showInfo(){ alert("Info: This app helps students and staff order food, manage mess bookings, and for managers to operate dining at scale."); }
 function showHowTo(){ alert("How to order: Browse restaurants → Explore menu → Add to cart → Open Cart → Proceed to Payment."); }
-function reLogin(){ $("#loginModal").classList.remove("hidden"); }
+function reLogin(){ Auth.logout(); }
 function aboutCreators(){ alert("Built by your team. Add bios & images later in About section."); }
 
 /* Hosteller: Mess features */

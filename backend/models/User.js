@@ -37,26 +37,35 @@ const userSchema = new mongoose.Schema({
 });
 
 // Hash password before saving
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
+userSchema.pre('save', async function () {
+  if (!this.isModified('password')) return;
 
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (error) {
-    next(error);
-  }
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
 });
 
 // Method to compare passwords
 userSchema.methods.comparePassword = async function (candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
+  const storedPassword = this.password || '';
+
+  if (/^\$2[aby]\$/.test(storedPassword)) {
+    return await bcrypt.compare(candidatePassword, storedPassword);
+  }
+
+  // Supports databases that were populated from the old JSON seed directly.
+  if (candidatePassword === storedPassword) {
+    this.password = candidatePassword;
+    await this.save();
+    return true;
+  }
+
+  return false;
 };
 
 // Method to return user without password
 userSchema.methods.toJSON = function () {
   const { password, ...user } = this.toObject();
+  user.id = user._id.toString();
   return user;
 };
 
