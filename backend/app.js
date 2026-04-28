@@ -7,6 +7,8 @@ const orderRoutes = require('./routes/orderRoutes');
 const couponRoutes = require('./routes/couponRoutes');
 const messRoutes = require('./routes/messRoutes');
 const managerRoutes = require('./routes/managerRoutes');
+const restaurantRoutes = require('./routes/restaurantRoutes');
+const staffRoutes = require('./routes/staffRoutes');
 
 const loggerMiddleware = require('./middleware/logger');
 const errorHandler = require('./middleware/errorHandler');
@@ -56,6 +58,8 @@ app.use('/api/orders',  orderRoutes);
 app.use('/api/coupons', couponRoutes);
 app.use('/api/mess',    messRoutes);
 app.use('/api/manager', managerRoutes);
+app.use('/api/restaurants', restaurantRoutes);
+app.use('/api/staff',   staffRoutes);
 
 
 // ── Health check ────────────────────────────────────────────

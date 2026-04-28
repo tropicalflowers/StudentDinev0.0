@@ -1,0 +1,56 @@
+[
+  {
+    "id": "STAFF001",
+    "name": "Rajesh Gupta",
+    "role": "Manager",
+    "restaurant": "Main Cafeteria",
+    "email": "rajesh@campus.edu",
+    "phone": "+91-9876543210",
+    "department": "Management"
+  },
+  {
+    "id": "STAFF002",
+    "name": "Priya Singh",
+    "role": "Chef",
+    "restaurant": "Main Cafeteria",
+    "email": "priya@campus.edu",
+    "phone": "+91-9876543213",
+    "department": "Kitchen"
+  },
+  {
+    "id": "STAFF003",
+    "name": "Amit Kumar",
+    "role": "Chef",
+    "restaurant": "Main Cafeteria",
+    "email": "amit@campus.edu",
+    "phone": "+91-9876543214",
+    "department": "Kitchen"
+  },
+  {
+    "id": "STAFF004",
+    "name": "Sneha Patel",
+    "role": "Counter Staff",
+    "restaurant": "Main Cafeteria",
+    "email": "sneha@campus.edu",
+    "phone": "+91-9876543215",
+    "department": "Counter"
+  },
+  {
+    "id": "STAFF005",
+    "name": "Vikram Singh",
+    "role": "Counter Staff",
+    "restaurant": "Main Cafeteria",
+    "email": "vikram@campus.edu",
+    "phone": "+91-9876543216",
+    "department": "Counter"
+  },
+  {
+    "id": "STAFF006",
+    "name": "Raj Patel",
+    "role": "Delivery Staff",
+    "restaurant": "Main Cafeteria",
+    "email": "raj@campus.edu",
+    "phone": "+91-9876543217",
+    "department": "Delivery"
+  }
+]

@@ -1,0 +1,50 @@
+[
+  {
+    "id": "REST001",
+    "name": "Main Cafeteria",
+    "cluster": "North Campus",
+    "address": "Building A, Ground Floor",
+    "phone": "+91-9876543210",
+    "email": "cafeteria@campus.edu",
+    "timings": {
+      "breakfast": "7:00 AM - 9:00 AM",
+      "lunch": "12:00 PM - 2:00 PM",
+      "snacks": "3:00 PM - 5:00 PM",
+      "dinner": "7:00 PM - 9:00 PM"
+    },
+    "capacity": 200,
+    "manager": "Rajesh Gupta"
+  },
+  {
+    "id": "REST002",
+    "name": "South Campus Dining",
+    "cluster": "South Campus",
+    "address": "Building B, First Floor",
+    "phone": "+91-9876543211",
+    "email": "south-dining@campus.edu",
+    "timings": {
+      "breakfast": "7:00 AM - 9:00 AM",
+      "lunch": "12:00 PM - 2:00 PM",
+      "snacks": "3:00 PM - 5:00 PM",
+      "dinner": "7:00 PM - 9:00 PM"
+    },
+    "capacity": 150,
+    "manager": "Manager South"
+  },
+  {
+    "id": "REST003",
+    "name": "East Campus Mess",
+    "cluster": "East Campus",
+    "address": "Building C, Basement",
+    "phone": "+91-9876543212",
+    "email": "east-mess@campus.edu",
+    "timings": {
+      "breakfast": "7:00 AM - 9:00 AM",
+      "lunch": "12:00 PM - 2:00 PM",
+      "snacks": "3:00 PM - 5:00 PM",
+      "dinner": "7:00 PM - 9:00 PM"
+    },
+    "capacity": 180,
+    "manager": "Manager East"
+  }
+]

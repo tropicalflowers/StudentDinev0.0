@@ -7,6 +7,8 @@
     "name": "Aarav Sharma",
     "role": "student",
     "wallet": 1500,
+    "cluster": "North Campus",
+    "restaurant": "Main Cafeteria",
     "createdAt": "2026-01-15"
   },
   {
@@ -17,6 +19,8 @@
     "name": "Priya Verma",
     "role": "hosteller",
     "wallet": 2000,
+    "cluster": "North Campus",
+    "restaurant": "Main Cafeteria",
     "createdAt": "2026-01-20"
   },
   {
@@ -27,6 +31,8 @@
     "name": "Rajesh Gupta",
     "role": "manager",
     "wallet": 0,
+    "cluster": "North Campus",
+    "restaurant": "Main Cafeteria",
     "createdAt": "2025-12-01"
   },
   {
@@ -36,6 +42,8 @@
     "password": "test123",
     "role": "student",
     "wallet": 500,
+    "cluster": "South Campus",
+    "restaurant": "South Campus Dining",
     "createdAt": "2026-03-03"
   }
 ]

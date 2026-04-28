@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mess Booking • Student Dine Portal</title>
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    body {
+      background: var(--bg);
+      color: var(--txt);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+
+    .header {
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      font-size: 32px;
+      font-weight: 800;
+      margin: 0 0 10px 0;
+    }
+
+    .header p {
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+    }
+
+    @media (max-width: 768px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Booking Form */
+    .booking-form {
+      background: var(--card);
+      border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
+      border-radius: 20px;
+      padding: 30px;
+    }
+
+    .form-title {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+
+    .form-group select,
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
+      border-radius: 10px;
+      background: transparent;
+      color: var(--txt);
+      font-size: 14px;
+      outline: none;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: var(--pri);
+    }
+
+    .meal-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .meal-radio {
+      position: relative;
+    }
+
+    .meal-radio input {
+      display: none;
+    }
+
+    .meal-label {
+      display: flex;
+      flex-direction: column;
+      padding: 15px;
+      border: 2px solid color-mix(in srgb, var(--txt) 12%, transparent);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .meal-radio input:checked + .meal-label {
+      background: color-mix(in srgb, var(--pri) 15%, transparent);
+      border-color: var(--pri);
+    }
+
+    .meal-label span {
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .btn-book {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--pri), var(--pri-2));
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: transform 0.2s;
+      margin-top: 20px;
+    }
+
+    .btn-book:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-book:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* My Bookings */
+    .my-bookings {
+      background: var(--card);
+      border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
+      border-radius: 20px;
+      padding: 30px;
+    }
+
+    .bookings-title {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 20px;
+    }
+
+    .booking-list {
+      display: grid;
+      gap: 15px;
+    }
+
+    .booking-card {
+      background: color-mix(in srgb, var(--txt) 2%, transparent);
+      border: 1px solid color-mix(in srgb, var(--txt) 8%, transparent);
+      border-radius: 12px;
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .booking-info {
+      flex: 1;
+    }
+
+    .booking-meal {
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .booking-details {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .booking-detail-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .booking-status {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .status-confirmed { background: color-mix(in srgb, #10b981 15%, transparent); color: #10b981; }
+    .status-cancelled { background: color-mix(in srgb, #ef4444 15%, transparent); color: #ef4444; }
+    .status-pending { background: color-mix(in srgb, #f59e0b 15%, transparent); color: #f59e0b; }
+
+    .booking-action {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-small {
+      padding: 6px 12px;
+      border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
+      background: transparent;
+      color: var(--txt);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .btn-small:hover {
+      background: color-mix(in srgb, var(--txt) 8%, transparent);
+    }
+
+    .btn-small.danger {
+      border-color: #ef4444;
+      color: #ef4444;
+    }
+
+    .btn-small.danger:hover {
+      background: color-mix(in srgb, #ef4444 15%, transparent);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+    }
+
+    .empty-state-icon {
+      font-size: 40px;
+      margin-bottom: 10px;
+    }
+
+    .alert {
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .alert.show {
+      display: block;
+    }
+
+    .alert-success {
+      background: color-mix(in srgb, #10b981 15%, transparent);
+      color: #10b981;
+      border: 1px solid color-mix(in srgb, #10b981 30%, transparent);
+    }
+
+    .alert-error {
+      background: color-mix(in srgb, #ef4444 15%, transparent);
+      color: #ef4444;
+      border: 1px solid color-mix(in srgb, #ef4444 30%, transparent);
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: var(--pri);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="../index.html" class="back-link">← Back</a>
+
+    <div class="header">
+      <h1>🍽️ Mess Booking</h1>
+      <p>Book your meals for the mess facility</p>
+    </div>
+
+    <div id="successAlert" class="alert alert-success"></div>
+    <div id="errorAlert" class="alert alert-error"></div>
+
+    <div class="grid-2">
+      <!-- Booking Form -->
+      <div class="booking-form">
+        <div class="form-title">📅 Book Your Meal</div>
+
+        <div class="form-group">
+          <label>Meal Type</label>
+          <div class="meal-options">
+            <div class="meal-radio">
+              <input type="radio" id="breakfast" name="meal" value="Breakfast" required>
+              <label for="breakfast" class="meal-label"><span>🌅 Breakfast</span></label>
+            </div>
+            <div class="meal-radio">
+              <input type="radio" id="lunch" name="meal" value="Lunch" required>
+              <label for="lunch" class="meal-label"><span>🍽️ Lunch</span></label>
+            </div>
+            <div class="meal-radio">
+              <input type="radio" id="snacks" name="meal" value="Snacks" required>
+              <label for="snacks" class="meal-label"><span>☕ Snacks</span></label>
+            </div>
+            <div class="meal-radio">
+              <input type="radio" id="dinner" name="meal" value="Dinner" required>
+              <label for="dinner" class="meal-label"><span>🌙 Dinner</span></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="date">Date</label>
+          <input type="date" id="date" required>
+        </div>
+
+        <div class="form-group">
+          <label for="menuOption">Menu Option</label>
+          <select id="menuOption" required>
+            <option value="">Select an option</option>
+            <option value="Option 1">Option 1 - Vegetarian</option>
+            <option value="Option 2">Option 2 - Non-Vegetarian</option>
+            <option value="Option 3">Option 3 - Mixed</option>
+            <option value="Option 4">Option 4 - Special Diet</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="guests">Additional Guests</label>
+          <input type="number" id="guests" min="0" max="5" value="0" placeholder="Number of additional guests">
+        </div>
+
+        <button class="btn-book" id="bookBtn">Book Meal</button>
+      </div>
+
+      <!-- My Bookings -->
+      <div class="my-bookings">
+        <div class="bookings-title">📋 My Bookings</div>
+        <div class="booking-list" id="bookingList">
+          <div class="empty-state">
+            <div class="empty-state-icon">📭</div>
+            <p>No bookings yet</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../auth.js"></script>
+  <script>
+    // Check if hosteller
+    if (!Auth.isAuthenticated()) {
+      window.location.href = '../auth/login.html';
+    }
+
+    const user = Auth.getCurrentUser();
+    if (user.role !== 'hosteller') {
+      alert('This page is only for hostellers');
+      window.location.href = '../index.html';
+    }
+
+    // Set today's date as minimum
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('date').min = today;
+    document.getElementById('date').value = today;
+
+    // Load bookings on load
+    loadBookings();
+
+    // Book meal
+    document.getElementById('bookBtn').addEventListener('click', async () => {
+      const meal = document.querySelector('input[name="meal"]:checked');
+      const date = document.getElementById('date').value;
+      const menuOption = document.getElementById('menuOption').value;
+      const guests = parseInt(document.getElementById('guests').value) || 0;
+
+      if (!meal || !date || !menuOption) {
+        showError('Please fill all required fields');
+        return;
+      }
+
+      // For now, store in localStorage as we don't have a dedicated mess booking API
+      const booking = {
+        id: 'MESS' + Date.now(),
+        userId: user._id,
+        meal: meal.value,
+        date,
+        menuOption,
+        guests,
+        status: 'confirmed',
+        createdAt: new Date().toISOString()
+      };
+
+      try {
+        // Show success
+        showSuccess('Meal booked successfully!');
+
+        // Reset form
+        document.querySelectorAll('input[name="meal"]').forEach(el => el.checked = false);
+        document.getElementById('menuOption').value = '';
+        document.getElementById('guests').value = '0';
+        document.getElementById('date').value = today;
+
+        // Reload bookings
+        setTimeout(() => loadBookings(), 1500);
+      } catch (error) {
+        showError('Failed to book meal');
+      }
+    });
+
+    async function loadBookings() {
+      try {
+        // In a real app, fetch from backend
+        // For now, create sample bookings for demo
+        const bookings = [
+          {
+            id: 'MESS001',
+            meal: 'Lunch',
+            menuOption: 'Option 1',
+            date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+            time: '12:30 PM',
+            seat: 42,
+            status: 'confirmed',
+            guests: 0
+          },
+          {
+            id: 'MESS002',
+            meal: 'Dinner',
+            menuOption: 'Option 2',
+            date: new Date(Date.now() + 172800000).toISOString().split('T')[0],
+            time: '7:00 PM',
+            seat: 58,
+            status: 'confirmed',
+            guests: 1
+          }
+        ];
+
+        displayBookings(bookings);
+      } catch (error) {
+        console.error('Failed to load bookings:', error);
+      }
+    }
+
+    function displayBookings(bookings) {
+      const bookingList = document.getElementById('bookingList');
+
+      if (bookings.length === 0) {
+        bookingList.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">📭</div>
+            <p>No bookings yet</p>
+          </div>
+        `;
+        return;
+      }
+
+      bookingList.innerHTML = bookings.map(booking => `
+        <div class="booking-card">
+          <div class="booking-info">
+            <div class="booking-meal">🍽️ ${booking.meal}</div>
+            <div class="booking-details">
+              <div class="booking-detail-item">
+                <span>📅</span>
+                <span>${new Date(booking.date).toLocaleDateString()}</span>
+              </div>
+              <div class="booking-detail-item">
+                <span>⏰</span>
+                <span>${booking.time || 'TBD'}</span>
+              </div>
+              <div class="booking-detail-item">
+                <span>🪑</span>
+                <span>Seat ${booking.seat || 'TBD'}</span>
+              </div>
+            </div>
+          </div>
+          <div class="booking-status status-${booking.status}">${booking.status}</div>
+        </div>
+      `).join('');
+    }
+
+    function showSuccess(msg) {
+      const alert = document.getElementById('successAlert');
+      alert.textContent = msg;
+      alert.classList.add('show');
+      setTimeout(() => alert.classList.remove('show'), 3000);
+    }
+
+    function showError(msg) {
+      const alert = document.getElementById('errorAlert');
+      alert.textContent = msg;
+      alert.classList.add('show');
+      setTimeout(() => alert.classList.remove('show'), 3000);
+    }
+  </script>
+</body>
+</html>

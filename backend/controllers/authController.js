@@ -122,8 +122,8 @@ async function register(req, res) {
       });
     }
 
-    // Validate role (prevent manager role from being set via registration)
-    if (!['student', 'hosteller'].includes(role)) {
+    // Validate role (allow student, hosteller, and manager)
+    if (!['student', 'hosteller', 'manager'].includes(role)) {
       role = 'student';
     }
 

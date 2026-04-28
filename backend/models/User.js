@@ -30,6 +30,15 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 500,
   },
+  cluster: {
+    type: String,
+    enum: ['North Campus', 'South Campus', 'East Campus', 'West Campus'],
+    default: 'North Campus',
+  },
+  restaurant: {
+    type: String,
+    default: 'Main Cafeteria',
+  },
   createdAt: {
     type: Date,
     default: Date.now,

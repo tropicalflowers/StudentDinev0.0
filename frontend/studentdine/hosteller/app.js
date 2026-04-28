@@ -525,47 +525,7 @@ function aboutCreators(){ alert("Built by your team. Add bios & images later in 
 
 /* Hosteller: Mess features */
 function openMessBooking(){
-  const w = window.open("", "_blank");
-  const meals = ["Breakfast","Lunch","Dinner"];
-  const options = Array.from({length:10}, (_,i)=>`Option ${i+1}`);
-  const html = `<!doctype html><html><head><title>Mess Booking</title><style>
-    body{font-family:Inter,system-ui;background:#0b1020;color:#eef2ff;margin:0}
-    .wrap{max-width:900px;margin:0 auto;padding:22px}
-    select,input{padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:transparent;color:#eef2ff}
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0}
-    button{border:0;background:linear-gradient(135deg,#7c5cff,#00d4ff);color:white;padding:10px 12px;border-radius:10px;cursor:pointer}
-  </style></head><body><div class="wrap">
-    <h1>🏷️ Book Mess Food</h1>
-    <div class="row">
-      <div>
-        <label>Meal</label>
-        <select id="meal">${meals.map(m=>`<option>${m}</option>`).join("")}</select>
-      </div>
-      <div>
-        <label>Choose menu</label>
-        <select id="menu">${options.map(o=>`<option>${o}</option>`).join("")}</select>
-      </div>
-    </div>
-    <div class="row">
-      <div><label>Date</label><input type="date" id="date"/></div>
-      <div><label>Time</label><input type="time" id="time"/></div>
-    </div>
-    <button onclick="book()">Book seat</button>
-    <div id="out" style="margin-top:12px"></div>
-    <script>
-      function book(){
-        const v = (id)=>document.getElementById(id).value;
-        fetch('http://localhost:3000/api/mess/book', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({userId:2, userName:'Hosteller', meal:v('meal'), menuOption:v('menu'), date:v('date'), time:v('time')})
-        }).then(r=>r.json()).then(d=>{
-          document.getElementById('out').innerHTML = '<p>✅ Booked '+v('meal')+' • '+v('menu')+' at '+v('time')+' on '+v('date')+'. Seat: <b>#'+d.booking.seat+'</b></p>';
-        });
-      }
-    </script>
-  </div></body></html>`;
-  w.document.open(); w.document.write(html); w.document.close();
+  window.location.href = './mess-booking.html';
 }
 function openMessCancel(){
   const meal = prompt("Cancel which meal? (Breakfast/Lunch/Dinner)");

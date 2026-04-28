@@ -222,6 +222,9 @@ async function runMigration() {
     console.log(`  - Menu Items: ${await MenuItem.countDocuments()} total`);
     console.log(`  - Orders: ${await Order.countDocuments()} total`);
     console.log(`  - Coupons: ${await Coupon.countDocuments()} total`);
+    console.log('\n✅ Restaurants and Staff data files created:');
+    console.log('  - data/restaurants.json');
+    console.log('  - data/staff.json');
     
   } catch (error) {
     console.error('\n❌ Migration failed:', error.message);
