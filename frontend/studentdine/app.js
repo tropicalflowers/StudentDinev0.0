@@ -69,7 +69,12 @@ function selectRole(roleId) {
   }
 
   if (roleId === 'manager' && Auth.getCurrentUser()?.role === 'manager') {
-    window.location.href = './admin/dashboard.html';
+    window.location.href = './manager/operations.html';
+    return;
+  }
+
+  if (roleId === 'hosteller' && Auth.getCurrentUser()?.role === 'hosteller') {
+    window.location.href = './hosteller/index.html';
     return;
   }
 

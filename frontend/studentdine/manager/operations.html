@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manager Operations - Student Dine Portal</title>
+  <link rel="stylesheet" href="../style.css" />
+  <style>
+    body { background: var(--bg); color: var(--txt); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    .ops-wrap { max-width: 1500px; margin: 0 auto; padding: 24px; }
+    .ops-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; }
+    .ops-head h1 { margin: 0; font-size: 30px; }
+    .ops-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .ops-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 18px; align-items: start; }
+    .panel { background: var(--card); border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent); border-radius: 8px; padding: 18px; }
+    .panel h2 { margin: 0 0 14px; font-size: 18px; }
+    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+    .btn { border: 0; border-radius: 8px; padding: 10px 13px; color: white; font-weight: 800; cursor: pointer; background: linear-gradient(135deg, var(--pri), var(--pri-2)); }
+    .btn.secondary { background: transparent; color: var(--txt); border: 1px solid color-mix(in srgb, var(--txt) 18%, transparent); }
+    .btn.danger { background: #dc2626; }
+    .btn.small { padding: 7px 9px; font-size: 12px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px 8px; border-bottom: 1px solid color-mix(in srgb, var(--txt) 10%, transparent); text-align: left; font-size: 13px; vertical-align: top; }
+    th { color: var(--muted); font-size: 11px; text-transform: uppercase; }
+    input, select, textarea { width: 100%; padding: 9px 10px; border: 1px solid color-mix(in srgb, var(--txt) 14%, transparent); border-radius: 8px; background: transparent; color: var(--txt); outline: none; }
+    textarea { min-height: 70px; resize: vertical; }
+    label { display: grid; gap: 6px; color: var(--muted); font-size: 12px; font-weight: 700; }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .form-grid .full { grid-column: 1 / -1; }
+    .status { display: inline-flex; border-radius: 999px; padding: 3px 8px; font-size: 11px; font-weight: 800; }
+    .status.open { background: color-mix(in srgb, #10b981 18%, transparent); color: #10b981; }
+    .status.closed { background: color-mix(in srgb, #ef4444 18%, transparent); color: #ef4444; }
+    .muted { color: var(--muted); }
+    .message { min-height: 20px; margin: 8px 0 0; font-size: 13px; color: var(--accent); }
+    @media (max-width: 1000px) { .ops-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } .ops-wrap { padding: 14px; } }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="row">
+      <div class="brand"><div class="logo"></div><div>Student Dine Portal</div></div>
+      <div class="menu">
+        <a href="../store.html">Store</a>
+        <a href="../hosteller/mess-booking.html">Mess Booking</a>
+        <a href="../order-history.html">Orders</a>
+        <button onclick="Auth.logout()">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="ops-wrap">
+    <div class="ops-head">
+      <div>
+        <h1>Manager Operations</h1>
+        <p class="muted">Restaurants, menu items, staff, and mess activity are saved in MongoDB.</p>
+      </div>
+      <div class="ops-actions">
+        <button class="btn secondary" onclick="window.location.href='../store.html'">Order Food</button>
+        <button class="btn secondary" onclick="window.location.href='../hosteller/mess-booking.html'">Mess Booking</button>
+        <button class="btn" onclick="refreshAll()">Refresh Data</button>
+      </div>
+    </div>
+
+    <div class="ops-grid">
+      <section class="panel">
+        <h2>Restaurants</h2>
+        <div class="toolbar">
+          <select id="restaurantSelect"></select>
+          <button class="btn small" onclick="toggleRestaurant()">Open / Close</button>
+        </div>
+        <div id="restaurantTable"></div>
+        <p class="message" id="restaurantMessage"></p>
+      </section>
+
+      <section class="panel">
+        <h2>Restaurant Details</h2>
+        <div class="form-grid">
+          <label>Name <input id="restaurantName" /></label>
+          <label>Cluster <input id="restaurantCluster" /></label>
+          <label>Phone <input id="restaurantPhone" /></label>
+          <label>Email <input id="restaurantEmail" /></label>
+          <label class="full">Address <textarea id="restaurantAddress"></textarea></label>
+          <label>Capacity <input id="restaurantCapacity" type="number" min="0" /></label>
+          <label>Status Note <input id="restaurantNote" /></label>
+        </div>
+        <button class="btn" style="margin-top:12px" onclick="saveRestaurant()">Save Restaurant</button>
+      </section>
+
+      <section class="panel">
+        <h2>Menu Items</h2>
+        <div class="toolbar">
+          <input id="menuSearch" placeholder="Search menu" oninput="renderMenu()" />
+          <button class="btn small secondary" onclick="clearMenuForm()">New Item</button>
+        </div>
+        <div id="menuTable"></div>
+        <p class="message" id="menuMessage"></p>
+      </section>
+
+      <section class="panel">
+        <h2>Edit Menu Item</h2>
+        <input id="menuId" type="hidden" />
+        <div class="form-grid">
+          <label>Name <input id="menuName" /></label>
+          <label>Price <input id="menuPrice" type="number" min="0" /></label>
+          <label>Restaurant <select id="menuRestaurant"></select></label>
+          <label>Category
+            <select id="menuCategory">
+              <option value="starter">Starter</option>
+              <option value="main">Main Course</option>
+              <option value="drinks">Drinks</option>
+              <option value="snacks">Snacks</option>
+              <option value="desserts">Desserts</option>
+            </select>
+          </label>
+          <label>Type
+            <select id="menuType">
+              <option value="veg">Vegetarian</option>
+              <option value="non-veg">Non-Vegetarian</option>
+            </select>
+          </label>
+          <label>Image / Emoji <input id="menuImage" /></label>
+          <label class="full">Description <textarea id="menuDescription"></textarea></label>
+        </div>
+        <button class="btn" style="margin-top:12px" onclick="saveMenuItem()">Save Menu Item</button>
+        <button class="btn danger" style="margin-top:12px" onclick="deleteMenuItem()">Delete</button>
+      </section>
+
+      <section class="panel">
+        <h2>Employees</h2>
+        <div id="staffTable"></div>
+        <p class="message" id="staffMessage"></p>
+      </section>
+
+      <section class="panel">
+        <h2>Add / Edit Employee</h2>
+        <input id="staffId" type="hidden" />
+        <div class="form-grid">
+          <label>Name <input id="staffName" /></label>
+          <label>Role
+            <select id="staffRole">
+              <option>Waiter</option>
+              <option>Chef</option>
+              <option>Counter Staff</option>
+              <option>Delivery Staff</option>
+              <option>Manager</option>
+            </select>
+          </label>
+          <label>Restaurant <select id="staffRestaurant"></select></label>
+          <label>Shift
+            <select id="staffShift">
+              <option>Morning</option>
+              <option>Evening</option>
+              <option>Night</option>
+              <option>Flexible</option>
+            </select>
+          </label>
+          <label>Email <input id="staffEmail" /></label>
+          <label>Phone <input id="staffPhone" /></label>
+          <label>Department <input id="staffDepartment" /></label>
+          <label>Active
+            <select id="staffActive">
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </select>
+          </label>
+        </div>
+        <button class="btn" style="margin-top:12px" onclick="saveStaff()">Save Employee</button>
+        <button class="btn secondary" style="margin-top:12px" onclick="clearStaffForm()">New Employee</button>
+        <button class="btn danger" style="margin-top:12px" onclick="deleteStaff()">Delete Employee</button>
+      </section>
+    </div>
+  </main>
+
+  <script src="../data.js"></script>
+  <script src="../auth.js"></script>
+  <script>
+    if (!Auth.isAuthenticated() || Auth.getCurrentUser().role !== 'manager') {
+      window.location.href = '../auth/login.html';
+    }
+
+    let restaurants = [];
+    let menuItems = [];
+    let staff = [];
+
+    const byId = id => document.getElementById(id);
+
+    async function refreshAll() {
+      [restaurants, menuItems, staff] = await Promise.all([
+        CampusFoodDB.getRestaurants(),
+        CampusFoodDB.getMenu(),
+        CampusFoodDB.getStaff(),
+      ]);
+      renderRestaurantControls();
+      renderRestaurants();
+      renderMenu();
+      renderStaff();
+    }
+
+    function restaurantOptions(value = '') {
+      return restaurants.map(r => `<option value="${r.id}" ${r.id === value ? 'selected' : ''}>${r.name}</option>`).join('');
+    }
+
+    function renderRestaurantControls() {
+      byId('restaurantSelect').innerHTML = restaurantOptions(restaurants[0]?.id);
+      byId('menuRestaurant').innerHTML = restaurantOptions();
+      byId('staffRestaurant').innerHTML = restaurants.map(r => `<option value="${r.name}">${r.name}</option>`).join('');
+      fillRestaurantForm(restaurants[0]);
+    }
+
+    function renderRestaurants() {
+      byId('restaurantTable').innerHTML = `
+        <table>
+          <thead><tr><th>Name</th><th>Cluster</th><th>Status</th><th>Capacity</th></tr></thead>
+          <tbody>${restaurants.map(r => `
+            <tr onclick="selectRestaurant('${r.id}')">
+              <td>${r.name}</td>
+              <td>${r.cluster || ''}</td>
+              <td><span class="status ${r.isOpen ? 'open' : 'closed'}">${r.isOpen ? 'Open' : 'Closed'}</span></td>
+              <td>${r.capacity || 0}</td>
+            </tr>
+          `).join('')}</tbody>
+        </table>`;
+    }
+
+    function selectRestaurant(id) {
+      byId('restaurantSelect').value = id;
+      fillRestaurantForm(restaurants.find(r => r.id === id));
+    }
+
+    byId('restaurantSelect').addEventListener('change', e => selectRestaurant(e.target.value));
+
+    function fillRestaurantForm(r) {
+      if (!r) return;
+      byId('restaurantName').value = r.name || '';
+      byId('restaurantCluster').value = r.cluster || '';
+      byId('restaurantPhone').value = r.phone || '';
+      byId('restaurantEmail').value = r.email || '';
+      byId('restaurantAddress').value = r.address || '';
+      byId('restaurantCapacity').value = r.capacity || 0;
+      byId('restaurantNote').value = r.statusNote || '';
+    }
+
+    async function saveRestaurant() {
+      const id = byId('restaurantSelect').value;
+      const result = await CampusFoodDB.updateRestaurant(id, {
+        name: byId('restaurantName').value,
+        cluster: byId('restaurantCluster').value,
+        phone: byId('restaurantPhone').value,
+        email: byId('restaurantEmail').value,
+        address: byId('restaurantAddress').value,
+        capacity: byId('restaurantCapacity').value,
+        statusNote: byId('restaurantNote').value,
+      });
+      byId('restaurantMessage').textContent = result.message || (result.success ? 'Saved' : 'Could not save');
+      await refreshAll();
+    }
+
+    async function toggleRestaurant() {
+      const id = byId('restaurantSelect').value;
+      const restaurant = restaurants.find(r => r.id === id);
+      const result = await CampusFoodDB.updateRestaurant(id, { isOpen: !restaurant.isOpen });
+      byId('restaurantMessage').textContent = result.message || 'Status updated';
+      await refreshAll();
+    }
+
+    function renderMenu() {
+      const q = byId('menuSearch').value.trim().toLowerCase();
+      const filtered = menuItems.filter(item => !q || item.name.toLowerCase().includes(q) || item.restaurantName.toLowerCase().includes(q));
+      byId('menuTable').innerHTML = `
+        <table>
+          <thead><tr><th>Item</th><th>Restaurant</th><th>Price</th><th></th></tr></thead>
+          <tbody>${filtered.map(item => `
+            <tr>
+              <td>${item.name}</td><td>${item.restaurantName}</td><td>₹${item.price}</td>
+              <td><button class="btn small secondary" onclick="editMenu('${item.id}')">Edit</button></td>
+            </tr>
+          `).join('')}</tbody>
+        </table>`;
+    }
+
+    function editMenu(id) {
+      const item = menuItems.find(i => String(i.id) === String(id));
+      byId('menuId').value = item.id;
+      byId('menuName').value = item.name || '';
+      byId('menuPrice').value = item.price || 0;
+      byId('menuRestaurant').value = item.restaurantId || '';
+      byId('menuCategory').value = item.category || 'main';
+      byId('menuType').value = item.type || 'veg';
+      byId('menuImage').value = item.image || '';
+      byId('menuDescription').value = item.description || '';
+    }
+
+    function clearMenuForm() {
+      ['menuId', 'menuName', 'menuPrice', 'menuImage', 'menuDescription'].forEach(id => byId(id).value = '');
+      byId('menuCategory').value = 'main';
+      byId('menuType').value = 'veg';
+      byId('menuRestaurant').value = restaurants[0]?.id || '';
+    }
+
+    async function saveMenuItem() {
+      const restaurant = restaurants.find(r => r.id === byId('menuRestaurant').value);
+      const payload = {
+        name: byId('menuName').value,
+        price: Number(byId('menuPrice').value),
+        restaurantId: restaurant?.id,
+        restaurantName: restaurant?.name,
+        category: byId('menuCategory').value,
+        type: byId('menuType').value,
+        image: byId('menuImage').value || '🍽️',
+        description: byId('menuDescription').value,
+      };
+      const id = byId('menuId').value;
+      const result = id ? await CampusFoodDB.updateMenuItem(id, payload) : await CampusFoodDB.addMenuItem(payload);
+      byId('menuMessage').textContent = result.message || (result.success ? 'Saved' : 'Could not save');
+      clearMenuForm();
+      await refreshAll();
+    }
+
+    async function deleteMenuItem() {
+      const id = byId('menuId').value;
+      if (!id) return;
+      const result = await CampusFoodDB.deleteMenuItem(id);
+      byId('menuMessage').textContent = result.message || 'Deleted';
+      clearMenuForm();
+      await refreshAll();
+    }
+
+    function renderStaff() {
+      byId('staffTable').innerHTML = `
+        <table>
+          <thead><tr><th>Name</th><th>Role</th><th>Restaurant</th><th></th></tr></thead>
+          <tbody>${staff.map(member => `
+            <tr>
+              <td>${member.name}</td><td>${member.role}</td><td>${member.restaurant}</td>
+              <td><button class="btn small secondary" onclick="editStaff('${member.id}')">Edit</button></td>
+            </tr>
+          `).join('')}</tbody>
+        </table>`;
+    }
+
+    function editStaff(id) {
+      const member = staff.find(s => String(s.id) === String(id));
+      byId('staffId').value = member.id;
+      byId('staffName').value = member.name || '';
+      byId('staffRole').value = member.role || 'Waiter';
+      byId('staffRestaurant').value = member.restaurant || '';
+      byId('staffShift').value = member.shift || 'Morning';
+      byId('staffEmail').value = member.email || '';
+      byId('staffPhone').value = member.phone || '';
+      byId('staffDepartment').value = member.department || '';
+      byId('staffActive').value = String(member.active !== false);
+    }
+
+    function clearStaffForm() {
+      ['staffId', 'staffName', 'staffEmail', 'staffPhone', 'staffDepartment'].forEach(id => byId(id).value = '');
+      byId('staffRole').value = 'Waiter';
+      byId('staffShift').value = 'Morning';
+      byId('staffActive').value = 'true';
+      byId('staffRestaurant').value = restaurants[0]?.name || '';
+    }
+
+    async function saveStaff() {
+      const payload = {
+        name: byId('staffName').value,
+        role: byId('staffRole').value,
+        restaurant: byId('staffRestaurant').value,
+        shift: byId('staffShift').value,
+        email: byId('staffEmail').value,
+        phone: byId('staffPhone').value,
+        department: byId('staffDepartment').value,
+        active: byId('staffActive').value === 'true',
+      };
+      const id = byId('staffId').value;
+      const result = id ? await CampusFoodDB.updateStaff(id, payload) : await CampusFoodDB.addStaff(payload);
+      byId('staffMessage').textContent = result.message || (result.success ? 'Saved' : 'Could not save');
+      clearStaffForm();
+      await refreshAll();
+    }
+
+    async function deleteStaff() {
+      const id = byId('staffId').value;
+      if (!id) return;
+      const result = await CampusFoodDB.deleteStaff(id);
+      byId('staffMessage').textContent = result.message || 'Deleted';
+      clearStaffForm();
+      await refreshAll();
+    }
+
+    refreshAll();
+  </script>
+</body>
+</html>

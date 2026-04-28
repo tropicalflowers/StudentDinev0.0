@@ -186,6 +186,7 @@
         <button id="modeToggle">☀️/🌙</button>
         <a href="order-history.html">📜 Orders</a>
         <a id="messBookingLink" href="hosteller/mess-booking.html" style="display:none;">🍽️ Mess Booking</a>
+        <a id="managerOpsLink" href="manager/operations.html" style="display:none;">⚙️ Manage</a>
         <a href="checkout.html">🛒 Cart</a>
         <button onclick="Auth.logout()">🚪 Logout</button>
       </div>
@@ -299,16 +300,20 @@
       window.location.href = 'auth/login.html';
     }
 
-    // Show mess booking link for hostellers
+    // Show role-specific links
     const currentUser = Auth.getCurrentUser();
-    if (currentUser && currentUser.role === 'hosteller') {
+    if (currentUser && ['hosteller', 'manager'].includes(currentUser.role)) {
       document.getElementById('messBookingLink').style.display = 'inline-block';
+    }
+    if (currentUser && currentUser.role === 'manager') {
+      document.getElementById('managerOpsLink').style.display = 'inline-block';
     }
 
     let allMenuItems = [];
     let filteredItems = [];
     let currentRestaurant = null; // null = showing all restaurants
     let restaurants = [];         // derived from menu items
+    let restaurantMeta = [];
 
     // ── Wallet & cart ──────────────────────────────────────
     function updateWalletDisplay() {
@@ -332,7 +337,10 @@
         }
         map[item.restaurantId].items.push(item);
       });
-      return Object.values(map);
+      return Object.values(map).map(restaurant => {
+        const meta = restaurantMeta.find(r => r.id === restaurant.id);
+        return { ...restaurant, isOpen: meta ? meta.isOpen !== false : true, statusNote: meta?.statusNote || '' };
+      }).filter(restaurant => restaurant.isOpen);
     }
 
     // ── Restaurant emoji map ───────────────────────────────
@@ -552,9 +560,11 @@
     // ── Init ───────────────────────────────────────────────
     updateWalletDisplay();
     updateCartBadge();
-    CampusFoodDB.getMenu().then(items => {
-      allMenuItems = items;
-      restaurants = buildRestaurants(items);
+    Promise.all([CampusFoodDB.getMenu(), CampusFoodDB.getRestaurants()]).then(([items, restaurantData]) => {
+      restaurantMeta = restaurantData || [];
+      const openIds = new Set(restaurantMeta.filter(r => r.isOpen !== false).map(r => r.id));
+      allMenuItems = openIds.size ? items.filter(item => openIds.has(item.restaurantId)) : items;
+      restaurants = buildRestaurants(allMenuItems);
       renderRestaurants(restaurants);
     });
   </script>

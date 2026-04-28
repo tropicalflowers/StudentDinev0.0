@@ -294,7 +294,7 @@
 </head>
 <body>
   <div class="container">
-    <a href="../index.html" class="back-link">← Back</a>
+    <a href="../store.html" class="back-link">Back to store</a>
 
     <div class="header">
       <h1>🍽️ Mess Booking</h1>
@@ -368,6 +368,7 @@
     </div>
   </div>
 
+  <script src="../data.js"></script>
   <script src="../auth.js"></script>
   <script>
     // Check if hosteller
@@ -376,8 +377,8 @@
     }
 
     const user = Auth.getCurrentUser();
-    if (user.role !== 'hosteller') {
-      alert('This page is only for hostellers');
+    if (!['hosteller', 'manager'].includes(user.role)) {
+      alert('This page is only for hostellers and managers');
       window.location.href = '../index.html';
     }
 
@@ -401,21 +402,30 @@
         return;
       }
 
-      // For now, store in localStorage as we don't have a dedicated mess booking API
+      const defaultTimes = {
+        Breakfast: '08:00',
+        Lunch: '12:30',
+        Snacks: '16:30',
+        Dinner: '19:30',
+      };
       const booking = {
-        id: 'MESS' + Date.now(),
-        userId: user._id,
+        userId: user._id || user.id,
+        userName: user.name,
         meal: meal.value,
         date,
         menuOption,
-        guests,
-        status: 'confirmed',
-        createdAt: new Date().toISOString()
+        time: defaultTimes[meal.value] || '12:00',
+        guests: Array.from({ length: guests }, (_, index) => `Guest ${index + 1}`),
       };
 
       try {
-        // Show success
-        showSuccess('Meal booked successfully!');
+        const result = await CampusFoodDB.bookMess(booking);
+        if (!result.success) {
+          showError(result.message || 'Failed to book meal');
+          return;
+        }
+
+        showSuccess(result.message || 'Meal booked successfully!');
 
         // Reset form
         document.querySelectorAll('input[name="meal"]').forEach(el => el.checked = false);
@@ -424,7 +434,7 @@
         document.getElementById('date').value = today;
 
         // Reload bookings
-        setTimeout(() => loadBookings(), 1500);
+        setTimeout(() => loadBookings(), 700);
       } catch (error) {
         showError('Failed to book meal');
       }
@@ -432,31 +442,7 @@
 
     async function loadBookings() {
       try {
-        // In a real app, fetch from backend
-        // For now, create sample bookings for demo
-        const bookings = [
-          {
-            id: 'MESS001',
-            meal: 'Lunch',
-            menuOption: 'Option 1',
-            date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
-            time: '12:30 PM',
-            seat: 42,
-            status: 'confirmed',
-            guests: 0
-          },
-          {
-            id: 'MESS002',
-            meal: 'Dinner',
-            menuOption: 'Option 2',
-            date: new Date(Date.now() + 172800000).toISOString().split('T')[0],
-            time: '7:00 PM',
-            seat: 58,
-            status: 'confirmed',
-            guests: 1
-          }
-        ];
-
+        const bookings = await CampusFoodDB.getMessBookings(user._id || user.id);
         displayBookings(bookings);
       } catch (error) {
         console.error('Failed to load bookings:', error);
@@ -496,8 +482,21 @@
             </div>
           </div>
           <div class="booking-status status-${booking.status}">${booking.status}</div>
+          <div class="booking-action">
+            ${booking.status === 'confirmed' ? `<button class="btn-small danger" onclick="cancelBooking('${booking.id}')">Cancel</button>` : ''}
+          </div>
         </div>
       `).join('');
+    }
+
+    async function cancelBooking(bookingId) {
+      const result = await CampusFoodDB.cancelMess(bookingId);
+      if (result.success) {
+        showSuccess('Booking cancelled');
+        loadBookings();
+      } else {
+        showError(result.message || 'Failed to cancel booking');
+      }
     }
 
     function showSuccess(msg) {

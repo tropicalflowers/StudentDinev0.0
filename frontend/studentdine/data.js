@@ -142,6 +142,122 @@ const CampusFoodDB = {
   },
 
   // ── Keep these for any pages still using local user data ─
+  async getRestaurants() {
+    try {
+      const response = await fetch(`${this.BACKEND}/api/restaurants`);
+      const result = await response.json();
+      return result.data || [];
+    } catch (error) {
+      console.error('Could not fetch restaurants:', error);
+      return [];
+    }
+  },
+
+  async updateRestaurant(id, updates) {
+    try {
+      const response = await fetch(`${this.BACKEND}/api/restaurants/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      });
+      return await response.json();
+    } catch (error) {
+      console.error('Could not update restaurant:', error);
+      return { success: false, message: 'Could not connect to server' };
+    }
+  },
+
+  async getStaff() {
+    try {
+      const response = await fetch(`${this.BACKEND}/api/staff`);
+      const result = await response.json();
+      return result.data || [];
+    } catch (error) {
+      console.error('Could not fetch staff:', error);
+      return [];
+    }
+  },
+
+  async addStaff(member) {
+    try {
+      const response = await fetch(`${this.BACKEND}/api/staff`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(member),
+      });
+      return await response.json();
+    } catch (error) {
+      console.error('Could not add staff:', error);
+      return { success: false, message: 'Could not connect to server' };
+    }
+  },
+
+  async updateStaff(id, updates) {
+    try {
+      const response = await fetch(`${this.BACKEND}/api/staff/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      });
+      return await response.json();
+    } catch (error) {
+      console.error('Could not update staff:', error);
+      return { success: false, message: 'Could not connect to server' };
+    }
+  },
+
+  async deleteStaff(id) {
+    try {
+      const response = await fetch(`${this.BACKEND}/api/staff/${id}`, {
+        method: 'DELETE',
+      });
+      return await response.json();
+    } catch (error) {
+      console.error('Could not delete staff:', error);
+      return { success: false, message: 'Could not connect to server' };
+    }
+  },
+
+  async getMessBookings(userId) {
+    try {
+      const url = userId ? `${this.BACKEND}/api/mess?userId=${userId}` : `${this.BACKEND}/api/mess`;
+      const response = await fetch(url);
+      const result = await response.json();
+      return result.bookings || [];
+    } catch (error) {
+      console.error('Could not fetch mess bookings:', error);
+      return [];
+    }
+  },
+
+  async bookMess(booking) {
+    try {
+      const response = await fetch(`${this.BACKEND}/api/mess/book`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(booking),
+      });
+      return await response.json();
+    } catch (error) {
+      console.error('Could not book mess:', error);
+      return { success: false, message: 'Could not connect to server' };
+    }
+  },
+
+  async cancelMess(bookingId) {
+    try {
+      const response = await fetch(`${this.BACKEND}/api/mess/cancel`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookingId }),
+      });
+      return await response.json();
+    } catch (error) {
+      console.error('Could not cancel mess booking:', error);
+      return { success: false, message: 'Could not connect to server' };
+    }
+  },
+
   getUserByEmail(email) {
     const users = JSON.parse(localStorage.getItem('campusFoodData') || '{}').users || [];
     return users.find(u => u.email === email);

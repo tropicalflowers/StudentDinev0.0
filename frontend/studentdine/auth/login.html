@@ -800,7 +800,12 @@
 
       if (user?.role === 'manager') {
         localStorage.removeItem('campus_food_role');
-        return '../admin/dashboard.html';
+        return '../manager/operations.html';
+      }
+
+      if (user?.role === 'hosteller') {
+        localStorage.removeItem('campus_food_role');
+        return '../hosteller/index.html';
       }
 
       localStorage.removeItem('campus_food_role');

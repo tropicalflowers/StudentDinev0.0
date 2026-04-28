@@ -200,7 +200,7 @@ $("#btnLogin")?.addEventListener("click",()=>{
 /* CTA buttons */
 $("#ctaStartOrder")?.addEventListener("click",()=>window.location.href="../store.html");
 $("#ctaMess")?.addEventListener("click",()=>openMessBooking());
-$("#ctaManage")?.addEventListener("click",()=>openManage('day'));
+$("#ctaManage")?.addEventListener("click",()=>window.location.href='operations.html');
 
 /* Dropdown logic */
 $$(".dropdown > button").forEach(btn=>{

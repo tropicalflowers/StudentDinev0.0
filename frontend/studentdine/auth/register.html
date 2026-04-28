@@ -1033,7 +1033,14 @@
         // Clear form
         registerForm.reset();
         setTimeout(() => {
-          window.location.href = '../store.html';
+          const user = Auth.getCurrentUser();
+          if (user?.role === 'manager') {
+            window.location.href = '../manager/operations.html';
+          } else if (user?.role === 'hosteller') {
+            window.location.href = '../hosteller/index.html';
+          } else {
+            window.location.href = '../store.html';
+          }
         }, 1500);
       } else {
         showError(result.message || 'Registration failed. Please try again.');
