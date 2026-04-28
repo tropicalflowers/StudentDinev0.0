@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Day Scholar Features • Student Dine</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--txt); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    
+    .nav { background: var(--card); border-bottom: 1px solid color-mix(in srgb, var(--txt) 12%, transparent); }
+    .nav .row { display: flex; justify-content: space-between; align-items: center; max-width: 1500px; margin: 0 auto; padding: 12px 20px; gap: 20px; flex-wrap: wrap; }
+    .nav .brand { display: flex; gap: 12px; align-items: center; font-weight: 800; font-size: 18px; }
+    .nav .logo { width: 32px; height: 32px; background: linear-gradient(135deg, var(--pri), var(--pri-2)); border-radius: 8px; }
+    .nav .menu { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+    .nav a { color: var(--txt); text-decoration: none; font-size: 14px; transition: color 0.2s; }
+    .nav a:hover { color: var(--pri); }
+    .nav button { padding: 8px 16px; border: 1px solid var(--pri); background: transparent; color: var(--pri); border-radius: 6px; cursor: pointer; font-weight: 700; transition: all 0.2s; }
+    .nav button:hover { background: var(--pri); color: white; }
+
+    .container { max-width: 1400px; margin: 0 auto; padding: 24px 20px; }
+    .hero { background: linear-gradient(135deg, #3b82f6, #8b5cf6); border-radius: 16px; padding: 32px; color: white; margin-bottom: 32px; }
+    .hero h1 { font-size: 32px; margin-bottom: 8px; }
+    .hero p { font-size: 16px; opacity: 0.95; }
+    .role-pill { display: inline-block; background: rgba(255,255,255,0.2); padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; margin-bottom: 16px; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
+    .panel { background: var(--card); border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent); border-radius: 12px; padding: 24px; }
+    .panel h2 { font-size: 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+    .panel h3 { font-size: 14px; color: var(--muted); text-transform: uppercase; margin: 16px 0 12px; font-weight: 700; }
+
+    .form-group { display: grid; gap: 8px; margin-bottom: 14px; }
+    .form-group label { font-size: 13px; font-weight: 600; color: var(--muted); }
+    .form-group input, .form-group select, .form-group textarea { padding: 10px 12px; border: 1px solid color-mix(in srgb, var(--txt) 14%, transparent); border-radius: 8px; background: transparent; color: var(--txt); font-size: 14px; outline: none; }
+    .form-group input::placeholder { color: color-mix(in srgb, var(--txt) 40%, transparent); }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--pri); box-shadow: 0 0 0 2px color-mix(in srgb, var(--pri) 20%, transparent); }
+
+    .btn { padding: 10px 16px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: 14px; }
+    .btn-primary { background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 16px color-mix(in srgb, #3b82f6 50%, transparent); }
+    .btn-secondary { background: transparent; border: 1px solid color-mix(in srgb, var(--txt) 18%, transparent); color: var(--txt); }
+    .btn-secondary:hover { background: color-mix(in srgb, var(--txt) 6%, transparent); }
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+    .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+    .feature-card { background: color-mix(in srgb, #3b82f6 8%, transparent); border: 1px solid color-mix(in srgb, #3b82f6 25%, transparent); border-radius: 10px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.2s; }
+    .feature-card:hover { transform: translateY(-4px); box-shadow: 0 8px 16px color-mix(in srgb, #3b82f6 30%, transparent); }
+    .feature-icon { font-size: 32px; margin-bottom: 10px; }
+    .feature-name { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+    .feature-desc { font-size: 12px; color: var(--muted); }
+
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px; }
+    .stat-card { background: color-mix(in srgb, var(--pri) 8%, transparent); border-radius: 10px; padding: 16px; text-align: center; }
+    .stat-number { font-size: 24px; font-weight: 800; color: var(--pri); }
+    .stat-label { font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { background: color-mix(in srgb, var(--txt) 6%, transparent); padding: 10px; text-align: left; font-weight: 700; color: var(--muted); }
+    td { padding: 10px; border-bottom: 1px solid color-mix(in srgb, var(--txt) 10%, transparent); }
+    tr:hover { background: color-mix(in srgb, var(--txt) 3%, transparent); }
+
+    .list-item { display: flex; align-items: center; gap: 12px; padding: 12px; background: color-mix(in srgb, var(--txt) 3%, transparent); border-radius: 8px; margin-bottom: 8px; }
+    .list-item-icon { font-size: 20px; }
+    .list-item-content { flex: 1; }
+    .list-item-title { font-weight: 600; font-size: 14px; }
+    .list-item-desc { font-size: 12px; color: var(--muted); }
+
+    .message { padding: 12px; border-radius: 8px; margin: 12px 0; font-size: 14px; }
+    .message.success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+    .message.error { background: #fee2e2; color: #7f1d1d; border: 1px solid #fecaca; }
+
+    @media (max-width: 768px) {
+      .grid { grid-template-columns: 1fr; }
+      .container { padding: 16px 12px; }
+      .panel { padding: 16px; }
+      .hero { padding: 20px; }
+      .hero h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="row">
+      <div class="brand">
+        <div class="logo"></div>
+        <div>Day Scholar • Premium Features</div>
+      </div>
+      <div class="menu">
+        <a href="index.html">Dashboard</a>
+        <a href="../store.html">Order Food</a>
+        <a href="../order-history.html">Orders</a>
+        <button onclick="logout()">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <section class="hero">
+      <div class="role-pill">👨‍🎓 Day Scholar</div>
+      <h1>Exclusive Features & Benefits</h1>
+      <p>Premium access to advanced ordering, dining, and subscription options.</p>
+    </section>
+
+    <!-- Premium Features Overview -->
+    <div class="grid">
+      <div class="panel" style="grid-column: 1 / -1;">
+        <h2>✨ Your Premium Features</h2>
+        <div class="feature-grid">
+          <div class="feature-card" onclick="scrollToSection('subscriptions')">
+            <div class="feature-icon">🎫</div>
+            <div class="feature-name">Meal Plans</div>
+            <div class="feature-desc">Subscribe to daily meal plans</div>
+          </div>
+          <div class="feature-card" onclick="scrollToSection('rewards')">
+            <div class="feature-icon">🎁</div>
+            <div class="feature-name">Rewards Program</div>
+            <div class="feature-desc">Earn points on every purchase</div>
+          </div>
+          <div class="feature-card" onclick="scrollToSection('priority')">
+            <div class="feature-icon">⭐</div>
+            <div class="feature-name">Priority Ordering</div>
+            <div class="feature-desc">Skip the queue with priority access</div>
+          </div>
+          <div class="feature-card" onclick="scrollToSection('dining')">
+            <div class="feature-icon">🍽️</div>
+            <div class="feature-name">Table Reservations</div>
+            <div class="feature-desc">Reserve dining tables in advance</div>
+          </div>
+          <div class="feature-card" onclick="scrollToSection('offers')">
+            <div class="feature-icon">🏷️</div>
+            <div class="feature-name">Exclusive Offers</div>
+            <div class="feature-desc">Day-scholar only coupons & deals</div>
+          </div>
+          <div class="feature-card" onclick="scrollToSection('wallet')">
+            <div class="feature-icon">💳</div>
+            <div class="feature-name">Digital Wallet</div>
+            <div class="feature-desc">Cashless payments with balance</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Meal Plans / Subscriptions -->
+      <div class="panel" id="subscriptions">
+        <h2>🎫 Meal Plans</h2>
+        <div class="form-group">
+          <label>Available Plans</label>
+          <select id="planSelect">
+            <option value="">Select a plan</option>
+            <option value="daily">Daily Combo - ₹150/day</option>
+            <option value="weekly">Weekly Pass - ₹800/week</option>
+            <option value="monthly">Monthly Subscription - ₹3000/month</option>
+            <option value="semester">Semester Plan - ₹12000/semester</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Start Date</label>
+          <input type="date" id="planDate" />
+        </div>
+        <button class="btn btn-primary" onclick="subscribeToPlan()" style="width: 100%;">Subscribe</button>
+        <div id="subscriptionMessage"></div>
+        <h3 style="margin-top: 20px;">Your Subscriptions</h3>
+        <div id="subscriptionList">
+          <p style="color: var(--muted); text-align: center; padding: 20px;">No active subscriptions</p>
+        </div>
+      </div>
+
+      <!-- Rewards Program -->
+      <div class="panel" id="rewards">
+        <h2>🎁 Rewards Program</h2>
+        <div class="stats">
+          <div class="stat-card">
+            <div class="stat-number" id="rewardPoints">0</div>
+            <div class="stat-label">Points Balance</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="rewardTier">Silver</div>
+            <div class="stat-label">Your Tier</div>
+          </div>
+        </div>
+        <h3>Earn Points On:</h3>
+        <div class="list-item">
+          <div class="list-item-icon">🍽️</div>
+          <div class="list-item-content">
+            <div class="list-item-title">Food Orders</div>
+            <div class="list-item-desc">1 point per ₹10 spent</div>
+          </div>
+        </div>
+        <div class="list-item">
+          <div class="list-item-icon">🎫</div>
+          <div class="list-item-content">
+            <div class="list-item-title">Subscriptions</div>
+            <div class="list-item-desc">5% bonus points</div>
+          </div>
+        </div>
+        <div class="list-item">
+          <div class="list-item-icon">⭐</div>
+          <div class="list-item-content">
+            <div class="list-item-title">Referrals</div>
+            <div class="list-item-desc">50 points per successful referral</div>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="redeemRewards()" style="width: 100%; margin-top: 12px;">Redeem Points</button>
+      </div>
+
+      <!-- Priority Ordering -->
+      <div class="panel" id="priority">
+        <h2>⭐ Priority Ordering</h2>
+        <div class="form-group">
+          <label>Enable Priority Mode</label>
+          <input type="checkbox" id="priorityMode" onchange="togglePriority()" style="width: auto; height: 18px;" />
+          <span style="font-size: 13px; color: var(--muted);">When enabled, your orders get prepared first</span>
+        </div>
+        <h3>Benefits:</h3>
+        <div class="list-item">
+          <div class="list-item-icon">⚡</div>
+          <div class="list-item-content">
+            <div class="list-item-title">Faster Preparation</div>
+            <div class="list-item-desc">Your orders prepared first in queue</div>
+          </div>
+        </div>
+        <div class="list-item">
+          <div class="list-item-icon">📢</div>
+          <div class="list-item-content">
+            <div class="list-item-title">Instant Notifications</div>
+            <div class="list-item-desc">Real-time order status updates</div>
+          </div>
+        </div>
+        <div class="list-item">
+          <div class="list-item-icon">🚚</div>
+          <div class="list-item-content">
+            <div class="list-item-title">Express Delivery</div>
+            <div class="list-item-desc">Guaranteed 15-min delivery window</div>
+          </div>
+        </div>
+        <p style="margin-top: 12px; font-size: 12px; color: var(--muted);">Available for ₹50/month subscription</p>
+      </div>
+
+      <!-- Table Reservations -->
+      <div class="panel" id="dining">
+        <h2>🍽️ Table Reservations</h2>
+        <div class="form-group">
+          <label>Restaurant</label>
+          <select id="restaurantSelect">
+            <option value="">Select restaurant</option>
+            <option value="cafe1">Campus Café</option>
+            <option value="cafe2">Dining Hall</option>
+            <option value="cafe3">Fast Food Corner</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" id="reservationDate" />
+        </div>
+        <div class="form-group">
+          <label>Time</label>
+          <input type="time" id="reservationTime" />
+        </div>
+        <div class="form-group">
+          <label>Number of Guests</label>
+          <input type="number" id="guestCount" min="1" max="10" value="2" />
+        </div>
+        <button class="btn btn-primary" onclick="reserveTable()" style="width: 100%;">Reserve Table</button>
+        <div id="reservationMessage"></div>
+      </div>
+
+      <!-- Exclusive Offers -->
+      <div class="panel" id="offers">
+        <h2>🏷️ Exclusive Offers</h2>
+        <h3>Today's Special Offers:</h3>
+        <div id="offersList">
+          <div class="list-item">
+            <div class="list-item-icon">🍕</div>
+            <div class="list-item-content">
+              <div class="list-item-title">20% off on Pizza</div>
+              <div class="list-item-desc">Valid till 11:59 PM today</div>
+            </div>
+          </div>
+          <div class="list-item">
+            <div class="list-item-icon">🍔</div>
+            <div class="list-item-content">
+              <div class="list-item-title">Buy 1 Get 1 on Burgers</div>
+              <div class="list-item-desc">Only for day scholars</div>
+            </div>
+          </div>
+          <div class="list-item">
+            <div class="list-item-icon">🥤</div>
+            <div class="list-item-content">
+              <div class="list-item-title">Free Beverage with Meals</div>
+              <div class="list-item-desc">Minimum order ₹300</div>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-secondary" onclick="viewAllOffers()" style="width: 100%; margin-top: 12px;">View All Offers</button>
+      </div>
+
+      <!-- Digital Wallet -->
+      <div class="panel" id="wallet">
+        <h2>💳 Digital Wallet</h2>
+        <div class="stats">
+          <div class="stat-card">
+            <div class="stat-number" id="walletBalance">₹0</div>
+            <div class="stat-label">Available Balance</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Add Money to Wallet</label>
+          <input type="number" id="addAmount" placeholder="Enter amount (₹)" min="100" step="100" />
+        </div>
+        <button class="btn btn-primary" onclick="addMoneyToWallet()" style="width: 100%;">Add Funds</button>
+        <div id="walletMessage"></div>
+        <h3 style="margin-top: 20px;">Recent Transactions</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Amount</th>
+                <th>Type</th>
+              </tr>
+            </thead>
+            <tbody id="transactionTable">
+              <tr><td colspan="4" style="text-align: center; color: var(--muted);">No transactions yet</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../auth.js"></script>
+  <script>
+    const API_URL = 'http://localhost:5000/api';
+    let currentUser = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      currentUser = Auth.getCurrentUser();
+      if (!currentUser) {
+        window.location.href = '../index.html';
+        return;
+      }
+
+      if (currentUser.role !== 'day-scholar') {
+        window.location.href = '../index.html';
+        return;
+      }
+
+      // Set default dates
+      const today = new Date();
+      document.getElementById('planDate').valueAsDate = today;
+      document.getElementById('reservationDate').valueAsDate = today;
+
+      // Initialize data
+      loadUserData();
+    });
+
+    function scrollToSection(id) {
+      document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+    }
+
+    async function loadUserData() {
+      // Load subscriptions, rewards, wallet balance, etc.
+      // This would typically come from the API
+      document.getElementById('rewardPoints').textContent = '1,250';
+      document.getElementById('rewardTier').textContent = 'Gold';
+      document.getElementById('walletBalance').textContent = '₹2,500';
+    }
+
+    async function subscribeToPlan() {
+      const plan = document.getElementById('planSelect').value;
+      const date = document.getElementById('planDate').value;
+
+      if (!plan || !date) {
+        showMessage(document.getElementById('subscriptionMessage'), 'Please select a plan and date', 'error');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_URL}/subscriptions/subscribe`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: currentUser.id,
+            plan,
+            startDate: date
+          })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          showMessage(document.getElementById('subscriptionMessage'), 'Subscription confirmed! ✓', 'success');
+          document.getElementById('planSelect').value = '';
+        } else {
+          showMessage(document.getElementById('subscriptionMessage'), data.message || 'Failed to subscribe', 'error');
+        }
+      } catch (err) {
+        showMessage(document.getElementById('subscriptionMessage'), 'Error subscribing: ' + err.message, 'error');
+      }
+    }
+
+    function redeemRewards() {
+      alert('Redeem your points for discounts, free meals, or merchandise!');
+    }
+
+    function togglePriority() {
+      const enabled = document.getElementById('priorityMode').checked;
+      alert(enabled ? 'Priority mode enabled!' : 'Priority mode disabled');
+    }
+
+    async function reserveTable() {
+      const restaurant = document.getElementById('restaurantSelect').value;
+      const date = document.getElementById('reservationDate').value;
+      const time = document.getElementById('reservationTime').value;
+      const guests = document.getElementById('guestCount').value;
+
+      if (!restaurant || !date || !time || !guests) {
+        showMessage(document.getElementById('reservationMessage'), 'Please fill all fields', 'error');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_URL}/reservations/create`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: currentUser.id,
+            restaurant,
+            date,
+            time,
+            guests: parseInt(guests)
+          })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          showMessage(document.getElementById('reservationMessage'), 'Table reserved! ✓', 'success');
+          document.getElementById('restaurantSelect').value = '';
+          document.getElementById('reservationTime').value = '';
+        } else {
+          showMessage(document.getElementById('reservationMessage'), data.message || 'Failed to reserve', 'error');
+        }
+      } catch (err) {
+        showMessage(document.getElementById('reservationMessage'), 'Error: ' + err.message, 'error');
+      }
+    }
+
+    async function addMoneyToWallet() {
+      const amount = document.getElementById('addAmount').value;
+
+      if (!amount || amount < 100) {
+        showMessage(document.getElementById('walletMessage'), 'Minimum amount is ₹100', 'error');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_URL}/wallet/add-money`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: currentUser.id,
+            amount: parseInt(amount)
+          })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          showMessage(document.getElementById('walletMessage'), `₹${amount} added to wallet! ✓`, 'success');
+          document.getElementById('addAmount').value = '';
+          loadUserData();
+        } else {
+          showMessage(document.getElementById('walletMessage'), data.message || 'Failed to add funds', 'error');
+        }
+      } catch (err) {
+        showMessage(document.getElementById('walletMessage'), 'Error: ' + err.message, 'error');
+      }
+    }
+
+    function viewAllOffers() {
+      window.location.href = '../store.html';
+    }
+
+    function showMessage(el, msg, type) {
+      el.innerHTML = `<div class="message ${type}">${msg}</div>`;
+      setTimeout(() => { el.innerHTML = ''; }, 4000);
+    }
+
+    function logout() {
+      Auth.logout();
+      window.location.href = '../index.html';
+    }
+  </script>
+</body>
+</html>
