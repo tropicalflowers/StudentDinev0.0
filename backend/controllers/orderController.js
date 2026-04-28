@@ -1,67 +1,139 @@
-const { readData, writeData } = require('../helpers/fileHelper');
+const Order = require('../models/Order');
+const MenuItem = require('../models/MenuItem');
 
-// GET /api/orders
-function getAllOrders(req, res) {
-  const orders = readData('orders.json');
+// GET /api/orders - Get all orders (or user's orders if authenticated)
+async function getAllOrders(req, res) {
+  try {
+    let query = {};
+    
+    // If user is authenticated, filter by their ID
+    if (req.user) {
+      query.userId = req.user._id;
+    }
+    
+    // Filter by userId if provided in query
+    if (req.query.userId) {
+      query.userId = req.query.userId;
+    }
 
-  // Filter by userId if provided: ?userId=1
-  if (req.query.userId) {
-    const userOrders = orders.filter(o => o.userId === Number(req.query.userId));
-    return res.json({ success: true, count: userOrders.length, orders: userOrders });
+    const orders = await Order.find(query)
+      .populate('userId', 'name email')
+      .sort({ createdAt: -1 });
+
+    res.json({ success: true, count: orders.length, data: orders });
+  } catch (error) {
+    console.error('Get orders error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch orders' });
   }
-
-  res.json({ success: true, count: orders.length, orders });
 }
 
-// GET /api/orders/:id
-function getOrderById(req, res) {
-  const orders = readData('orders.json');
-  const order = orders.find(o => o.id === req.params.id);
+// GET /api/orders/:id - Get order by ID
+async function getOrderById(req, res) {
+  try {
+    const order = await Order.findById(req.params.id)
+      .populate('userId', 'name email')
+      .populate('items.menuItemId');
 
-  if (!order) {
-    return res.status(404).json({ success: false, message: 'Order not found' });
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    res.json({ success: true, data: order });
+  } catch (error) {
+    console.error('Get order error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch order' });
   }
-
-  res.json({ success: true, order });
 }
 
-// POST /api/orders
-function placeOrder(req, res) {
-  const { userId, userName, items, subtotal, total, discount, paymentMethod, deliveryAddress, couponCode } = req.body;
+// POST /api/orders - Place new order
+async function placeOrder(req, res) {
+  try {
+    const { items, totalAmount, discountAmount, finalAmount, paymentMethod, deliveryAddress, specialInstructions, couponCode } = req.body;
 
-  // Basic validation
-  if (!userId || !items || items.length === 0) {
-    return res.status(400).json({ success: false, message: 'userId and items are required' });
+    // Validate required fields
+    if (!items || items.length === 0) {
+      return res.status(400).json({ success: false, message: 'Items are required' });
+    }
+
+    if (!finalAmount) {
+      return res.status(400).json({ success: false, message: 'finalAmount is required' });
+    }
+
+    if (!paymentMethod) {
+      return res.status(400).json({ success: false, message: 'paymentMethod is required' });
+    }
+
+    // Create order
+    const newOrder = await Order.create({
+      userId: req.user._id,
+      items: items.map(item => ({
+        menuItemId: item.menuItemId || null,
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price,
+      })),
+      totalAmount: totalAmount || finalAmount,
+      discountAmount: discountAmount || 0,
+      finalAmount,
+      paymentMethod,
+      deliveryAddress: deliveryAddress || 'On Campus',
+      specialInstructions: specialInstructions || '',
+      couponCode: couponCode || null,
+      status: 'Pending',
+    });
+
+    // Emit Socket.io event for real-time update
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('new_order', newOrder);
+    }
+
+    res.status(201).json({
+      success: true,
+      message: 'Order placed successfully',
+      data: newOrder,
+    });
+  } catch (error) {
+    console.error('Place order error:', error);
+    res.status(500).json({ success: false, message: 'Failed to place order' });
   }
-
-  if (!paymentMethod || !deliveryAddress) {
-    return res.status(400).json({ success: false, message: 'paymentMethod and deliveryAddress are required' });
-  }
-
-  const orders = readData('orders.json');
-
-  // Generate order ID like ORD003, ORD004...
-  const newId = 'ORD' + String(orders.length + 1).padStart(3, '0');
-
-  const newOrder = {
-    id: newId,
-    userId,
-    userName: userName || 'Unknown',
-    items,
-    subtotal: subtotal || total,
-    discount: discount || 0,
-    total,
-    status: 'Pending',
-    paymentMethod,
-    deliveryAddress,
-    couponCode: couponCode || null,
-    createdAt: new Date().toISOString(),
-  };
-
-  orders.push(newOrder);
-  writeData('orders.json', orders);
-
-  res.status(201).json({ success: true, message: 'Order placed successfully', orderId: newId, order: newOrder });
 }
 
-module.exports = { getAllOrders, getOrderById, placeOrder };
+// PUT /api/orders/:id - Update order status (manager only)
+async function updateOrderStatus(req, res) {
+  try {
+    const { status } = req.body;
+
+    if (!status) {
+      return res.status(400).json({ success: false, message: 'Status is required' });
+    }
+
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      { status, updatedAt: Date.now() },
+      { new: true }
+    );
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    // Emit Socket.io event
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('order_updated', order);
+      io.to(order.userId.toString()).emit('order_status_changed', {
+        orderId: order._id,
+        status: order.status,
+      });
+    }
+
+    res.json({ success: true, message: 'Order updated', data: order });
+  } catch (error) {
+    console.error('Update order error:', error);
+    res.status(500).json({ success: false, message: 'Failed to update order' });
+  }
+}
+
+
+module.exports = { getAllOrders, getOrderById, placeOrder, updateOrderStatus };

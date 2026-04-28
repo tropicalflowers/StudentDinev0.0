@@ -185,6 +185,7 @@
       <div class="menu">
         <button id="modeToggle">☀️/🌙</button>
         <a href="order-history.html">📜 Orders</a>
+        <a id="messBookingLink" href="hosteller/mess-booking.html" style="display:none;">🍽️ Mess Booking</a>
         <a href="checkout.html">🛒 Cart</a>
         <button onclick="Auth.logout()">🚪 Logout</button>
       </div>
@@ -296,6 +297,12 @@
   <script>
     if (!Auth.isAuthenticated()) {
       window.location.href = 'auth/login.html';
+    }
+
+    // Show mess booking link for hostellers
+    const currentUser = Auth.getCurrentUser();
+    if (currentUser && currentUser.role === 'hosteller') {
+      document.getElementById('messBookingLink').style.display = 'inline-block';
     }
 
     let allMenuItems = [];

@@ -173,7 +173,7 @@ const Auth = {
       return { success: false, message: 'Passwords do not match' };
     }
 
-    if (!['student', 'hosteller'].includes(sanitizedData.role)) {
+    if (!['student', 'hosteller', 'manager'].includes(sanitizedData.role)) {
       return { success: false, message: 'Please select a valid role' };
     }
 
