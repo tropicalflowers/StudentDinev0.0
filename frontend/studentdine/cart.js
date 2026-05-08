@@ -102,9 +102,13 @@ const Cart = {
     // Validate coupon with backend if provided
     if (orderDetails.couponCode) {
       try {
+        const token = Auth.getToken();
         const couponRes = await fetch(`${this.BACKEND}/api/coupons/validate`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
           body: JSON.stringify({
             code: orderDetails.couponCode,
             totalAmount,
@@ -136,25 +140,35 @@ const Cart = {
 
     // Place order via backend
     try {
+      const token = Auth.getToken();
+      
+      // Map payment method to backend format (lowercase)
+      const paymentMethodMap = {
+        'Wallet': 'wallet',
+        'Card': 'card',
+        'Cash': 'cash',
+        'UPI': 'wallet',
+        'Google Pay': 'card'
+      };
+      
       const response = await fetch(`${this.BACKEND}/api/orders`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({
-          userId,
-          userName: user.name,
           items: this.items.map(item => ({
-            itemId: item.itemId,
+            menuItemId: item.itemId || null,
             name: item.name,
             price: item.price,
             quantity: item.quantity,
-            restaurantName: item.restaurantName,
           })),
-          subtotal: this.getTotal(),
-          discount,
-          total: totalAmount,
-          paymentMethod: orderDetails.paymentMethod,
+          totalAmount: this.getTotal(),
+          discountAmount: discount,
+          finalAmount: totalAmount,
+          paymentMethod: paymentMethodMap[orderDetails.paymentMethod] || 'wallet',
           deliveryAddress: orderDetails.deliveryAddress,
-          phoneNumber: orderDetails.phoneNumber,
           specialInstructions: orderDetails.specialInstructions || '',
           couponCode: orderDetails.couponCode || null,
         }),

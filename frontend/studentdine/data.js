@@ -76,7 +76,11 @@ const CampusFoodDB = {
         ? `${this.BACKEND}/api/orders?userId=${userId}`
         : `${this.BACKEND}/api/orders`;
 
-      const response = await fetch(url);
+      const token = Auth?.getToken?.();
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      
+      const response = await fetch(url, { headers });
       const result = await response.json();
       return result.orders || [];
 
@@ -89,7 +93,11 @@ const CampusFoodDB = {
   // ── Fetch single order ──────────────────────────────────
   async getOrder(orderId) {
     try {
-      const response = await fetch(`${this.BACKEND}/api/orders/${orderId}`);
+      const token = Auth?.getToken?.();
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      
+      const response = await fetch(`${this.BACKEND}/api/orders/${orderId}`, { headers });
       const result = await response.json();
       return result.order || null;
     } catch (error) {

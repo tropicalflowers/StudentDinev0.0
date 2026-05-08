@@ -4,10 +4,11 @@
  * Usage: npm run migrate
  */
 
-require('dotenv').config();
 const mongoose = require('mongoose');
 const fs = require('fs');
 const path = require('path');
+
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 const User = require('../models/User');
 const MenuItem = require('../models/MenuItem');
