@@ -9,6 +9,10 @@ frontend/node_modules/
 # Ignore log files
 *.log
 
+# Uploaded files (keep folder via .gitkeep)
+backend/uploads/*
+!backend/uploads/.gitkeep
+
 # Ignore OS files
 .DS_Store
 Thumbs.db

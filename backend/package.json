@@ -5,15 +5,27 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "migrate": "node scripts/migrate.js"
+    "migrate": "node scripts/migrate.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy",
+    "prisma:test": "node scripts/test-prisma.js",
+    "test:upload": "node scripts/test-upload.js",
+    "test:prisma-restaurants": "node scripts/test-prisma-restaurants.js",
+    "prisma:studio": "prisma studio"
   },
   "dependencies": {
+    "@prisma/client": "^6.19.0",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^17.4.2",
     "express": "^4.22.1",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.5.0",
+    "multer": "^2.1.1",
     "socket.io": "^4.8.3"
+  },
+  "devDependencies": {
+    "prisma": "^6.19.0"
   }
 }

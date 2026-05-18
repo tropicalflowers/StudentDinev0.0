@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 
 const authRoutes = require('./routes/authRoutes');
 const menuRoutes = require('./routes/menuRoutes');
@@ -10,6 +11,8 @@ const managerRoutes = require('./routes/managerRoutes');
 const restaurantRoutes = require('./routes/restaurantRoutes');
 const staffRoutes = require('./routes/staffRoutes');
 const featuresRoutes = require('./routes/featuresRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
+const prismaRestaurantRoutes = require('./routes/prismaRestaurantRoutes');
 
 const loggerMiddleware = require('./middleware/logger');
 const errorHandler = require('./middleware/errorHandler');
@@ -52,6 +55,9 @@ app.use(express.json());
 // Logger Middleware
 app.use(loggerMiddleware);
 
+// Uploaded files (read-only)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // ── Routes ──────────────────────────────────────────────────
 app.use('/api/auth',    authRoutes);
 app.use('/api/menu',    menuRoutes);
@@ -62,6 +68,8 @@ app.use('/api/manager', managerRoutes);
 app.use('/api/restaurants', restaurantRoutes);
 app.use('/api/staff',   staffRoutes);
 app.use('/api/features', featuresRoutes);
+app.use('/api/upload', uploadRoutes);
+app.use('/api/prisma/restaurants', prismaRestaurantRoutes);
 
 
 // ── Health check ────────────────────────────────────────────

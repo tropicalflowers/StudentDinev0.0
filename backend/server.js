@@ -1,5 +1,6 @@
 const app = require('./app');
 const connectDB = require('./config/database');
+const { connectPrisma } = require('./config/prisma');
 const http = require('http');
 const { Server } = require('socket.io');
 const setupSocketIO = require('./socket/orderSocket');
@@ -10,7 +11,7 @@ const PORT = 3000;
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:8000',
+    origin: ['http://localhost:8000', 'http://127.0.0.1:5500'],
     methods: ['GET', 'POST'],
   },
 });
@@ -18,8 +19,10 @@ const io = new Server(server, {
 // Setup Socket.io handlers
 setupSocketIO(io);
 
-// Connect to MongoDB
-connectDB().then(() => {
+// Connect to MongoDB (required), then PostgreSQL via Prisma (optional)
+connectDB().then(async () => {
+  await connectPrisma();
+
   server.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
     console.log('Socket.io server is ready for real-time updates');
