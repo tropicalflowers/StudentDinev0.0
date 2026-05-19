@@ -24,7 +24,9 @@ const allowedOrigins = [
   'http://127.0.0.1:8000',
   'http://127.0.0.1:3001',
   'https://studentdinev0-0.vercel.app',
+  'https://studentdine.vercel.app',
   process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null,
+  process.env.FRONTEND_URL || null,
 ].filter(Boolean);
 
 app.use(cors({
