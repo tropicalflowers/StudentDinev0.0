@@ -4,7 +4,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 const setupSocketIO = require('./socket/orderSocket');
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Create HTTP server and Socket.io instance
 const server = http.createServer(app);
