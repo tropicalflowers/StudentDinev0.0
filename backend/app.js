@@ -23,6 +23,7 @@ const allowedOrigins = [
   'http://localhost:3001',
   'http://127.0.0.1:8000',
   'http://127.0.0.1:3001',
+  'https://studentdine.vercel.app'
 ];
 
 app.use(cors({
