@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 3000;
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:8000',
+    origin: 'http://localhost:8000','https://studentdine.vercel.app/',
     methods: ['GET', 'POST'],
   },
 });
