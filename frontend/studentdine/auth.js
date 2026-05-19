@@ -5,13 +5,13 @@
  */
 
 const Auth = {
-  // Dynamic backend URL - works in development and production
-  BACKEND: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || !window.location.hostname
+  // Backend URL - Use Render deployment for production, localhost for development
+  BACKEND: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:3000' 
-    : `${window.location.protocol}//${window.location.hostname}:3000`,
-  SOCKET_URL: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || !window.location.hostname
+    : 'https://studentdinee.onrender.com',
+  SOCKET_URL: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:3000' 
-    : `${window.location.protocol}//${window.location.hostname}:3000`,
+    : 'https://studentdinee.onrender.com',
   currentUser: null,
   token: null,
   socket: null,

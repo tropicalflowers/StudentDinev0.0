@@ -5,7 +5,10 @@
  */
 
 const CampusFoodDB = {
-  BACKEND: 'http://localhost:3000',
+  // Backend URL - Use Render deployment for production, localhost for development
+  BACKEND: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3000' 
+    : 'https://studentdinee.onrender.com',
 
   // ── Fetch menu from backend ─────────────────────────────
   // Replaces: CampusFoodDB.menuItems
