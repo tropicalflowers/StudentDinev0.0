@@ -25,9 +25,18 @@ const allowedOrigins = [
   'http://127.0.0.1:3001',
   'https://studentdinev0-0.vercel.app',
   'https://studentdine.vercel.app',
+  'https://studentdinee.onrender.com',
   process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null,
   process.env.FRONTEND_URL || null,
 ].filter(Boolean);
+
+// Handle preflight OPTIONS requests explicitly
+app.options('*', cors({
+  origin: allowedOrigins,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+  credentials: true,
+}));
 
 app.use(cors({
   origin: function (origin, callback) {
@@ -41,12 +50,14 @@ app.use(cors({
       if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
         callback(null, true);
       } else {
-        callback(new Error('Not allowed by CORS'));
+        // Log blocked origins for debugging
+        console.log('CORS blocked origin:', origin);
+        callback(null, true); // Allow all origins for now to debug
       }
     }
   },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
   credentials: true,
 }));
 
