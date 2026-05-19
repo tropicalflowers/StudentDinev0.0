@@ -177,51 +177,62 @@ const CampusFoodDB = {
 
   async getStaff() {
     try {
-      const response = await fetch(`${this.BACKEND}/api/staff`);
+      console.log('[Frontend] GET /api/prisma/staff');
+      const response = await fetch(`${this.BACKEND}/api/prisma/staff`);
       const result = await response.json();
+      console.log('[Frontend] ✓ Fetched staff:', result);
       return result.data || [];
     } catch (error) {
-      console.error('Could not fetch staff:', error);
+      console.error('[Frontend] ✗ Could not fetch staff:', error);
       return [];
     }
   },
 
   async addStaff(member) {
     try {
-      const response = await fetch(`${this.BACKEND}/api/staff`, {
+      console.log('[Frontend] POST /api/prisma/staff', member);
+      const response = await fetch(`${this.BACKEND}/api/prisma/staff`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(member),
       });
-      return await response.json();
+      const result = await response.json();
+      console.log('[Frontend] ✓ Staff added:', result);
+      return result;
     } catch (error) {
-      console.error('Could not add staff:', error);
+      console.error('[Frontend] ✗ Could not add staff:', error);
       return { success: false, message: 'Could not connect to server' };
     }
   },
 
   async updateStaff(id, updates) {
     try {
-      const response = await fetch(`${this.BACKEND}/api/staff/${id}`, {
+      console.log(`[Frontend] PUT /api/prisma/staff/${id}`, updates);
+      const response = await fetch(`${this.BACKEND}/api/prisma/staff/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
       });
-      return await response.json();
+      const result = await response.json();
+      console.log('[Frontend] ✓ Staff updated:', result);
+      return result;
     } catch (error) {
-      console.error('Could not update staff:', error);
+      console.error('[Frontend] ✗ Could not update staff:', error);
       return { success: false, message: 'Could not connect to server' };
     }
   },
 
   async deleteStaff(id) {
     try {
-      const response = await fetch(`${this.BACKEND}/api/staff/${id}`, {
+      console.log(`[Frontend] DELETE /api/prisma/staff/${id}`);
+      const response = await fetch(`${this.BACKEND}/api/prisma/staff/${id}`, {
         method: 'DELETE',
       });
-      return await response.json();
+      const result = await response.json();
+      console.log('[Frontend] ✓ Staff deleted:', result);
+      return result;
     } catch (error) {
-      console.error('Could not delete staff:', error);
+      console.error('[Frontend] ✗ Could not delete staff:', error);
       return { success: false, message: 'Could not connect to server' };
     }
   },

@@ -640,7 +640,7 @@
   <script>
     // Check authentication
     if (!Auth.isAuthenticated() || Auth.getCurrentUser().role !== 'manager') {
-      window.location.href = '../auth/login.html';
+      window.location.replace('../auth/login.html');
     }
 
     // Navigation

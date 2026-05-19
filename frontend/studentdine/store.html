@@ -297,8 +297,25 @@
   <script src="cart.js"></script>
   <script>
     if (!Auth.isAuthenticated()) {
-      window.location.href = 'auth/login.html';
+      window.location.replace('auth/login.html');
     }
+
+    // Logout event listener - clean up state (Auth.logout() handles redirect)
+    window.addEventListener('authLogout', (event) => {
+      console.log('Store page received logout event - Auth.logout() will handle redirect');
+      // Auth.logout() already cleared Cart and localStorage
+      // We just need to ensure Auth.isAuthenticated() is false
+      // The page will be redirected by Auth.logout()
+    });
+
+    // Listen for storage changes (logout from another tab)
+    window.addEventListener('storage', (event) => {
+      if (event.key === 'campusFoodToken' && event.newValue === null) {
+        console.log('Token cleared in another tab (store page), redirecting to login');
+        // Redirect to login - use replace to prevent back loop
+        window.location.replace('auth/login.html');
+      }
+    });
 
     // Show role-specific links
     const currentUser = Auth.getCurrentUser();

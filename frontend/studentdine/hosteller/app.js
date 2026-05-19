@@ -144,18 +144,51 @@ const STATE = {
   wallet: 500, // starter credit
 };
 
+// Redirect guard to prevent infinite redirect loops
+let isRedirecting = false;
+
 const $ = (q,root=document) => root.querySelector(q);
 const $$ = (q,root=document) => [...root.querySelectorAll(q)];
 
 function toast(msg){ alert(msg); } // placeholder
 
 /* Use the real auth session instead of the old portal-only login modal. */
-function initializeFromLanding() {
-  if (!window.Auth || !Auth.isAuthenticated()) {
-    window.location.href = '../auth/login.html';
+/* Wait for Auth to be fully initialized before checking authentication. */
+async function initializeFromLanding() {
+  // Poll for Auth to be available and initialized (max 5 seconds)
+  let authReady = false;
+  let attempts = 0;
+  const maxAttempts = 50; // 50 * 100ms = 5 seconds
+  
+  while (!authReady && attempts < maxAttempts) {
+    if (window.Auth && typeof Auth.isAuthenticated === 'function') {
+      authReady = true;
+      break;
+    }
+    attempts++;
+    await new Promise(resolve => setTimeout(resolve, 100)); // Wait 100ms before retry
+  }
+  
+  // If Auth still not available after timeout, redirect to login
+  if (!authReady) {
+    console.warn('Auth module did not initialize within timeout');
+    if (!isRedirecting) {
+      isRedirecting = true;
+      window.location.replace('../auth/login.html');
+    }
+    return;
+  }
+  
+  // Auth is ready, check if user is authenticated
+  if (!Auth.isAuthenticated()) {
+    if (!isRedirecting) {
+      isRedirecting = true;
+      window.location.replace('../auth/login.html');
+    }
     return;
   }
 
+  // User is authenticated, set up state
   const currentUser = Auth.getCurrentUser();
   STATE.user = {
     name: currentUser.name,
@@ -186,6 +219,37 @@ modeToggle.textContent = document.documentElement.classList.contains('light') ? 
 
 // Initialize from landing page if applicable
 initializeFromLanding();
+
+/* Logout event listener - clean up state (Auth.logout() handles redirect) */
+window.addEventListener('authLogout', (event) => {
+  console.log('Hosteller page received logout event - cleaning local state');
+  // Reset local state on logout using property mutations (not reassignment)
+  STATE.user = { name: 'Guest', roll: 'N/A', role: 'hosteller' };
+  STATE.wallet = 0;
+  STATE.role = 'hosteller';
+  Cart.items = [];
+  Cart.save();
+  // Auth.logout() already redirected, no need to redirect here
+});
+
+// Listen for storage changes (logout from another tab)
+window.addEventListener('storage', (event) => {
+  if (event.key === 'campusFoodToken' && event.newValue === null) {
+    console.log('Token cleared in another tab (hosteller page) - redirecting');
+    // Reset local state using property mutations (not reassignment)
+    STATE.user = { name: 'Guest', roll: 'N/A', role: 'hosteller' };
+    STATE.wallet = 0;
+    STATE.role = 'hosteller';
+    Cart.items = [];
+    Cart.save();
+    // Only redirect if not already redirecting (prevent loop)
+    if (!isRedirecting) {
+      isRedirecting = true;
+      // Use replace() to prevent back button loop
+      window.location.replace('../auth/login.html');
+    }
+  }
+});
 
 /* Login */
 $("#btnLogin")?.addEventListener("click",()=>{
@@ -251,30 +315,52 @@ function cardHtml(r){
     </div>
   </div>`;
 }
-function renderGallery(){ $("#gallery").innerHTML = RESTAURANTS.map(cardHtml).join(""); }
-function openGallery(){ document.getElementById("gallerySection").scrollIntoView({behavior:"smooth"}); }
+function renderGallery(){
+  const gallery = $("#gallery");
+  if (gallery) gallery.innerHTML = RESTAURANTS.map(cardHtml).join("");
+}
+function openGallery(){
+  const gallerySection = document.getElementById("gallerySection");
+  if (gallerySection) gallerySection.scrollIntoView({behavior:"smooth"});
+}
 renderGallery();
 
 // Search and filter functionality
 function reset_filters() {
-  $("#searchMenuInput").value = '';
-  $("#filterType").value = '';
-  $("#filterCategory").value = '';
-  $("#filterPrice").value = '';
-  $("#filterRating").value = '';
-  $("#searchResults").style.display = "none";
+  const searchMenuInput = $("#searchMenuInput");
+  if (searchMenuInput) searchMenuInput.value = '';
+  const filterType = $("#filterType");
+  if (filterType) filterType.value = '';
+  const filterCategory = $("#filterCategory");
+  if (filterCategory) filterCategory.value = '';
+  const filterPrice = $("#filterPrice");
+  if (filterPrice) filterPrice.value = '';
+  const filterRating = $("#filterRating");
+  if (filterRating) filterRating.value = '';
+  const searchResults = $("#searchResults");
+  if (searchResults) searchResults.style.display = "none";
   renderGallery();
 }
 
 const applySearchAndFilters = () => {
-  const query = $("#searchMenuInput").value.trim().toLowerCase();
-  const filterType = $("#filterType").value;
-  const filterCategory = $("#filterCategory").value;
-  const filterPrice = $("#filterPrice").value;
-  const filterRating = $("#filterRating").value;
+  const searchMenuInput = $("#searchMenuInput");
+  if (!searchMenuInput) return;
+  
+  const query = searchMenuInput.value.trim().toLowerCase();
+  const filterTypeEl = $("#filterType");
+  const filterType = filterTypeEl ? filterTypeEl.value : '';
+  const filterCategoryEl = $("#filterCategory");
+  const filterCategory = filterCategoryEl ? filterCategoryEl.value : '';
+  const filterPriceEl = $("#filterPrice");
+  const filterPrice = filterPriceEl ? filterPriceEl.value : '';
+  const filterRatingEl = $("#filterRating");
+  const filterRating = filterRatingEl ? filterRatingEl.value : '';
   
   const searchResults = $("#searchResults");
   const resultsList = $("#searchResultsList");
+  
+  // Safety check: if search UI elements don't exist, return early
+  if (!searchResults || !resultsList) return;
   
   if (!query && !filterType && !filterCategory && !filterPrice && !filterRating) {
     searchResults.style.display = "none";
@@ -525,7 +611,7 @@ function aboutCreators(){ alert("Built by your team. Add bios & images later in 
 
 /* Hosteller: Mess features */
 function openMessBooking(){
-  window.location.href = './mess-booking.html';
+  window.location.replace('./mess-booking.html');
 }
 function openMessCancel(){
   const meal = prompt("Cancel which meal? (Breakfast/Lunch/Dinner)");

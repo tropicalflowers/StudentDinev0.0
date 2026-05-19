@@ -795,6 +795,36 @@
       window.location.href = getPostAuthRedirect();
     }
 
+    // Clear form fields on page load (fresh login page state)
+    function clearLoginForm() {
+      identifierInput.value = '';
+      passwordInput.value = '';
+      identifierInput.classList.remove('valid', 'error');
+      passwordInput.classList.remove('valid', 'error');
+      identifierError.textContent = '';
+      passwordError.textContent = '';
+      hideMessages();
+    }
+
+    // Clear form on initial load
+    clearLoginForm();
+
+    // Listen for logout events from same or other tabs/windows
+    window.addEventListener('authLogout', (event) => {
+      console.log('Auth logout event received, clearing login form');
+      clearLoginForm();
+      // No redirect needed - login page should stay on login
+    });
+
+    // Listen for storage changes (logout from another tab)
+    window.addEventListener('storage', (event) => {
+      if (event.key === 'campusFoodToken' && event.newValue === null) {
+        console.log('Token cleared in another tab - clearing login form');
+        clearLoginForm();
+        showError('Session ended. Please log in again.');
+      }
+    });
+
     function getPostAuthRedirect() {
       const user = Auth.getCurrentUser();
 
@@ -803,11 +833,7 @@
         return '../manager/operations.html';
       }
 
-      if (user?.role === 'hosteller') {
-        localStorage.removeItem('campus_food_role');
-        return '../hosteller/index.html';
-      }
-
+      // Both hostellers and day scholars use store.html
       localStorage.removeItem('campus_food_role');
       return '../store.html';
     }

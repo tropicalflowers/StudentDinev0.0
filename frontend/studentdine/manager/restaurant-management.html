@@ -212,6 +212,7 @@
             <input type="text" id="restaurantNote" placeholder="e.g., Emergency maintenance" />
           </div>
           <button class="btn btn-primary" onclick="updateRestaurantStatus()" style="width: 100%;">Update Status</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteRestaurant()" style="width: 100%; margin-top: 8px;">Delete Restaurant</button>
           <div id="restaurantStatusMessage"></div>
         </div>
       </div>
@@ -534,6 +535,29 @@
       }
 
       await updateRestaurantStatus(restaurantId, status === 'open');
+    }
+
+    async function deleteRestaurant() {
+      const restaurantId = document.getElementById('restaurantManageSelect').value;
+      if (!restaurantId) {
+        showMessage(document.getElementById('restaurantStatusMessage'), 'Please select a restaurant', 'error');
+        return;
+      }
+      if (!confirm('Delete this restaurant from PostgreSQL?')) return;
+
+      try {
+        const res = await fetch(`${PRISMA_RESTAURANTS_URL}/${restaurantId}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+          showMessage(document.getElementById('restaurantStatusMessage'), 'Restaurant deleted from PostgreSQL ✓', 'success');
+          document.getElementById('restaurantManageSelect').value = '';
+          await loadRestaurants();
+        } else {
+          showMessage(document.getElementById('restaurantStatusMessage'), data.message || 'Delete failed', 'error');
+        }
+      } catch (err) {
+        showMessage(document.getElementById('restaurantStatusMessage'), 'Error: ' + err.message, 'error');
+      }
     }
 
     async function updateRestaurantStatus(restaurantId, isOpen) {

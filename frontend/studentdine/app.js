@@ -63,22 +63,25 @@ function initializeRoleGrid() {
 function selectRole(roleId) {
   localStorage.setItem('campus_food_role', roleId);
 
+  // CRITICAL: Only proceed if user is authenticated
   if (!window.Auth || !Auth.isAuthenticated()) {
-    window.location.href = './auth/login.html';
+    console.log('User not authenticated, redirecting to login for role:', roleId);
+    window.location.replace('./auth/login.html');
     return;
   }
 
-  if (roleId === 'manager' && Auth.getCurrentUser()?.role === 'manager') {
-    window.location.href = './manager/operations.html';
+  const currentUser = Auth.getCurrentUser();
+  
+  // Route based on user's actual role (server-validated), not landing page selection
+  if (currentUser?.role === 'manager') {
+    console.log('User is manager, redirecting to operations');
+    window.location.replace('./manager/operations.html');
     return;
   }
 
-  if (roleId === 'hosteller' && Auth.getCurrentUser()?.role === 'hosteller') {
-    window.location.href = './hosteller/index.html';
-    return;
-  }
-
-  window.location.href = './store.html';
+  // Both hostellers and day scholars use store.html as main dashboard
+  console.log('User is hosteller/day scholar, redirecting to store');
+  window.location.replace('./store.html');
 }
 
 // Toggle dark/light mode
@@ -97,6 +100,21 @@ function initializeTheme() {
     document.documentElement.classList.remove('light');
   }
 }
+
+// Listen for logout events on landing page
+window.addEventListener('authLogout', (event) => {
+  console.log('Landing page received logout event - staying on role selection');
+  // Landing page doesn't need to redirect on logout, user can select a role again
+  // This just ensures we don't auto-redirect on logout
+});
+
+// Listen for storage changes (logout from another tab)
+window.addEventListener('storage', (event) => {
+  if (event.key === 'campusFoodToken' && event.newValue === null) {
+    console.log('Token cleared in another tab - staying on landing page');
+    // Landing page is safe for unauthenticated users, just stay here
+  }
+});
 
 // Set up event listeners
 document.addEventListener('DOMContentLoaded', () => {

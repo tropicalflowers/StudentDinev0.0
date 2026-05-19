@@ -117,23 +117,46 @@ async function addRestaurant(req, res) {
 // PUT /api/restaurants/:id
 async function updateRestaurant(req, res) {
   try {
+    const restaurantId = req.params.id;
+    console.log('=== UPDATE RESTAURANT ===');
+    console.log('Request ID:', restaurantId);
+    console.log('Request Body:', req.body);
+
     const updates = { ...req.body, updatedAt: new Date() };
     if (updates.capacity !== undefined) updates.capacity = Number(updates.capacity);
+    
+    console.log('Updates to apply:', updates);
+
+    // First, find the restaurant to verify it exists
+    const existingRestaurant = await Restaurant.findOne({ restaurantId });
+    console.log('Existing restaurant found:', existingRestaurant ? 'YES' : 'NO');
+    if (existingRestaurant) {
+      console.log('  - Current name:', existingRestaurant.name);
+      console.log('  - Current cluster:', existingRestaurant.cluster);
+    }
 
     const restaurant = await Restaurant.findOneAndUpdate(
-      { restaurantId: req.params.id },
+      { restaurantId },
       updates,
       { new: true, runValidators: true }
     );
 
+    console.log('Update result:', restaurant ? 'SUCCESS' : 'FAILED');
+    if (restaurant) {
+      console.log('  - Updated name:', restaurant.name);
+      console.log('  - Updated cluster:', restaurant.cluster);
+      console.log('  - Updated at:', restaurant.updatedAt);
+    }
+
     if (!restaurant) {
+      console.warn('Restaurant not found with ID:', restaurantId);
       return res.status(404).json({ success: false, message: 'Restaurant not found' });
     }
 
     res.json({ success: true, message: 'Restaurant updated', data: toClientRestaurant(restaurant) });
   } catch (error) {
     console.error('Update restaurant error:', error);
-    res.status(500).json({ success: false, message: 'Failed to update restaurant' });
+    res.status(500).json({ success: false, message: 'Failed to update restaurant', error: error.message });
   }
 }
 

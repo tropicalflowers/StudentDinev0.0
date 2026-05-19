@@ -178,6 +178,36 @@ modeToggle.textContent = document.documentElement.classList.contains('light') ? 
 // Initialize from landing page if applicable
 initializeFromLanding();
 
+/* Logout event listener - clean up state (Auth.logout() handles redirect) */
+window.addEventListener('authLogout', (event) => {
+  console.log('Day Scholar page received logout event - cleaning local state');
+  // Reset local state on logout
+  STATE = {
+    user: { name: 'Guest', roll: 'N/A', role: 'day-scholar' },
+    wallet: 0,
+    role: 'day-scholar'
+  };
+  Cart.items = [];
+  Cart.save();
+  // Auth.logout() already redirected, no need to redirect here
+});
+
+// Listen for storage changes (logout from another tab)
+window.addEventListener('storage', (event) => {
+  if (event.key === 'campusFoodToken' && event.newValue === null) {
+    console.log('Token cleared in another tab (day scholar page) - redirecting');
+    STATE = {
+      user: { name: 'Guest', roll: 'N/A', role: 'day-scholar' },
+      wallet: 0,
+      role: 'day-scholar'
+    };
+    Cart.items = [];
+    Cart.save();
+    // Use replace() to prevent back button loop
+    window.location.replace('../auth/login.html');
+  }
+});
+
 /* Login */
 $("#btnLogin")?.addEventListener("click",()=>{
   const name = $("#inpName").value.trim();

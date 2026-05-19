@@ -287,27 +287,50 @@ const Auth = {
     };
   },
 
-  // Logout user
+  // Logout user — comprehensive cleanup
   logout(redirect = true) {
     this.currentUser = null;
     this.token = null;
     this.isLoading = false;
-    localStorage.removeItem('campusFoodCurrentUser');
-    localStorage.removeItem('campusFoodToken');
+
+    // Clear timers
     clearTimeout(this.sessionTimer);
+
+    // Disconnect socket
     if (this.socket) {
       this.socket.disconnect();
       this.socket = null;
     }
+
+    // Clear all auth-related localStorage items
+    const authKeys = [
+      'campusFoodCurrentUser',
+      'campusFoodToken',
+      'campusFoodCart',           // Shopping cart
+      'campusFoodData',           // Cached data
+      'campus_food_role',         // Role selection
+      'campus_food_bypass_login', // Dev bypass flag
+      'campus_food_user_name',    // Dev user data
+      'campus_food_user_roll',    // Dev user data
+    ];
+    authKeys.forEach(key => localStorage.removeItem(key));
+
+    // Clear all sessionStorage items (session-specific data)
+    sessionStorage.clear();
+
+    // Dispatch custom event for pages to listen to logout (let them clean up, not redirect)
+    window.dispatchEvent(new CustomEvent('authLogout', { detail: { timestamp: Date.now() } }));
+
     if (redirect) {
-      // Handle different page locations
+      // Handle different page locations - use replace() to prevent back button issues
       const currentPath = window.location.pathname;
       if (currentPath.includes('/auth/')) {
-        window.location.href = 'login.html';
-      } else if (currentPath.includes('/admin/') || currentPath.includes('/hosteller/') || currentPath.includes('/day-scholar/') || currentPath.includes('/manager/')) {
-        window.location.href = '../auth/login.html';
+        window.location.replace('login.html');
+      } else if (currentPath.includes('/hosteller/') || currentPath.includes('/manager/') || currentPath.includes('/day-scholar/')) {
+        window.location.replace('../auth/login.html');
       } else {
-        window.location.href = 'auth/login.html';
+        // Root or other pages - redirect to auth/login.html
+        window.location.replace('auth/login.html');
       }
     }
   },
@@ -325,6 +348,31 @@ const Auth = {
   // Get JWT token
   getToken() {
     return this.token;
+  },
+
+  // Clear all auth-related form data from localStorage/sessionStorage
+  clearFormData() {
+    const formKeys = [
+      'campusFoodFormState',
+      'lastUserEmail',
+      'lastUserId',
+    ];
+    formKeys.forEach(key => {
+      localStorage.removeItem(key);
+      sessionStorage.removeItem(key);
+    });
+  },
+
+  // Validate and restore session (called on init)
+  validateSession() {
+    if (!this.isAuthenticated()) return false;
+    
+    if (this.isTokenExpired(this.token)) {
+      console.warn('Token expired during session validation');
+      this.logout(false);
+      return false;
+    }
+    return true;
   },
 
   // Update wallet balance locally (will be handled by backend in future)

@@ -471,7 +471,7 @@
   <script src="cart.js"></script>
   <script>
     if (!Auth.isAuthenticated()) {
-      window.location.href = 'auth/login.html';
+      window.location.replace('auth/login.html');
     }
 
     const currentUser = Auth.getCurrentUser();
@@ -479,15 +479,45 @@
     let currentFilter = 'all';
 
     async function initializeOrderHistory() {
-      allOrders = await CampusFoodDB.getOrders(currentUser.id);
+      try {
+        const token = Auth.getToken();
+        const response = await fetch('http://localhost:3000/api/orders', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        });
 
-      if (allOrders.length === 0) {
+        if (!response.ok) {
+          throw new Error('Failed to fetch orders');
+        }
+
+        const result = await response.json();
+        if (!result.success || !result.data) {
+          throw new Error('Invalid response format');
+        }
+
+        allOrders = result.data;
+
+        if (allOrders.length === 0) {
+          document.getElementById('ordersContainer').style.display = 'none';
+          document.getElementById('emptyOrders').style.display = 'block';
+        } else {
+          document.getElementById('ordersContainer').style.display = 'block';
+          document.getElementById('emptyOrders').style.display = 'none';
+          renderOrders();
+        }
+      } catch (error) {
+        console.error('Error loading orders:', error);
         document.getElementById('ordersContainer').style.display = 'none';
         document.getElementById('emptyOrders').style.display = 'block';
-      } else {
-        document.getElementById('ordersContainer').style.display = 'block';
-        document.getElementById('emptyOrders').style.display = 'none';
-        renderOrders();
+        document.getElementById('emptyOrders').innerHTML = `
+          <div class="empty-icon">❌</div>
+          <div class="empty-title">Error Loading Orders</div>
+          <p class="empty-text">Could not connect to the server. Please try again.</p>
+          <button class="empty-btn" onclick="location.reload()">🔄 Refresh</button>
+        `;
       }
     }
 
@@ -565,7 +595,7 @@
         <div class="order-card">
           <div class="order-card-header">
             <div class="order-id-date">
-              <div class="order-id">Order #${order.id}</div>
+              <div class="order-id">Order #${order._id}</div>
               <div class="order-date">${formattedDate}</div>
             </div>
             <div class="order-status-badge ${getStatusBadgeClass(order.status)}">
@@ -582,24 +612,24 @@
             <div class="order-summary">
               <div class="summary-row">
                 <strong>Subtotal:</strong>
-                <span>₹${order.subtotal}</span>
+                <span>₹${order.totalAmount}</span>
               </div>
-              ${order.discount ? `<div class="summary-row">
+              ${order.discountAmount ? `<div class="summary-row">
                 <strong>Discount:</strong>
-                <span style="color: var(--accent)">-₹${order.discount}</span>
+                <span style="color: var(--accent)">-₹${order.discountAmount}</span>
               </div>` : ''}
               <div class="summary-row total-amount">
                 <span>Total:</span>
-                <span>₹${order.total}</span>
+                <span>₹${order.finalAmount}</span>
               </div>
             </div>
           </div>
 
           <div class="order-card-footer">
-            <button class="order-btn order-btn-detail" onclick="openOrderModal('${order.id}')">
+            <button class="order-btn order-btn-detail" onclick="openOrderModal('${order._id}')">
               📋 View Details
             </button>
-            ${order.status === 'delivered' ? `<button class="order-btn order-btn-reorder" onclick="reorderItems('${order.id}')">
+            ${order.status === 'Delivered' ? `<button class="order-btn order-btn-reorder" onclick="reorderItems('${order._id}')">
               🔁 Reorder
             </button>` : ''}
           </div>
@@ -608,11 +638,11 @@
     }
 
     function openOrderModal(orderId) {
-      const order = allOrders.find(o => o.id === orderId);
+      const order = allOrders.find(o => o._id === orderId);
       if (!order) return;
 
       // Populate modal
-      document.getElementById('modalOrderId').innerText = order.id;
+      document.getElementById('modalOrderId').innerText = order._id;
       document.getElementById('modalOrderDate').innerText = new Date(order.createdAt).toLocaleDateString(
         'en-IN',
         {
@@ -631,23 +661,23 @@
         .map(
           item => `
         <div class="modal-item">
-          <strong>${item.quantity}x ${item.name} (${item.restaurantName})</strong>
+          <strong>${item.quantity}x ${item.name}</strong>
           <span>₹${item.price} × ${item.quantity} = ₹${item.price * item.quantity}</span>
         </div>
       `
         )
         .join('');
 
-      document.getElementById('modalDeliveryAddress').innerText = order.deliveryAddress;
-      document.getElementById('modalPhone').innerText = order.phoneNumber;
+      document.getElementById('modalDeliveryAddress').innerText = order.deliveryAddress || 'N/A';
+      document.getElementById('modalPhone').innerText = order.phoneNumber || 'N/A';
       document.getElementById('modalPaymentMethod').innerText = order.paymentMethod;
 
-      document.getElementById('modalSubtotal').innerText = '₹' + order.subtotal;
-      document.getElementById('modalTotal').innerText = '₹' + order.total;
+      document.getElementById('modalSubtotal').innerText = '₹' + order.totalAmount;
+      document.getElementById('modalTotal').innerText = '₹' + order.finalAmount;
 
-      if (order.discount > 0) {
+      if (order.discountAmount > 0) {
         document.getElementById('modalDiscountItem').style.display = 'flex';
-        document.getElementById('modalDiscount').innerText = '-₹' + order.discount;
+        document.getElementById('modalDiscount').innerText = '-₹' + order.discountAmount;
       } else {
         document.getElementById('modalDiscountItem').style.display = 'none';
       }
@@ -660,7 +690,7 @@
     }
 
     function reorderItems(orderId) {
-      const order = allOrders.find(o => o.id === orderId);
+      const order = allOrders.find(o => o._id === orderId);
       if (!order) return;
 
       // Clear current cart
@@ -697,6 +727,20 @@
     document.getElementById('orderModal').addEventListener('click', e => {
       if (e.target.id === 'orderModal') {
         closeOrderModal();
+      }
+    });
+
+    // Logout event listener - Auth.logout() handles redirect
+    window.addEventListener('authLogout', (event) => {
+      console.log('Order history page received logout event - Auth.logout() will handle redirect');
+    });
+
+    // Listen for storage changes (logout from another tab)
+    window.addEventListener('storage', (event) => {
+      if (event.key === 'campusFoodToken' && event.newValue === null) {
+        console.log('Token cleared in another tab (order history page) - redirecting to login');
+        // Redirect to login - use replace to prevent back loop
+        window.location.replace('auth/login.html');
       }
     });
 

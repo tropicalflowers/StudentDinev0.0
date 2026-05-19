@@ -150,12 +150,39 @@ const $$ = (q,root=document) => [...root.querySelectorAll(q)];
 function toast(msg){ alert(msg); } // placeholder
 
 /* Use the real auth session instead of the old portal-only login modal. */
-function initializeFromLanding() {
-  if (!window.Auth || !Auth.isAuthenticated()) {
-    window.location.href = '../auth/login.html';
+async function initializeFromLanding() {
+  // Wait for Auth to be available (max 5 seconds)
+  let authReady = false;
+  let attempts = 0;
+  const maxAttempts = 50; // 50 * 100ms = 5 seconds
+  
+  while (!authReady && attempts < maxAttempts) {
+    if (window.Auth && typeof Auth.isAuthenticated === 'function') {
+      authReady = true;
+      break;
+    }
+    attempts++;
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+  
+  // If Auth not ready, redirect to login
+  if (!authReady) {
+    console.warn('Auth module did not initialize within timeout');
+    if (!window.location.href.includes('login.html')) {
+      window.location.replace('../auth/login.html');
+    }
+    return;
+  }
+  
+  // Check authentication
+  if (!Auth.isAuthenticated()) {
+    if (!window.location.href.includes('login.html')) {
+      window.location.replace('../auth/login.html');
+    }
     return;
   }
 
+  // User is authenticated, set up state
   const currentUser = Auth.getCurrentUser();
   STATE.user = {
     name: currentUser.name,
@@ -163,17 +190,20 @@ function initializeFromLanding() {
     role: currentUser.role
   };
   STATE.wallet = Number(currentUser.wallet) || 0;
-  $("#loginModal")?.classList.add("hidden");
+  const loginModal = $("#loginModal");
+  if (loginModal) loginModal.classList.add("hidden");
 }
 
 /* Theme toggle */
 const modeToggle = $("#modeToggle");
-modeToggle?.addEventListener("click",()=>{
-  const html=document.documentElement;
-  html.classList.toggle("light");
-  modeToggle.textContent = html.classList.contains("light") ? "☀️" : "🌙";
-  localStorage.setItem('campus_food_theme', html.classList.contains('light') ? 'light' : 'dark');
-});
+if (modeToggle) {
+  modeToggle.addEventListener("click",()=>{
+    const html=document.documentElement;
+    html.classList.toggle("light");
+    modeToggle.textContent = html.classList.contains("light") ? "☀️" : "🌙";
+    localStorage.setItem('campus_food_theme', html.classList.contains('light') ? 'light' : 'dark');
+  });
+}
 
 // Initialize theme from localStorage
 const theme = localStorage.getItem('campus_food_theme') || 'light';
@@ -182,10 +212,40 @@ if (theme === 'light') {
 } else {
   document.documentElement.classList.remove('light');
 }
-modeToggle.textContent = document.documentElement.classList.contains('light') ? '☀️' : '🌙';
+if (modeToggle) {
+  modeToggle.textContent = document.documentElement.classList.contains('light') ? '☀️' : '🌙';
+}
 
-// Initialize from landing page if applicable
-initializeFromLanding();
+// Initialize from landing page if applicable (wait for DOM to be ready)
+document.addEventListener("DOMContentLoaded", () => {
+  initializeFromLanding();
+});
+
+/* Logout event listener - clean up state (Auth.logout() handles redirect) */
+window.addEventListener('authLogout', (event) => {
+  console.log('Manager page received logout event - cleaning local state');
+  // Reset local state on logout
+  STATE = {
+    user: { name: 'Guest', roll: 'N/A', role: 'manager' },
+    wallet: 0,
+    role: 'manager'
+  };
+  // Auth.logout() already redirected, no need to redirect here
+});
+
+// Listen for storage changes (logout from another tab)
+window.addEventListener('storage', (event) => {
+  if (event.key === 'campusFoodToken' && event.newValue === null) {
+    console.log('Token cleared in another tab (manager page) - redirecting');
+    STATE = {
+      user: { name: 'Guest', roll: 'N/A', role: 'manager' },
+      wallet: 0,
+      role: 'manager'
+    };
+    // Use replace() to prevent back button loop
+    window.location.replace('../auth/login.html');
+  }
+});
 
 /* Login */
 $("#btnLogin")?.addEventListener("click",()=>{
@@ -251,30 +311,72 @@ function cardHtml(r){
     </div>
   </div>`;
 }
-function renderGallery(){ $("#gallery").innerHTML = RESTAURANTS.map(cardHtml).join(""); }
-function openGallery(){ document.getElementById("gallerySection").scrollIntoView({behavior:"smooth"}); }
-renderGallery();
+function renderGallery(){
+  const gallery = $("#gallery");
+  if (!gallery) {
+    console.warn("Gallery element not found");
+    return;
+  }
+  gallery.innerHTML = RESTAURANTS.map(cardHtml).join("");
+}
+
+function openGallery(){
+  const gallerySection = document.getElementById("gallerySection");
+  if (!gallerySection) {
+    console.warn("Gallery section element not found");
+    return;
+  }
+  gallerySection.scrollIntoView({behavior:"smooth"});
+}
+
+// Only render gallery if it exists on the page
+if (document.getElementById("gallery")) {
+  renderGallery();
+}
 
 // Search and filter functionality
 function reset_filters() {
-  $("#searchMenuInput").value = '';
-  $("#filterType").value = '';
-  $("#filterCategory").value = '';
-  $("#filterPrice").value = '';
-  $("#filterRating").value = '';
-  $("#searchResults").style.display = "none";
+  const searchMenuInput = $("#searchMenuInput");
+  if (searchMenuInput) searchMenuInput.value = '';
+  
+  const filterType = $("#filterType");
+  if (filterType) filterType.value = '';
+  
+  const filterCategory = $("#filterCategory");
+  if (filterCategory) filterCategory.value = '';
+  
+  const filterPrice = $("#filterPrice");
+  if (filterPrice) filterPrice.value = '';
+  
+  const filterRating = $("#filterRating");
+  if (filterRating) filterRating.value = '';
+  
+  const searchResults = $("#searchResults");
+  if (searchResults) searchResults.style.display = "none";
+  
   renderGallery();
 }
 
 const applySearchAndFilters = () => {
-  const query = $("#searchMenuInput").value.trim().toLowerCase();
-  const filterType = $("#filterType").value;
-  const filterCategory = $("#filterCategory").value;
-  const filterPrice = $("#filterPrice").value;
-  const filterRating = $("#filterRating").value;
-  
+  // Safety check: ensure required search elements exist
+  const searchMenuInput = $("#searchMenuInput");
   const searchResults = $("#searchResults");
   const resultsList = $("#searchResultsList");
+  
+  if (!searchMenuInput || !searchResults || !resultsList) {
+    console.warn("Search elements not found on this page");
+    return;
+  }
+  
+  const query = searchMenuInput.value.trim().toLowerCase();
+  const filterTypeEl = $("#filterType");
+  const filterType = filterTypeEl ? filterTypeEl.value : '';
+  const filterCategoryEl = $("#filterCategory");
+  const filterCategory = filterCategoryEl ? filterCategoryEl.value : '';
+  const filterPriceEl = $("#filterPrice");
+  const filterPrice = filterPriceEl ? filterPriceEl.value : '';
+  const filterRatingEl = $("#filterRating");
+  const filterRating = filterRatingEl ? filterRatingEl.value : '';
   
   if (!query && !filterType && !filterCategory && !filterPrice && !filterRating) {
     searchResults.style.display = "none";

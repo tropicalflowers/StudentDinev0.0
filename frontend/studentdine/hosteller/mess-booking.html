@@ -373,13 +373,13 @@
   <script>
     // Check if hosteller
     if (!Auth.isAuthenticated()) {
-      window.location.href = '../auth/login.html';
+      window.location.replace('../auth/login.html');
     }
 
     const user = Auth.getCurrentUser();
     if (!['hosteller', 'manager'].includes(user.role)) {
       alert('This page is only for hostellers and managers');
-      window.location.href = '../index.html';
+      window.location.replace('../index.html');
     }
 
     // Set today's date as minimum

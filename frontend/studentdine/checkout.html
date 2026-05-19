@@ -566,7 +566,7 @@
   <script src="cart.js"></script>
   <script>
     if (!Auth.isAuthenticated()) {
-      window.location.href = 'auth/login.html';
+      window.location.replace('auth/login.html');
     }
 
     const form = document.getElementById('checkoutForm');
@@ -705,8 +705,11 @@
       const result = await Cart.checkout(orderDetails);
 
       if (result.success) {
-        alert(`✅ ${result.message}\nOrder ID: ${result.orderId}`);
-        window.location.href = `order-confirmation.html?orderId=${result.orderId}`;
+        const orderId = result.data?._id;
+        
+        alert(`✅ ${result.message}\nOrder ID: ${orderId}`);
+        
+        window.location.href = `order-confirmation.html?orderId=${orderId}`;
       } else {
         alert(`❌ ${result.message}`);
       }
@@ -764,6 +767,21 @@
       const newTheme = document.documentElement.classList.contains('light') ? 'light' : 'dark';
       localStorage.setItem('campus_food_theme', newTheme);
       modeToggle.innerText = newTheme === 'light' ? '☀️' : '🌙';
+    });
+
+    // Logout event listener - clear cart and redirect (Auth.logout() handles it)
+    window.addEventListener('authLogout', (event) => {
+      console.log('Checkout page received logout event - cart will be cleared by Auth.logout()');
+      // Cart is already cleared by Auth.logout()
+    });
+
+    // Listen for storage changes (logout from another tab)
+    window.addEventListener('storage', (event) => {
+      if (event.key === 'campusFoodToken' && event.newValue === null) {
+        console.log('Token cleared in another tab (checkout page) - redirecting to login');
+        // Redirect to login - use replace to prevent back loop
+        window.location.replace('auth/login.html');
+      }
     });
 
     // Initialize

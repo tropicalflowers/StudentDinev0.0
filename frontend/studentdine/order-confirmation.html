@@ -426,7 +426,7 @@
   <script src="auth.js"></script>
   <script>
     if (!Auth.isAuthenticated()) {
-      window.location.href = 'auth/login.html';
+      window.location.replace('auth/login.html');
     }
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -435,15 +435,39 @@
 
     async function initializeConfirmation() {
       if (!orderId) { showError('No order ID provided'); return; }
-      const order = await CampusFoodDB.getOrder(orderId);
-      if (!order) { showError('Order could not be found. Please check your order history.'); return; }
-      populateOrderDetails(order);
+      
+      try {
+        const token = Auth.getToken();
+        const response = await fetch(`http://localhost:3000/api/orders/${orderId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (!response.ok) {
+          showError('Order could not be found. Please check your order history.');
+          return;
+        }
+        
+        const result = await response.json();
+        if (!result.success || !result.data) {
+          showError('Order could not be found. Please check your order history.');
+          return;
+        }
+        
+        populateOrderDetails(result.data);
+      } catch (error) {
+        console.error('Error fetching order:', error);
+        showError('Failed to load order details. Please check your internet connection and try again.');
+      }
     }
 
     function populateOrderDetails(order) {
-      // Order ID
-      document.getElementById('orderId').innerText = order.id;
-      document.getElementById('orderIdDetail').innerText = order.id;
+      // Order ID - MongoDB uses _id instead of id
+      document.getElementById('orderId').innerText = order._id;
+      document.getElementById('orderIdDetail').innerText = order._id;
 
       // Date
       const orderDate = new Date(order.createdAt);
@@ -481,10 +505,10 @@
         .join('');
       document.getElementById('orderItems').innerHTML = itemsHtml;
 
-      // Amounts
-      const subtotal = order.subtotal;
-      const discount = order.discount || 0;
-      const total = order.total;
+      // Amounts - Use MongoDB schema field names
+      const subtotal = order.totalAmount;
+      const discount = order.discountAmount || 0;
+      const total = order.finalAmount;
 
       document.getElementById('subtotalAmount').innerText = '₹' + subtotal;
       document.getElementById('totalAmount').innerText = '₹' + total;
@@ -545,6 +569,20 @@
         alert('Could not submit feedback. Is the server running?');
       }
     }
+
+    // Logout event listener - Auth.logout() handles redirect
+    window.addEventListener('authLogout', (event) => {
+      console.log('Order confirmation page received logout event - Auth.logout() will handle redirect');
+    });
+
+    // Listen for storage changes (logout from another tab)
+    window.addEventListener('storage', (event) => {
+      if (event.key === 'campusFoodToken' && event.newValue === null) {
+        console.log('Token cleared in another tab (order confirmation page) - redirecting to login');
+        // Redirect to login - use replace to prevent back loop
+        window.location.replace('auth/login.html');
+      }
+    });
 
     // Initialize
     initializeConfirmation();

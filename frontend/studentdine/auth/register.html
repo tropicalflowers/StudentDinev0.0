@@ -1036,9 +1036,8 @@
           const user = Auth.getCurrentUser();
           if (user?.role === 'manager') {
             window.location.href = '../manager/operations.html';
-          } else if (user?.role === 'hosteller') {
-            window.location.href = '../hosteller/index.html';
           } else {
+            // Both hostellers and day scholars use store.html as main dashboard
             window.location.href = '../store.html';
           }
         }, 1500);

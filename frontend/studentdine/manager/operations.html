@@ -39,11 +39,8 @@
 <body>
   <nav class="nav">
     <div class="row">
-      <div class="brand"><div class="logo"></div><div>Student Dine Portal</div></div>
+      <div class="brand"><div class="logo"></div><div>Student Dine Portal - Manager</div></div>
       <div class="menu">
-        <a href="../store.html">Store</a>
-        <a href="../hosteller/mess-booking.html">Mess Booking</a>
-        <a href="../order-history.html">Orders</a>
         <button onclick="Auth.logout()">Logout</button>
       </div>
     </div>
@@ -56,8 +53,6 @@
         <p class="muted">Restaurants, menu items, staff, and mess activity are saved in MongoDB.</p>
       </div>
       <div class="ops-actions">
-        <button class="btn secondary" onclick="window.location.href='../store.html'">Order Food</button>
-        <button class="btn secondary" onclick="window.location.href='../hosteller/mess-booking.html'">Mess Booking</button>
         <button class="btn" onclick="refreshAll()">Refresh Data</button>
       </div>
     </div>
@@ -67,7 +62,9 @@
         <h2>Restaurants</h2>
         <div class="toolbar">
           <select id="restaurantSelect"></select>
+          <button class="btn small secondary" onclick="createRestaurant()">New</button>
           <button class="btn small" onclick="toggleRestaurant()">Open / Close</button>
+          <button class="btn small secondary" onclick="deleteRestaurant()">Delete</button>
         </div>
         <div id="restaurantTable"></div>
         <p class="message" id="restaurantMessage"></p>
@@ -176,8 +173,26 @@
   <script src="../auth.js"></script>
   <script>
     if (!Auth.isAuthenticated() || Auth.getCurrentUser().role !== 'manager') {
-      window.location.href = '../auth/login.html';
+      window.location.replace('../auth/login.html');
     }
+
+    // Logout event listener - clean up state (Auth.logout() handles redirect)
+    window.addEventListener('authLogout', (event) => {
+      console.log('Manager operations page received logout event - Auth.logout() will handle redirect');
+      // Auth.logout() already redirected, no need to redirect here
+    });
+
+    // Listen for storage changes (logout from another tab)
+    window.addEventListener('storage', (event) => {
+      if (event.key === 'campusFoodToken' && event.newValue === null) {
+        console.log('Token cleared in another tab (manager operations page) - redirecting');
+        // Use replace() to prevent back button loop
+        window.location.replace('../auth/login.html');
+      }
+    });
+
+    const API_BASE = 'http://localhost:3000/api';
+    const PRISMA_RESTAURANTS_URL = `${API_BASE}/prisma/restaurants`;
 
     let restaurants = [];
     let menuItems = [];
@@ -186,15 +201,52 @@
     const byId = id => document.getElementById(id);
 
     async function refreshAll() {
-      [restaurants, menuItems, staff] = await Promise.all([
-        CampusFoodDB.getRestaurants(),
-        CampusFoodDB.getMenu(),
-        CampusFoodDB.getStaff(),
-      ]);
-      renderRestaurantControls();
-      renderRestaurants();
-      renderMenu();
-      renderStaff();
+      try {
+        const token = Auth.getToken();
+        
+        const [restaurantsRes, menuRes, staffRes] = await Promise.all([
+          fetch(PRISMA_RESTAURANTS_URL),
+          fetch('http://localhost:3000/api/menu', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          }),
+          fetch('http://localhost:3000/api/prisma/staff', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          })
+        ]);
+
+        // Load restaurants from PostgreSQL
+        if (restaurantsRes.ok) {
+          const responseData = await restaurantsRes.json();
+          restaurants = responseData.data || [];
+          console.log("[Operations] ✓ Loaded restaurants from PostgreSQL", restaurants);
+        } else {
+          restaurants = [];
+          console.warn("[Operations] ✗ Failed to load restaurants from PostgreSQL:", restaurantsRes.status);
+        }
+        
+        menuItems = menuRes.ok ? (await menuRes.json()).data || [] : [];
+        
+        // Load staff from PostgreSQL  
+        if (staffRes.ok) {
+          const responseData = await staffRes.json();
+          staff = responseData.data || [];
+          console.log("[Operations] ✓ Loaded staff from PostgreSQL", staff);
+        } else {
+          staff = [];
+          console.warn("[Operations] ✗ Failed to load staff from PostgreSQL:", staffRes.status);
+        }
+        
+        console.log("[Operations] Data refreshed:", { restaurants: restaurants.length, menuItems: menuItems.length, staff: staff.length });
+        
+        renderRestaurantControls();
+        renderRestaurants();
+        renderMenu();
+        renderStaff();
+      } catch (error) {
+        console.error("[Operations] Error refreshing data:", error);
+        byId('restaurantMessage').textContent = 'Error loading restaurants: ' + error.message;
+        byId('restaurantMessage').style.color = 'red';
+      }
     }
 
     function restaurantOptions(value = '') {
@@ -202,10 +254,32 @@
     }
 
     function renderRestaurantControls() {
-      byId('restaurantSelect').innerHTML = restaurantOptions(restaurants[0]?.id);
+      const selectEl = byId('restaurantSelect');
+      const firstRestaurantId = restaurants.length > 0 ? restaurants[0].id : '';
+      
+      // Clear and repopulate dropdown
+      selectEl.innerHTML = '';
+      restaurants.forEach(r => {
+        const option = document.createElement('option');
+        option.value = r.id;
+        option.textContent = r.name;
+        if (r.id === firstRestaurantId) {
+          option.selected = true;
+        }
+        selectEl.appendChild(option);
+      });
+      
+      // Populate menu and staff restaurant selectors using restaurant.id (PostgreSQL primary key)
       byId('menuRestaurant').innerHTML = restaurantOptions();
-      byId('staffRestaurant').innerHTML = restaurants.map(r => `<option value="${r.name}">${r.name}</option>`).join('');
-      fillRestaurantForm(restaurants[0]);
+      byId('staffRestaurant').innerHTML = restaurants.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
+      
+      // Fill form with first restaurant if available
+      if (restaurants.length > 0) {
+        fillRestaurantForm(restaurants[0]);
+      } else {
+        // Clear form if no restaurants
+        ['restaurantName', 'restaurantCluster', 'restaurantPhone', 'restaurantEmail', 'restaurantAddress', 'restaurantCapacity', 'restaurantNote'].forEach(id => byId(id).value = '');
+      }
     }
 
     function renderRestaurants() {
@@ -224,11 +298,29 @@
     }
 
     function selectRestaurant(id) {
+      console.log('Selecting restaurant:', id);
+      const restaurant = restaurants.find(r => r.id === id);
+      if (!restaurant) {
+        console.warn('Restaurant not found for ID:', id);
+        return;
+      }
       byId('restaurantSelect').value = id;
-      fillRestaurantForm(restaurants.find(r => r.id === id));
+      fillRestaurantForm(restaurant);
     }
 
-    byId('restaurantSelect').addEventListener('change', e => selectRestaurant(e.target.value));
+    // Add change event listener to restaurant select
+    document.addEventListener('DOMContentLoaded', () => {
+      byId('restaurantSelect').addEventListener('change', e => {
+        console.log('Restaurant dropdown changed to:', e.target.value);
+        selectRestaurant(e.target.value);
+      });
+    });
+    
+    // Also set up listener when script runs
+    byId('restaurantSelect').addEventListener('change', e => {
+      console.log('Restaurant dropdown changed to:', e.target.value);
+      selectRestaurant(e.target.value);
+    });
 
     function fillRestaurantForm(r) {
       if (!r) return;
@@ -243,25 +335,223 @@
 
     async function saveRestaurant() {
       const id = byId('restaurantSelect').value;
-      const result = await CampusFoodDB.updateRestaurant(id, {
+      
+      console.log('=== SAVE RESTAURANT ===');
+      console.log('Restaurant ID:', id);
+      
+      if (!id) {
+        console.warn("No restaurant selected");
+        byId('restaurantMessage').textContent = 'Please select a restaurant';
+        byId('restaurantMessage').style.color = 'red';
+        return;
+      }
+
+      const payload = {
         name: byId('restaurantName').value,
         cluster: byId('restaurantCluster').value,
         phone: byId('restaurantPhone').value,
         email: byId('restaurantEmail').value,
         address: byId('restaurantAddress').value,
-        capacity: byId('restaurantCapacity').value,
+        capacity: Number(byId('restaurantCapacity').value) || 0,
         statusNote: byId('restaurantNote').value,
-      });
-      byId('restaurantMessage').textContent = result.message || (result.success ? 'Saved' : 'Could not save');
-      await refreshAll();
+      };
+      
+      console.log("Restaurant payload:", payload);
+
+      try {
+        const token = Auth.getToken();
+        if (!token) {
+          throw new Error('Authentication token not found. Please login.');
+        }
+
+        console.log('Sending PUT request to /api/prisma/restaurants/' + id);
+        const response = await fetch(`${PRISMA_RESTAURANTS_URL}/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        console.log('Response status:', response.status);
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error('Server error:', errorData);
+          throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('Response data:', result);
+        
+        if (result.success) {
+          console.log("Restaurant saved to PostgreSQL");
+          byId('restaurantMessage').textContent = (result.message || 'Restaurant saved successfully') + ' ✓';
+          byId('restaurantMessage').style.color = 'green';
+          
+          // Verify the data was actually saved by checking the response
+          if (result.data) {
+            console.log('Verified data in response:');
+            console.log('  - Name:', result.data.name);
+            console.log('  - Cluster:', result.data.cluster);
+            console.log('  - Phone:', result.data.phone);
+          }
+          
+          // Wait a moment then refresh to show the updated values
+          setTimeout(() => {
+            console.log('Refreshing restaurant list...');
+            refreshAll();
+          }, 500);
+        } else {
+          console.warn("Save failed:", result.message);
+          byId('restaurantMessage').textContent = result.message || 'Could not save restaurant';
+          byId('restaurantMessage').style.color = 'red';
+        }
+      } catch (error) {
+        console.error("✗ Failed to save restaurant", error);
+        byId('restaurantMessage').textContent = 'Error: ' + error.message;
+        byId('restaurantMessage').style.color = 'red';
+        alert('Failed to save restaurant:\n' + error.message);
+      }
     }
 
     async function toggleRestaurant() {
       const id = byId('restaurantSelect').value;
       const restaurant = restaurants.find(r => r.id === id);
-      const result = await CampusFoodDB.updateRestaurant(id, { isOpen: !restaurant.isOpen });
-      byId('restaurantMessage').textContent = result.message || 'Status updated';
-      await refreshAll();
+      
+      console.log('=== TOGGLE RESTAURANT ===');
+      console.log('Restaurant ID:', id);
+
+      if (!restaurant) {
+        console.warn("Restaurant not found");
+        byId('restaurantMessage').textContent = 'Restaurant not found';
+        byId('restaurantMessage').style.color = 'red';
+        return;
+      }
+
+      const newStatus = !restaurant.isOpen;
+      console.log("Toggling restaurant status:", restaurant.isOpen, "→", newStatus);
+
+      try {
+        const token = Auth.getToken();
+        if (!token) {
+          throw new Error('Authentication token not found. Please login.');
+        }
+
+        const response = await fetch(`${PRISMA_RESTAURANTS_URL}/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ isOpen: newStatus })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error('Server error:', errorData);
+          throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('Response data:', result);
+        
+        if (result.success) {
+          console.log("Restaurant open/close status updated to:", newStatus);
+          byId('restaurantMessage').textContent = 'Status updated to ' + (newStatus ? 'OPEN' : 'CLOSED') + ' ✓';
+          byId('restaurantMessage').style.color = 'green';
+          setTimeout(() => refreshAll(), 500);
+        } else {
+          console.error("Toggle failed:", result.message);
+          byId('restaurantMessage').textContent = result.message || 'Could not update status';
+          byId('restaurantMessage').style.color = 'red';
+        }
+      } catch (error) {
+        console.error("✗ Failed to toggle restaurant status", error);
+        byId('restaurantMessage').textContent = 'Error: ' + error.message;
+        byId('restaurantMessage').style.color = 'red';
+        alert('Failed to update status:\n' + error.message);
+      }
+    }
+
+    async function createRestaurant() {
+      const name = byId('restaurantName').value.trim();
+      const cluster = byId('restaurantCluster').value.trim();
+      if (!name || !cluster) {
+        byId('restaurantMessage').textContent = 'Enter name and cluster in the form first';
+        byId('restaurantMessage').style.color = 'red';
+        return;
+      }
+
+      const payload = {
+        restaurantId: 'REST' + Date.now(),
+        name,
+        cluster,
+        phone: byId('restaurantPhone').value,
+        email: byId('restaurantEmail').value,
+        address: byId('restaurantAddress').value,
+        capacity: Number(byId('restaurantCapacity').value) || 0,
+        statusNote: byId('restaurantNote').value,
+        isOpen: true,
+      };
+
+      try {
+        console.log('POST /api/prisma/restaurants — create');
+        console.log('Creating new restaurant:', name);
+        const response = await fetch(PRISMA_RESTAURANTS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        if (result.success) {
+          console.log("Restaurant created in PostgreSQL:", result.data);
+          byId('restaurantMessage').textContent = 'Restaurant created in PostgreSQL ✓';
+          byId('restaurantMessage').style.color = 'green';
+          await refreshAll();
+          // Select the newly created restaurant
+          if (result.data?.id) {
+            console.log('Selecting newly created restaurant:', result.data.id);
+            selectRestaurant(result.data.id);
+          }
+        } else {
+          byId('restaurantMessage').textContent = result.message || 'Create failed';
+          byId('restaurantMessage').style.color = 'red';
+        }
+      } catch (error) {
+        console.error('Error creating restaurant:', error);
+        byId('restaurantMessage').textContent = 'Error: ' + error.message;
+        byId('restaurantMessage').style.color = 'red';
+      }
+    }
+
+    async function deleteRestaurant() {
+      const id = byId('restaurantSelect').value;
+      if (!id) {
+        byId('restaurantMessage').textContent = 'Select a restaurant to delete';
+        byId('restaurantMessage').style.color = 'red';
+        return;
+      }
+      if (!confirm('Delete this restaurant from PostgreSQL?')) return;
+
+      try {
+        console.log('DELETE /api/prisma/restaurants/' + id);
+        const response = await fetch(`${PRISMA_RESTAURANTS_URL}/${id}`, { method: 'DELETE' });
+        const result = await response.json();
+        if (result.success) {
+          console.log("Restaurant deleted from PostgreSQL");
+          byId('restaurantMessage').textContent = 'Restaurant deleted from PostgreSQL ✓';
+          byId('restaurantMessage').style.color = 'green';
+          await refreshAll();
+        } else {
+          byId('restaurantMessage').textContent = result.message || 'Delete failed';
+          byId('restaurantMessage').style.color = 'red';
+        }
+      } catch (error) {
+        console.error("Failed to delete restaurant:", error);
+        byId('restaurantMessage').textContent = 'Error: ' + error.message;
+        byId('restaurantMessage').style.color = 'red';
+      }
     }
 
     function renderMenu() {
@@ -327,62 +617,97 @@
     }
 
     function renderStaff() {
+      console.log("[Operations] Rendering staff:", staff);
       byId('staffTable').innerHTML = `
         <table>
-          <thead><tr><th>Name</th><th>Role</th><th>Restaurant</th><th></th></tr></thead>
+          <thead><tr><th>Name</th><th>Role</th><th>Restaurant</th><th>Shift</th><th>Status</th></tr></thead>
           <tbody>${staff.map(member => `
             <tr>
-              <td>${member.name}</td><td>${member.role}</td><td>${member.restaurant}</td>
-              <td><button class="btn small secondary" onclick="editStaff('${member.id}')">Edit</button></td>
+              <td>${member.name}</td>
+              <td>${member.role}</td>
+              <td>${member.restaurantId}</td>
+              <td>${member.shift}</td>
+              <td><span class="status ${member.isActive ? 'open' : 'closed'}">${member.isActive ? 'Active' : 'Inactive'}</span></td>
+              <td><button class="btn small secondary" onclick="editStaff('${member.staffId}')">Edit</button></td>
             </tr>
           `).join('')}</tbody>
         </table>`;
     }
 
-    function editStaff(id) {
-      const member = staff.find(s => String(s.id) === String(id));
-      byId('staffId').value = member.id;
+    function editStaff(staffId) {
+      console.log("[Operations] Editing staff:", staffId);
+      const member = staff.find(s => s.staffId === staffId);
+      if (!member) {
+        console.error("[Operations] Staff not found:", staffId);
+        return;
+      }
+      byId('staffId').value = member.staffId;
       byId('staffName').value = member.name || '';
       byId('staffRole').value = member.role || 'Waiter';
-      byId('staffRestaurant').value = member.restaurant || '';
+      byId('staffRestaurant').value = member.restaurantId || '';
       byId('staffShift').value = member.shift || 'Morning';
       byId('staffEmail').value = member.email || '';
       byId('staffPhone').value = member.phone || '';
       byId('staffDepartment').value = member.department || '';
-      byId('staffActive').value = String(member.active !== false);
+      byId('staffActive').value = String(member.isActive !== false);
     }
 
     function clearStaffForm() {
-      ['staffId', 'staffName', 'staffEmail', 'staffPhone', 'staffDepartment'].forEach(id => byId(id).value = '');
+      console.log("[Operations] Clearing staff form");
+      byId('staffId').value = '';
+      byId('staffName').value = '';
+      byId('staffEmail').value = '';
+      byId('staffPhone').value = '';
+      byId('staffDepartment').value = '';
       byId('staffRole').value = 'Waiter';
       byId('staffShift').value = 'Morning';
       byId('staffActive').value = 'true';
-      byId('staffRestaurant').value = restaurants[0]?.name || '';
+      // Set restaurant to first PostgreSQL restaurant ID (not name)
+      byId('staffRestaurant').value = restaurants[0]?.id || '';
     }
 
     async function saveStaff() {
+      console.log("[Operations] Saving staff");
+      const staffId = byId('staffId').value;
       const payload = {
         name: byId('staffName').value,
         role: byId('staffRole').value,
-        restaurant: byId('staffRestaurant').value,
+        restaurantId: byId('staffRestaurant').value,
         shift: byId('staffShift').value,
         email: byId('staffEmail').value,
         phone: byId('staffPhone').value,
-        department: byId('staffDepartment').value,
-        active: byId('staffActive').value === 'true',
+        isActive: byId('staffActive').value === 'true',
       };
-      const id = byId('staffId').value;
-      const result = id ? await CampusFoodDB.updateStaff(id, payload) : await CampusFoodDB.addStaff(payload);
+      
+      console.log("[Operations] Payload:", payload);
+      
+      let result;
+      if (staffId) {
+        console.log(`[Operations] Updating staff ${staffId}`);
+        result = await CampusFoodDB.updateStaff(staffId, payload);
+      } else {
+        console.log("[Operations] Creating new staff");
+        result = await CampusFoodDB.addStaff(payload);
+      }
+      
+      console.log("[Operations] Save result:", result);
       byId('staffMessage').textContent = result.message || (result.success ? 'Saved' : 'Could not save');
+      byId('staffMessage').style.color = result.success ? '#10b981' : '#ef4444';
       clearStaffForm();
       await refreshAll();
     }
 
     async function deleteStaff() {
-      const id = byId('staffId').value;
-      if (!id) return;
-      const result = await CampusFoodDB.deleteStaff(id);
+      const staffId = byId('staffId').value;
+      if (!staffId) {
+        console.warn("[Operations] No staff ID selected for deletion");
+        return;
+      }
+      console.log(`[Operations] Deleting staff ${staffId}`);
+      const result = await CampusFoodDB.deleteStaff(staffId);
+      console.log("[Operations] Delete result:", result);
       byId('staffMessage').textContent = result.message || 'Deleted';
+      byId('staffMessage').style.color = result.success ? '#10b981' : '#ef4444';
       clearStaffForm();
       await refreshAll();
     }

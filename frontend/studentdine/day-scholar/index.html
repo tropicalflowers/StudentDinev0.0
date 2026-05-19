@@ -317,7 +317,7 @@
     const APP = {
       init() {
         if (!Auth.isAuthenticated()) {
-          window.location.href = '../auth/login.html';
+          window.location.replace('../auth/login.html');
           return;
         }
 

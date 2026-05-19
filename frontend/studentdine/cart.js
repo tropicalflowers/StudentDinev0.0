@@ -28,15 +28,20 @@ const Cart = {
   },
 
   // Add item to cart
+  // NOTE: MongoDB ObjectIds are required by the backend for order creation.
+  // menuItem._id contains the MongoDB ObjectId; menuItem.id is a legacy numeric ID.
+  // We use _id when available and fall back to id for backward compatibility.
   addItem(menuItem, quantity = 1) {
-    const existingItem = this.items.find(item => item.id === menuItem.id);
+    // Use MongoDB ObjectId (_id) if available, fall back to legacy numeric id
+    const itemId = menuItem._id || menuItem.id;
+    const existingItem = this.items.find(item => item.id === itemId);
 
     if (existingItem) {
       existingItem.quantity += quantity;
     } else {
       this.items.push({
-        id: menuItem.id,
-        itemId: menuItem.id,
+        id: itemId,
+        itemId: itemId,
         name: menuItem.name,
         price: menuItem.price,
         restaurantId: menuItem.restaurantId,
@@ -158,6 +163,8 @@ const Cart = {
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
+          // Items now contain menuItemId as MongoDB ObjectId (from menuItem._id)
+          // This ensures backend Order schema validation passes without "Cast to ObjectId" errors
           items: this.items.map(item => ({
             menuItemId: item.itemId || null,
             name: item.name,
