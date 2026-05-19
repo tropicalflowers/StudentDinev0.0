@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 3000;
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ['http://localhost:8000', 'http://127.0.0.1:5500'],
+    origin: '*',
     methods: ['GET', 'POST'],
   },
 });
@@ -24,7 +24,7 @@ connectDB().then(async () => {
   await connectPrisma();
 
   server.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
     console.log('Socket.io server is ready for real-time updates');
     console.log('Available endpoints:');
     console.log('  POST   /api/auth/register');
