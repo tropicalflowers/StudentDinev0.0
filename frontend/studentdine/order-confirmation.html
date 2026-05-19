@@ -438,7 +438,7 @@
       
       try {
         const token = Auth.getToken();
-        const response = await fetch(`http://localhost:3000/api/orders/${orderId}`, {
+        const response = await fetch(`https://studentdinee.onrender.com/api/orders/${orderId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -554,7 +554,7 @@
       const comment = document.getElementById('feedbackComment').value.trim();
       const user = Auth.getCurrentUser();
       try {
-        const res = await fetch('http://localhost:3000/api/manager/feedback', {
+        const res = await fetch('https://studentdinee.onrender.com/api/manager/feedback', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId: user.id, userName: user.name, orderId, rating: selectedRating, comment })

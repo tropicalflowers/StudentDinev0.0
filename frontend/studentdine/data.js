@@ -1,11 +1,11 @@
 /**
  * Campus Food - Data Layer
- * Now fetches from backend API at localhost:3000
+ * Now fetches from backend API at https://studentdinee.onrender.com
  * Falls back to local data if backend is unreachable
  */
 
 const CampusFoodDB = {
-  BACKEND: 'http://localhost:3000',
+  BACKEND: 'https://studentdinee.onrender.com',
 
   // ── Fetch menu from backend ─────────────────────────────
   // Replaces: CampusFoodDB.menuItems

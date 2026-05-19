@@ -693,11 +693,11 @@ async function openManage(scope){
   let feedbackRows = '<tr><td colspan="4" style="color:#888">No feedback yet</td></tr>';
 
   try {
-    const statsRes = await fetch('http://localhost:3000/api/manager/stats');
+    const statsRes = await fetch('https://studentdinee.onrender.com/api/manager/stats');
     const statsData = await statsRes.json();
     if (statsData.success) stats = statsData.stats;
 
-    const fbRes = await fetch('http://localhost:3000/api/manager/feedback');
+    const fbRes = await fetch('https://studentdinee.onrender.com/api/manager/feedback');
     const fbData = await fbRes.json();
     if (fbData.success && fbData.feedback.length) {
       feedbackRows = fbData.feedback.slice(-5).reverse().map(f =>

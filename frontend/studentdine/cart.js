@@ -1,12 +1,10 @@
 /**
  * Campus Food - Shopping Cart System
- * Connected to backend API at localhost:3000
+ * Connected to backend API at https://studentdinee.onrender.com
  */
 
 const Cart = {
-  BACKEND: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || !window.location.hostname
-    ? 'http://localhost:3000'
-    : `${window.location.protocol}//${window.location.hostname}:3000`,
+  BACKEND: 'https://studentdinee.onrender.com',
   items: [],
 
   // Load cart from localStorage

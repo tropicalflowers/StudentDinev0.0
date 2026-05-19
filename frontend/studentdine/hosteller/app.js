@@ -627,7 +627,7 @@ function openMessGroup(){
 function saveMessHistory(entry){ /* now handled by backend */ }
 async function openMessHistory(){
   try {
-    const res = await fetch('http://localhost:3000/api/mess?userId=2');
+    const res = await fetch('https://studentdinee.onrender.com/api/mess?userId=2');
     const data = await res.json();
     if(!data.bookings || !data.bookings.length) return alert('No mess bookings yet.');
     const lines = data.bookings.map(b=>'• ['+b.status.toUpperCase()+'] '+b.id+' — '+b.meal+' on '+b.date+' at '+b.time+' Seat #'+b.seat).join('\n');
