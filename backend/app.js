@@ -28,25 +28,33 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (mobile apps, curl, etc.)
+
+    // Allow requests with no origin
     if (!origin) return callback(null, true);
-    
+
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      // In development, allow any localhost origin
-      if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+
+      // Allow localhost during development
+      if (
+        origin &&
+        (
+          origin.includes('localhost') ||
+          origin.includes('127.0.0.1')
+        )
+      ) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));
       }
     }
   },
+
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
 }));
-
 // Parse incoming JSON requests
 app.use(express.json());
 
