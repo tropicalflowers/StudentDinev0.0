@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order History • Student Dine Portal</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .history-container {
+      max-width: 1000px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .history-title {
+      font-size: 24px;
+      font-weight: 800;
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 8px 16px;
+      border: 2px solid color-mix(in srgb, var(--txt) 12%, transparent);
+      background: transparent;
+      color: var(--txt);
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 12px;
+      transition: all 0.2s;
+    }
+
+    .filter-btn.active {
+      background: var(--pri);
+      color: white;
+      border-color: var(--pri);
+    }
+
+    .filter-btn:hover {
+      border-color: var(--pri);
+    }
+
+    .order-card {
+      background: var(--card);
+      border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 15px;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .order-card:hover {
+      border-color: var(--pri);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .order-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .order-id-date {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .order-id {
+      font-family: monospace;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .order-date {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .order-status-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .status-pending {
+      background: color-mix(in srgb, #f59e0b 15%, transparent);
+      color: #fbbf24;
+    }
+
+    .status-preparing {
+      background: color-mix(in srgb, #3b82f6 15%, transparent);
+      color: #60a5fa;
+    }
+
+    .status-on-the-way {
+      background: color-mix(in srgb, #8b5cf6 15%, transparent);
+      color: #c4b5fd;
+    }
+
+    .status-delivered {
+      background: color-mix(in srgb, #22c55e 15%, transparent);
+      color: #86efac;
+    }
+
+    .status-cancelled {
+      background: color-mix(in srgb, #ef4444 15%, transparent);
+      color: #fca5a5;
+    }
+
+    .order-card-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 15px;
+      padding-bottom: 15px;
+      border-bottom: 1px dashed color-mix(in srgb, var(--txt) 8%, transparent);
+    }
+
+    .order-items-list {
+      font-size: 13px;
+    }
+
+    .order-items-title {
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .order-item {
+      padding: 4px 0;
+      color: var(--muted);
+    }
+
+    .order-summary {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 13px;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .summary-row strong {
+      color: var(--muted);
+    }
+
+    .total-amount {
+      border-top: 1px dashed color-mix(in srgb, var(--txt) 8%, transparent);
+      padding-top: 8px;
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .order-card-footer {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .order-btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: none;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .order-btn-detail {
+      background: color-mix(in srgb, var(--pri) 20%, transparent);
+      color: var(--pri);
+      border: 1px solid var(--pri);
+    }
+
+    .order-btn-detail:hover {
+      background: var(--pri);
+      color: white;
+    }
+
+    .order-btn-reorder {
+      background: linear-gradient(135deg, var(--pri), var(--pri-2));
+      color: white;
+    }
+
+    .order-btn-reorder:hover {
+      transform: translateY(-2px);
+    }
+
+    .empty-orders {
+      text-align: center;
+      padding: 60px 20px;
+      background: var(--card);
+      border-radius: 18px;
+      border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
+    }
+
+    .empty-icon {
+      font-size: 60px;
+      margin-bottom: 20px;
+    }
+
+    .empty-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .empty-text {
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    .empty-btn {
+      padding: 12px 24px;
+      background: linear-gradient(135deg, var(--pri), var(--pri-2));
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 30px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid color-mix(in srgb, var(--txt) 8%, transparent);
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: var(--muted);
+    }
+
+    .modal-section {
+      margin-bottom: 20px;
+    }
+
+    .modal-section-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .modal-item {
+      padding: 8px 0;
+      font-size: 14px;
+      border-bottom: 1px dashed color-mix(in srgb, var(--txt) 8%, transparent);
+    }
+
+    .modal-item:last-child {
+      border-bottom: none;
+    }
+
+    .modal-item strong {
+      color: var(--muted);
+      display: block;
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
+    .rating-section {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid color-mix(in srgb, var(--txt) 8%, transparent);
+    }
+
+    .rating-stars {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .star {
+      font-size: 24px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .star:hover {
+      transform: scale(1.2);
+    }
+
+    @media (max-width: 768px) {
+      .order-card-content {
+        grid-template-columns: 1fr;
+      }
+
+      .order-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .order-card-footer {
+        flex-direction: column;
+      }
+
+      .order-btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="row">
+      <div class="brand">
+        <div class="logo"></div>
+        <div>Student Dine Portal</div>
+      </div>
+      <div class="menu">
+        <a href="store.html">🛍️ Back to Store</a>
+        <button id="modeToggle">☀️/🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <div style="padding-top: 20px">
+    <div class="history-container">
+      <div class="history-header">
+        <h1 class="history-title">📜 Order History</h1>
+        <div class="filter-group">
+          <button class="filter-btn active" onclick="filterOrders('all')">All Orders</button>
+          <button class="filter-btn" onclick="filterOrders('pending')">🕐 Pending</button>
+          <button class="filter-btn" onclick="filterOrders('delivered')">✅ Delivered</button>
+          <button class="filter-btn" onclick="filterOrders('cancelled')">❌ Cancelled</button>
+        </div>
+      </div>
+
+      <div id="ordersContainer"></div>
+
+      <div id="emptyOrders" class="empty-orders" style="display: none">
+        <div class="empty-icon">📭</div>
+        <div class="empty-title">No Orders Yet</div>
+        <p class="empty-text">Start ordering delicious food from Student Dine Portal!</p>
+        <button class="empty-btn" onclick="window.location.href='store.html'">🛍️ Order Now</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Details Modal -->
+  <div id="orderModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">Order Details</div>
+        <button class="modal-close" onclick="closeOrderModal()">×</button>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-title">Order ID & Date</div>
+        <div class="modal-item">
+          <strong>Order ID</strong>
+          <span id="modalOrderId"></span>
+        </div>
+        <div class="modal-item">
+          <strong>Order Date</strong>
+          <span id="modalOrderDate"></span>
+        </div>
+        <div class="modal-item">
+          <strong>Status</strong>
+          <div id="modalOrderStatus" style="margin-top: 4px"></div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-title">Items</div>
+        <div id="modalOrderItems"></div>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-title">Delivery Details</div>
+        <div class="modal-item">
+          <strong>Delivery Address</strong>
+          <span id="modalDeliveryAddress"></span>
+        </div>
+        <div class="modal-item">
+          <strong>Phone</strong>
+          <span id="modalPhone"></span>
+        </div>
+        <div class="modal-item">
+          <strong>Payment Method</strong>
+          <span id="modalPaymentMethod"></span>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-title">Order Summary</div>
+        <div class="modal-item">
+          <strong>Subtotal</strong>
+          <span id="modalSubtotal"></span>
+        </div>
+        <div class="modal-item" id="modalDiscountItem" style="display: none">
+          <strong>Discount</strong>
+          <span id="modalDiscount"></span>
+        </div>
+        <div class="modal-item" style="border-bottom: none; font-weight: 700; font-size: 16px">
+          <strong>Total</strong>
+          <span id="modalTotal"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="auth.js"></script>
+  <script src="cart.js"></script>
+  <script>
+    if (!Auth.isAuthenticated()) {
+      window.location.href = 'auth/login.html';
+    }
+
+    const currentUser = Auth.getCurrentUser();
+    let allOrders = [];
+    let currentFilter = 'all';
+
+    async function initializeOrderHistory() {
+      allOrders = await CampusFoodDB.getOrders(currentUser.id);
+
+      if (allOrders.length === 0) {
+        document.getElementById('ordersContainer').style.display = 'none';
+        document.getElementById('emptyOrders').style.display = 'block';
+      } else {
+        document.getElementById('ordersContainer').style.display = 'block';
+        document.getElementById('emptyOrders').style.display = 'none';
+        renderOrders();
+      }
+    }
+
+    function getStatusBadgeClass(status) {
+      const statusMap = {
+        pending: 'status-pending',
+        preparing: 'status-preparing',
+        'on-the-way': 'status-on-the-way',
+        delivered: 'status-delivered',
+        cancelled: 'status-cancelled',
+      };
+      return statusMap[status] || 'status-pending';
+    }
+
+    function getStatusEmoji(status) {
+      const emoji = {
+        pending: '🕐',
+        preparing: '🍳',
+        'on-the-way': '🚚',
+        delivered: '✅',
+        cancelled: '❌',
+      };
+      return emoji[status] || '🕐';
+    }
+
+    function filterOrders(status) {
+      currentFilter = status;
+
+      // Update active button
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+
+      renderOrders();
+    }
+
+    function renderOrders() {
+      const container = document.getElementById('ordersContainer');
+      let ordersToShow = allOrders;
+
+      if (currentFilter !== 'all') {
+        ordersToShow = allOrders.filter(order => order.status === currentFilter);
+      }
+
+      if (ordersToShow.length === 0) {
+        container.innerHTML = `
+          <div class="empty-orders">
+            <div class="empty-icon">🔍</div>
+            <div class="empty-title">No orders found</div>
+            <p class="empty-text">Try a different filter or start a new order</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = ordersToShow
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .map(order => renderOrderCard(order))
+        .join('');
+    }
+
+    function renderOrderCard(order) {
+      const orderDate = new Date(order.createdAt);
+      const formattedDate = orderDate.toLocaleDateString('en-IN', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      });
+
+      const itemsPreview = order.items.slice(0, 2).map(item => `  ${item.quantity}x ${item.name}`).join('<br>');
+      const hasMore = order.items.length > 2 ? `<br>  +${order.items.length - 2} more` : '';
+
+      return `
+        <div class="order-card">
+          <div class="order-card-header">
+            <div class="order-id-date">
+              <div class="order-id">Order #${order.id}</div>
+              <div class="order-date">${formattedDate}</div>
+            </div>
+            <div class="order-status-badge ${getStatusBadgeClass(order.status)}">
+              ${getStatusEmoji(order.status)} ${order.status.charAt(0).toUpperCase() + order.status.slice(1).replace('-', ' ')}
+            </div>
+          </div>
+
+          <div class="order-card-content">
+            <div class="order-items-list">
+              <div class="order-items-title">Items</div>
+              <div class="order-item">${itemsPreview}${hasMore}</div>
+            </div>
+
+            <div class="order-summary">
+              <div class="summary-row">
+                <strong>Subtotal:</strong>
+                <span>₹${order.subtotal}</span>
+              </div>
+              ${order.discount ? `<div class="summary-row">
+                <strong>Discount:</strong>
+                <span style="color: var(--accent)">-₹${order.discount}</span>
+              </div>` : ''}
+              <div class="summary-row total-amount">
+                <span>Total:</span>
+                <span>₹${order.total}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="order-card-footer">
+            <button class="order-btn order-btn-detail" onclick="openOrderModal('${order.id}')">
+              📋 View Details
+            </button>
+            ${order.status === 'delivered' ? `<button class="order-btn order-btn-reorder" onclick="reorderItems('${order.id}')">
+              🔁 Reorder
+            </button>` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    function openOrderModal(orderId) {
+      const order = allOrders.find(o => o.id === orderId);
+      if (!order) return;
+
+      // Populate modal
+      document.getElementById('modalOrderId').innerText = order.id;
+      document.getElementById('modalOrderDate').innerText = new Date(order.createdAt).toLocaleDateString(
+        'en-IN',
+        {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        }
+      );
+
+      const statusBadge = `<span class="order-status-badge ${getStatusBadgeClass(order.status)}">${getStatusEmoji(order.status)} ${order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span>`;
+      document.getElementById('modalOrderStatus').innerHTML = statusBadge;
+
+      document.getElementById('modalOrderItems').innerHTML = order.items
+        .map(
+          item => `
+        <div class="modal-item">
+          <strong>${item.quantity}x ${item.name} (${item.restaurantName})</strong>
+          <span>₹${item.price} × ${item.quantity} = ₹${item.price * item.quantity}</span>
+        </div>
+      `
+        )
+        .join('');
+
+      document.getElementById('modalDeliveryAddress').innerText = order.deliveryAddress;
+      document.getElementById('modalPhone').innerText = order.phoneNumber;
+      document.getElementById('modalPaymentMethod').innerText = order.paymentMethod;
+
+      document.getElementById('modalSubtotal').innerText = '₹' + order.subtotal;
+      document.getElementById('modalTotal').innerText = '₹' + order.total;
+
+      if (order.discount > 0) {
+        document.getElementById('modalDiscountItem').style.display = 'flex';
+        document.getElementById('modalDiscount').innerText = '-₹' + order.discount;
+      } else {
+        document.getElementById('modalDiscountItem').style.display = 'none';
+      }
+
+      document.getElementById('orderModal').classList.add('show');
+    }
+
+    function closeOrderModal() {
+      document.getElementById('orderModal').classList.remove('show');
+    }
+
+    function reorderItems(orderId) {
+      const order = allOrders.find(o => o.id === orderId);
+      if (!order) return;
+
+      // Clear current cart
+      Cart.items = [];
+
+      // Add items from previous order
+      order.items.forEach(item => {
+        const menuItem = item; // item already has name and price from order
+        if (menuItem) {
+          Cart.addItem(menuItem, item.quantity);
+        }
+      });
+
+      alert('✅ Items added to cart! Proceeding to checkout...');
+      window.location.href = 'checkout.html';
+    }
+
+    // Theme toggle
+    const modeToggle = document.getElementById('modeToggle');
+    const theme = localStorage.getItem('campus_food_theme') || 'light';
+    if (theme === 'light') {
+      document.documentElement.classList.add('light');
+    }
+    modeToggle.innerText = theme === 'light' ? '☀️' : '🌙';
+
+    modeToggle.addEventListener('click', () => {
+      document.documentElement.classList.toggle('light');
+      const newTheme = document.documentElement.classList.contains('light') ? 'light' : 'dark';
+      localStorage.setItem('campus_food_theme', newTheme);
+      modeToggle.innerText = newTheme === 'light' ? '☀️' : '🌙';
+    });
+
+    // Close modal on outside click
+    document.getElementById('orderModal').addEventListener('click', e => {
+      if (e.target.id === 'orderModal') {
+        closeOrderModal();
+      }
+    });
+
+    // Initialize
+    initializeOrderHistory();
+  </script>
+</body>
+</html>

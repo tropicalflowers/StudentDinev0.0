@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Restaurant Management • Manager</title>
+  <link rel="stylesheet" href="../style.css" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--txt); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    
+    .nav { background: var(--card); border-bottom: 1px solid color-mix(in srgb, var(--txt) 12%, transparent); }
+    .nav .row { display: flex; justify-content: space-between; align-items: center; max-width: 1500px; margin: 0 auto; padding: 12px 20px; gap: 20px; flex-wrap: wrap; }
+    .nav .brand { display: flex; gap: 12px; align-items: center; font-weight: 800; font-size: 18px; }
+    .nav .logo { width: 32px; height: 32px; background: linear-gradient(135deg, var(--pri), var(--pri-2)); border-radius: 8px; }
+    .nav .menu { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+    .nav a { color: var(--txt); text-decoration: none; font-size: 14px; transition: color 0.2s; }
+    .nav a:hover { color: var(--pri); }
+    .nav button { padding: 8px 16px; border: 1px solid var(--pri); background: transparent; color: var(--pri); border-radius: 6px; cursor: pointer; font-weight: 700; transition: all 0.2s; }
+    .nav button:hover { background: var(--pri); color: white; }
+
+    .container { max-width: 1400px; margin: 0 auto; padding: 24px 20px; }
+    .hero { background: linear-gradient(135deg, var(--pri), var(--pri-2)); border-radius: 16px; padding: 32px; color: white; margin-bottom: 32px; }
+    .hero h1 { font-size: 32px; margin-bottom: 8px; }
+    .hero p { font-size: 16px; opacity: 0.95; }
+    .role-pill { display: inline-block; background: rgba(255,255,255,0.2); padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; margin-bottom: 16px; }
+
+    .tabs { display: flex; gap: 10px; margin-bottom: 24px; border-bottom: 2px solid color-mix(in srgb, var(--txt) 12%, transparent); flex-wrap: wrap; }
+    .tab { padding: 12px 16px; background: none; border: none; color: var(--txt); cursor: pointer; font-weight: 600; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.2s; }
+    .tab.active { color: var(--pri); border-bottom-color: var(--pri); }
+    .tab:hover { color: var(--pri); }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
+    .panel { background: var(--card); border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent); border-radius: 12px; padding: 24px; }
+    .panel h2 { font-size: 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+    .panel h3 { font-size: 14px; color: var(--muted); text-transform: uppercase; margin: 16px 0 12px; font-weight: 700; }
+
+    .form-group { display: grid; gap: 8px; margin-bottom: 14px; }
+    .form-group label { font-size: 13px; font-weight: 600; color: var(--muted); }
+    .form-group input, .form-group select, .form-group textarea { padding: 10px 12px; border: 1px solid color-mix(in srgb, var(--txt) 14%, transparent); border-radius: 8px; background: transparent; color: var(--txt); font-size: 14px; outline: none; }
+    .form-group input::placeholder { color: color-mix(in srgb, var(--txt) 40%, transparent); }
+    .form-group input:focus, .form-group select:focus { border-color: var(--pri); box-shadow: 0 0 0 2px color-mix(in srgb, var(--pri) 20%, transparent); }
+
+    .btn { padding: 10px 16px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: 14px; }
+    .btn-primary { background: linear-gradient(135deg, var(--pri), var(--pri-2)); color: white; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 16px color-mix(in srgb, var(--pri) 50%, transparent); }
+    .btn-secondary { background: transparent; border: 1px solid color-mix(in srgb, var(--txt) 18%, transparent); color: var(--txt); }
+    .btn-secondary:hover { background: color-mix(in srgb, var(--txt) 6%, transparent); }
+    .btn-danger { background: #dc2626; color: white; }
+    .btn-danger:hover { background: #b91c1c; }
+    .btn-success { background: #10b981; color: white; }
+    .btn-success:hover { background: #059669; }
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+    .restaurant-card { background: color-mix(in srgb, var(--pri) 8%, transparent); border: 1px solid color-mix(in srgb, var(--pri) 25%, transparent); border-radius: 10px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .restaurant-info h3 { margin: 0 0 4px; font-size: 15px; }
+    .restaurant-info p { margin: 0; font-size: 12px; color: var(--muted); }
+    .restaurant-status { display: inline-block; padding: 4px 8px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .status-open { background: #d1fae5; color: #065f46; }
+    .status-closed { background: #fee2e2; color: #7f1d1d; }
+
+    .staff-card { background: color-mix(in srgb, var(--txt) 3%, transparent); border: 1px solid color-mix(in srgb, var(--txt) 10%, transparent); border-radius: 10px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+    .staff-info h4 { margin: 0 0 2px; font-size: 14px; font-weight: 700; }
+    .staff-info p { margin: 0; font-size: 12px; color: var(--muted); }
+    .staff-actions { display: flex; gap: 6px; }
+
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { background: color-mix(in srgb, var(--txt) 6%, transparent); padding: 10px; text-align: left; font-weight: 700; color: var(--muted); }
+    td { padding: 10px; border-bottom: 1px solid color-mix(in srgb, var(--txt) 10%, transparent); }
+    tr:hover { background: color-mix(in srgb, var(--txt) 3%, transparent); }
+
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
+    .stat-card { background: color-mix(in srgb, var(--pri) 8%, transparent); border-radius: 10px; padding: 16px; text-align: center; }
+    .stat-number { font-size: 24px; font-weight: 800; color: var(--pri); }
+    .stat-label { font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+    .message { padding: 12px; border-radius: 8px; margin: 12px 0; font-size: 14px; }
+    .message.success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+    .message.error { background: #fee2e2; color: #7f1d1d; border: 1px solid #fecaca; }
+
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: var(--card); border-radius: 12px; padding: 24px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .modal-header h2 { margin: 0; }
+    .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--muted); }
+    .modal-close:hover { color: var(--txt); }
+
+    @media (max-width: 768px) {
+      .grid { grid-template-columns: 1fr; }
+      .container { padding: 16px 12px; }
+      .panel { padding: 16px; }
+      .hero { padding: 20px; }
+      .hero h1 { font-size: 24px; }
+      .restaurant-card, .staff-card { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="row">
+      <div class="brand">
+        <div class="logo"></div>
+        <div>Manager • Restaurant Control</div>
+      </div>
+      <div class="menu">
+        <a href="index.html">Dashboard</a>
+        <a href="operations.html">Operations</a>
+        <a href="../store.html">Store</a>
+        <button onclick="logout()">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <section class="hero">
+      <div class="role-pill">🛠️ Manager</div>
+      <h1>Restaurant Management Console</h1>
+      <p>Control restaurant operations, manage staff, and monitor activity.</p>
+    </section>
+
+    <!-- Tab Navigation -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('restaurants')">🏪 Restaurants</button>
+      <button class="tab" onclick="switchTab('staff')">👥 Staff</button>
+      <button class="tab" onclick="switchTab('activity')">📊 Activity</button>
+    </div>
+
+    <!-- Restaurants Tab -->
+    <div id="restaurants" class="tab-content active">
+      <div class="grid">
+        <div class="panel" style="grid-column: 1 / -1;">
+          <h2>📊 Restaurant Stats</h2>
+          <div class="stats">
+            <div class="stat-card">
+              <div class="stat-number" id="totalRestaurants">0</div>
+              <div class="stat-label">Total Restaurants</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="openRestaurants">0</div>
+              <div class="stat-label">Currently Open</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="closedRestaurants">0</div>
+              <div class="stat-label">Closed</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="todayOrders">0</div>
+              <div class="stat-label">Orders Today</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>➕ Add New Restaurant</h2>
+          <div class="form-group">
+            <label>Restaurant Name</label>
+            <input type="text" id="restaurantName" placeholder="e.g., Campus Café" />
+          </div>
+          <div class="form-group">
+            <label>Cluster/Location</label>
+            <input type="text" id="restaurantCluster" placeholder="e.g., North Campus" />
+          </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" id="restaurantPhone" placeholder="e.g., 9876543210" />
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="restaurantEmail" placeholder="e.g., cafe@campus.edu" />
+          </div>
+          <div class="form-group">
+            <label>Capacity</label>
+            <input type="number" id="restaurantCapacity" placeholder="e.g., 100" min="0" />
+          </div>
+          <div class="form-group">
+            <label>Address</label>
+            <textarea id="restaurantAddress" placeholder="Full address"></textarea>
+          </div>
+          <button class="btn btn-primary" onclick="addRestaurant()" style="width: 100%;">Add Restaurant</button>
+          <div id="restaurantAddMessage"></div>
+        </div>
+
+        <div class="panel">
+          <h2>🏪 All Restaurants</h2>
+          <div id="restaurantsList">
+            <p style="color: var(--muted); text-align: center; padding: 20px;">Loading restaurants...</p>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>⚙️ Manage Restaurant</h2>
+          <div class="form-group">
+            <label>Select Restaurant</label>
+            <select id="restaurantManageSelect" onchange="loadRestaurantDetails()">
+              <option value="">Choose a restaurant...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <div style="display: flex; gap: 10px;">
+              <button class="btn btn-success btn-sm" onclick="setRestaurantStatus('open')">🟢 Open</button>
+              <button class="btn btn-danger btn-sm" onclick="setRestaurantStatus('closed')">🔴 Close</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Status Note</label>
+            <input type="text" id="restaurantNote" placeholder="e.g., Emergency maintenance" />
+          </div>
+          <button class="btn btn-primary" onclick="updateRestaurantStatus()" style="width: 100%;">Update Status</button>
+          <div id="restaurantStatusMessage"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Staff Tab -->
+    <div id="staff" class="tab-content">
+      <div class="grid">
+        <div class="panel" style="grid-column: 1 / -1;">
+          <h2>📊 Staff Stats</h2>
+          <div class="stats">
+            <div class="stat-card">
+              <div class="stat-number" id="totalStaff">0</div>
+              <div class="stat-label">Total Staff</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="activeStaff">0</div>
+              <div class="stat-label">Active</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="onLeaveStaff">0</div>
+              <div class="stat-label">On Leave</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="chefs">0</div>
+              <div class="stat-label">Chefs</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>➕ Add Staff Member</h2>
+          <div class="form-group">
+            <label>Name</label>
+            <input type="text" id="staffName" placeholder="Full name" />
+          </div>
+          <div class="form-group">
+            <label>Role</label>
+            <select id="staffRole">
+              <option value="">Select role</option>
+              <option value="Chef">Chef</option>
+              <option value="Helper">Kitchen Helper</option>
+              <option value="Cashier">Cashier</option>
+              <option value="Delivery">Delivery Personnel</option>
+              <option value="Manager">Assistant Manager</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" id="staffPhone" placeholder="9876543210" />
+          </div>
+          <div class="form-group">
+            <label>Restaurant</label>
+            <select id="staffRestaurant">
+              <option value="">Select restaurant</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Shift</label>
+            <select id="staffShift">
+              <option value="Morning">Morning (6 AM - 2 PM)</option>
+              <option value="Afternoon">Afternoon (2 PM - 10 PM)</option>
+              <option value="Night">Night (10 PM - 6 AM)</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="addStaff()" style="width: 100%;">Add Staff</button>
+          <div id="staffAddMessage"></div>
+        </div>
+
+        <div class="panel">
+          <h2>👥 All Staff</h2>
+          <div id="staffList">
+            <p style="color: var(--muted); text-align: center; padding: 20px;">Loading staff...</p>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>⚙️ Manage Staff</h2>
+          <div class="form-group">
+            <label>Select Staff Member</label>
+            <select id="staffManageSelect" onchange="loadStaffDetails()">
+              <option value="">Choose a staff member...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="staffStatus">
+              <option value="Active">Active</option>
+              <option value="On Leave">On Leave</option>
+              <option value="Suspended">Suspended</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Notes</label>
+            <textarea id="staffNotes" placeholder="Add notes..."></textarea>
+          </div>
+          <button class="btn btn-primary" onclick="updateStaffStatus()" style="width: 100%;">Update Staff</button>
+          <div id="staffManageMessage"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activity Tab -->
+    <div id="activity" class="tab-content">
+      <div class="grid">
+        <div class="panel" style="grid-column: 1 / -1;">
+          <h2>📊 Activity Overview</h2>
+          <div class="stats">
+            <div class="stat-card">
+              <div class="stat-number" id="todayTotalOrders">0</div>
+              <div class="stat-label">Today's Orders</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="todayRevenue">₹0</div>
+              <div class="stat-label">Today's Revenue</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="averageOrder">₹0</div>
+              <div class="stat-label">Avg Order Value</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="customerCount">0</div>
+              <div class="stat-label">Customers</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" style="grid-column: 1 / -1;">
+          <h2>📋 Recent Orders</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Customer</th>
+                  <th>Restaurant</th>
+                  <th>Amount (₹)</th>
+                  <th>Status</th>
+                  <th>Time</th>
+                </tr>
+              </thead>
+              <tbody id="ordersTable">
+                <tr><td colspan="6" style="text-align: center; color: var(--muted);">Loading orders...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="panel" style="grid-column: 1 / -1;">
+          <h2>💳 Daily Summary</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Restaurant</th>
+                  <th>Orders</th>
+                  <th>Revenue (₹)</th>
+                  <th>Avg Order (₹)</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="summaryTable">
+                <tr><td colspan="5" style="text-align: center; color: var(--muted);">Loading summary...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../auth.js"></script>
+  <script>
+    const API_URL = 'http://localhost:5000/api';
+    let currentUser = null;
+    let allRestaurants = [];
+    let allStaff = [];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      currentUser = Auth.getCurrentUser();
+      if (!currentUser) {
+        window.location.href = '../index.html';
+        return;
+      }
+
+      if (currentUser.role !== 'manager') {
+        window.location.href = '../index.html';
+        return;
+      }
+
+      await loadRestaurants();
+      await loadStaff();
+      await loadActivity();
+    });
+
+    function switchTab(tabName) {
+      // Hide all tabs
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+
+      // Show selected tab
+      document.getElementById(tabName).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    // ==================== RESTAURANTS ====================
+    async function loadRestaurants() {
+      try {
+        const res = await fetch(`${API_URL}/restaurants`);
+        const data = await res.json();
+        if (data.success) {
+          allRestaurants = data.restaurants || [];
+          renderRestaurants();
+          populateRestaurantSelect();
+          updateRestaurantStats();
+        }
+      } catch (err) {
+        console.error('Error loading restaurants:', err);
+      }
+    }
+
+    function renderRestaurants() {
+      const container = document.getElementById('restaurantsList');
+      if (allRestaurants.length === 0) {
+        container.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 20px;">No restaurants added yet.</p>';
+        return;
+      }
+
+      container.innerHTML = allRestaurants.map(r => `
+        <div class="restaurant-card">
+          <div class="restaurant-info">
+            <h3>${r.name}</h3>
+            <p>📍 ${r.cluster || 'Unknown'} | ☎️ ${r.phone || 'N/A'}</p>
+            <p>👥 Capacity: ${r.capacity || 0} | Manager: ${r.manager || 'N/A'}</p>
+          </div>
+          <span class="restaurant-status ${r.isOpen ? 'status-open' : 'status-closed'}">
+            ${r.isOpen ? '🟢 OPEN' : '🔴 CLOSED'}
+          </span>
+        </div>
+      `).join('');
+    }
+
+    function populateRestaurantSelect() {
+      const select = document.getElementById('restaurantManageSelect');
+      const staffSelect = document.getElementById('staffRestaurant');
+      
+      select.innerHTML = '<option value="">Choose a restaurant...</option>';
+      staffSelect.innerHTML = '<option value="">Select restaurant</option>';
+      
+      allRestaurants.forEach(r => {
+        select.innerHTML += `<option value="${r.restaurantId}">${r.name}</option>`;
+        staffSelect.innerHTML += `<option value="${r.restaurantId}">${r.name}</option>`;
+      });
+    }
+
+    function updateRestaurantStats() {
+      document.getElementById('totalRestaurants').textContent = allRestaurants.length;
+      document.getElementById('openRestaurants').textContent = allRestaurants.filter(r => r.isOpen).length;
+      document.getElementById('closedRestaurants').textContent = allRestaurants.filter(r => !r.isOpen).length;
+    }
+
+    async function addRestaurant() {
+      const name = document.getElementById('restaurantName').value;
+      const cluster = document.getElementById('restaurantCluster').value;
+      const phone = document.getElementById('restaurantPhone').value;
+      const email = document.getElementById('restaurantEmail').value;
+      const capacity = document.getElementById('restaurantCapacity').value;
+      const address = document.getElementById('restaurantAddress').value;
+
+      if (!name || !cluster) {
+        showMessage(document.getElementById('restaurantAddMessage'), 'Name and cluster are required', 'error');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_URL}/restaurants`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            restaurantId: 'REST' + Date.now(),
+            name, cluster, phone, email, address,
+            capacity: parseInt(capacity) || 0,
+            manager: currentUser.name,
+            isOpen: true
+          })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          showMessage(document.getElementById('restaurantAddMessage'), 'Restaurant added successfully! ✓', 'success');
+          document.getElementById('restaurantName').value = '';
+          document.getElementById('restaurantCluster').value = '';
+          document.getElementById('restaurantPhone').value = '';
+          document.getElementById('restaurantEmail').value = '';
+          document.getElementById('restaurantCapacity').value = '';
+          document.getElementById('restaurantAddress').value = '';
+          await loadRestaurants();
+        } else {
+          showMessage(document.getElementById('restaurantAddMessage'), data.message || 'Failed to add', 'error');
+        }
+      } catch (err) {
+        showMessage(document.getElementById('restaurantAddMessage'), 'Error: ' + err.message, 'error');
+      }
+    }
+
+    function loadRestaurantDetails() {
+      const restaurantId = document.getElementById('restaurantManageSelect').value;
+      const restaurant = allRestaurants.find(r => r.restaurantId === restaurantId);
+      if (restaurant) {
+        document.getElementById('restaurantNote').value = restaurant.statusNote || '';
+      }
+    }
+
+    async function setRestaurantStatus(status) {
+      const restaurantId = document.getElementById('restaurantManageSelect').value;
+      if (!restaurantId) {
+        showMessage(document.getElementById('restaurantStatusMessage'), 'Please select a restaurant', 'error');
+        return;
+      }
+
+      await updateRestaurantStatus(restaurantId, status === 'open');
+    }
+
+    async function updateRestaurantStatus(restaurantId, isOpen) {
+      restaurantId = restaurantId || document.getElementById('restaurantManageSelect').value;
+      isOpen = isOpen !== undefined ? isOpen : (document.getElementById('restaurantNote').value ? true : false);
+
+      if (!restaurantId) {
+        showMessage(document.getElementById('restaurantStatusMessage'), 'Please select a restaurant', 'error');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_URL}/restaurants/${restaurantId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            isOpen,
+            statusNote: document.getElementById('restaurantNote').value
+          })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          showMessage(document.getElementById('restaurantStatusMessage'), 'Restaurant status updated! ✓', 'success');
+          await loadRestaurants();
+        } else {
+          showMessage(document.getElementById('restaurantStatusMessage'), data.message || 'Failed to update', 'error');
+        }
+      } catch (err) {
+        showMessage(document.getElementById('restaurantStatusMessage'), 'Error: ' + err.message, 'error');
+      }
+    }
+
+    // ==================== STAFF ====================
+    async function loadStaff() {
+      try {
+        const res = await fetch(`${API_URL}/staff`);
+        const data = await res.json();
+        if (data.success) {
+          allStaff = data.staff || [];
+          renderStaff();
+          updateStaffStats();
+        }
+      } catch (err) {
+        console.error('Error loading staff:', err);
+      }
+    }
+
+    function renderStaff() {
+      const container = document.getElementById('staffList');
+      if (allStaff.length === 0) {
+        container.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 20px;">No staff members added yet.</p>';
+        return;
+      }
+
+      container.innerHTML = allStaff.map(s => `
+        <div class="staff-card">
+          <div class="staff-info">
+            <h4>${s.name}</h4>
+            <p>${s.role} | ${s.phone}</p>
+            <p>📍 ${s.restaurant} | ⏰ ${s.shift}</p>
+          </div>
+          <span style="padding: 4px 8px; border-radius: 20px; font-size: 11px; font-weight: 700; background: ${s.status === 'Active' ? '#d1fae5' : '#fee2e2'}; color: ${s.status === 'Active' ? '#065f46' : '#7f1d1d'};">
+            ${s.status}
+          </span>
+        </div>
+      `).join('');
+    }
+
+    function updateStaffStats() {
+      document.getElementById('totalStaff').textContent = allStaff.length;
+      document.getElementById('activeStaff').textContent = allStaff.filter(s => s.status === 'Active').length;
+      document.getElementById('onLeaveStaff').textContent = allStaff.filter(s => s.status === 'On Leave').length;
+      document.getElementById('chefs').textContent = allStaff.filter(s => s.role === 'Chef').length;
+    }
+
+    async function addStaff() {
+      const name = document.getElementById('staffName').value;
+      const role = document.getElementById('staffRole').value;
+      const phone = document.getElementById('staffPhone').value;
+      const restaurant = document.getElementById('staffRestaurant').value;
+      const shift = document.getElementById('staffShift').value;
+
+      if (!name || !role || !phone || !restaurant) {
+        showMessage(document.getElementById('staffAddMessage'), 'All fields are required', 'error');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_URL}/staff`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            staffId: 'STAFF' + Date.now(),
+            name, role, phone, restaurant, shift,
+            status: 'Active',
+            joinDate: new Date().toISOString().split('T')[0]
+          })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          showMessage(document.getElementById('staffAddMessage'), 'Staff member added! ✓', 'success');
+          document.getElementById('staffName').value = '';
+          document.getElementById('staffRole').value = '';
+          document.getElementById('staffPhone').value = '';
+          document.getElementById('staffRestaurant').value = '';
+          await loadStaff();
+        } else {
+          showMessage(document.getElementById('staffAddMessage'), data.message || 'Failed to add', 'error');
+        }
+      } catch (err) {
+        showMessage(document.getElementById('staffAddMessage'), 'Error: ' + err.message, 'error');
+      }
+    }
+
+    function loadStaffDetails() {
+      const staffId = document.getElementById('staffManageSelect').value;
+      const staff = allStaff.find(s => s.staffId === staffId);
+      if (staff) {
+        document.getElementById('staffStatus').value = staff.status;
+        document.getElementById('staffNotes').value = staff.notes || '';
+      }
+    }
+
+    async function updateStaffStatus() {
+      const staffId = document.getElementById('staffManageSelect').value;
+      const status = document.getElementById('staffStatus').value;
+      const notes = document.getElementById('staffNotes').value;
+
+      if (!staffId) {
+        showMessage(document.getElementById('staffManageMessage'), 'Please select a staff member', 'error');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_URL}/staff/${staffId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status, notes })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          showMessage(document.getElementById('staffManageMessage'), 'Staff updated successfully! ✓', 'success');
+          await loadStaff();
+        } else {
+          showMessage(document.getElementById('staffManageMessage'), data.message || 'Failed to update', 'error');
+        }
+      } catch (err) {
+        showMessage(document.getElementById('staffManageMessage'), 'Error: ' + err.message, 'error');
+      }
+    }
+
+    // ==================== ACTIVITY ====================
+    async function loadActivity() {
+      try {
+        // Load orders and stats
+        const res = await fetch(`${API_URL}/orders`);
+        const data = await res.json();
+        if (data.success) {
+          renderActivity(data.orders || []);
+        }
+      } catch (err) {
+        console.error('Error loading activity:', err);
+      }
+    }
+
+    function renderActivity(orders) {
+      // Update activity stats
+      document.getElementById('todayTotalOrders').textContent = orders.length;
+      document.getElementById('customerCount').textContent = new Set(orders.map(o => o.userId)).size;
+
+      // Render orders table
+      const ordersTable = document.getElementById('ordersTable');
+      ordersTable.innerHTML = orders.slice(0, 10).map(o => `
+        <tr>
+          <td>${o.orderId || 'N/A'}</td>
+          <td>${o.userName || 'Guest'}</td>
+          <td>${o.restaurantName || 'N/A'}</td>
+          <td>₹${o.total || 0}</td>
+          <td>${o.status || 'Pending'}</td>
+          <td>${new Date(o.createdAt).toLocaleTimeString()}</td>
+        </tr>
+      `).join('');
+    }
+
+    // ==================== HELPERS ====================
+    function showMessage(el, msg, type) {
+      el.innerHTML = `<div class="message ${type}">${msg}</div>`;
+      setTimeout(() => { el.innerHTML = ''; }, 4000);
+    }
+
+    function logout() {
+      Auth.logout();
+      window.location.href = '../index.html';
+    }
+  </script>
+</body>
+</html>

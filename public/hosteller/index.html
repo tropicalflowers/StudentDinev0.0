@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en" class="light">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Campus Food • Hosteller</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Poppins:wght@400;600;800&family=Rubik:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <nav class="nav">
+    <div class="row">
+      <div class="brand">
+        <div class="logo"></div>
+        <div>Campus Food<span class="kbd">beta</span></div>
+      </div>
+      <div class="menu">
+        <div class="dropdown" data-dd="order">
+          <button>🍽️ ORDER FOOD ▾</button>
+          <div class="dropdown-panel">
+            <a href="#" data-action="open-gallery">Browse restaurants</a>
+            <a href="#" data-action="previous-orders">Previous orders</a>
+            <a href="#" data-action="popular-spots">Popular spots</a>
+            <a href="#" data-action="book-table">Book a table</a>
+            <a href="#" data-action="coupons">Coupons</a>
+            <a href="#" data-action="wallet">Wallet</a>
+            <a href="#" data-action="payment-modes">Payment modes</a>
+          </div>
+        </div>
+
+        <!-- Hosteller gets Mess menu -->
+        <div class="dropdown" data-dd="mess">
+          <button>🏷️ MESS FOOD ▾</button>
+          <div class="dropdown-panel">
+            <a href="#" data-action="book-mess">Book mess food</a>
+            <a href="#" data-action="cancel-mess">Cancel mess meal</a>
+            <a href="#" data-action="group-mess">Book for multiple</a>
+            <a href="#" data-action="mess-history">Payment history</a>
+          </div>
+        </div>
+
+        <a href="#" data-action="info">Information</a>
+        <a href="#" data-action="howto">How to order</a>
+        <button id="modeToggle">☀️/🌙</button>
+        <a href="#" data-action="login-again">Logout</a>
+        <a href="../index.html" data-action="switch-role">🔄 Switch Role</a>
+        <a href="#" data-action="about">About creators</a>
+        <div id="google_translate_element"></div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <section class="hero">
+      <div class="hero-card">
+        <div class="role-pill">🏠 <strong>Hosteller</strong> mode</div>
+        <h1>Campus Food Management</h1>
+        <p>Mess bookings + campus-wide ordering in one place.</p>
+        <div class="cta">
+          <button class="btn" id="ctaStartOrder" onclick="window.location.href='../store.html'">Start ordering</button>
+          <button class="btn secondary" id="ctaMess" onclick="window.location.href='mess-booking.html'">📋 Book Mess</button>
+        </div>
+        <div class="banner" style="margin-top:14px">
+          Tip: Use the <b>Translate</b> drop-down on the right to view content in Hindi, French, Punjabi or Japanese.
+        </div>
+      </div>
+      <div class="hero-card">
+        <h3>What this website does</h3>
+        <ul>
+          <li>Order from 24 curated campus restaurants and cafés.</li>
+          <li>Smart cart & multi-step payments flow.</li>
+          <li>View previous orders, coupons and wallet.</li>
+          <li>Hostellers: Book/cancel mess, reserve seats, manage subscriptions.</li>
+        </ul>
+        <p class="small">Pretty placeholders are ready for images — just set the <code>src</code> on <code>&lt;img&gt;</code> tags later.</p>
+      </div>
+    </section>
+
+    
+
+    <section class="section">
+      <h2>Benefits</h2>
+      <div class="grid">
+        <div class="card"><div class="title">⚡ Fast</div><p class="small">Skip queues, order in a few taps.</p></div>
+        <div class="card"><div class="title">🎯 Accurate</div><p class="small">Clear menus with descriptions & prices.</p></div>
+        <div class="card"><div class="title">🪄 Helpful</div><p class="small">Coupons, wallet, and previous orders.</p></div>
+        <div class="card"><div class="title">🔒 Secure</div><p class="small">Role-based access & re-login.</p></div>
+      </div>
+    </section>
+
+    <footer>© 2025 Campus Food • All rights reserved.</footer>
+  </div>
+  <script src="../auth.js"></script>
+  <script src="app.js"></script>
+  <!-- Google Translate widget -->
+  <script type="text/javascript">
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({pageLanguage: 'en', includedLanguages:'hi,fr,pa,ja'}, 'google_translate_element');
+    }
+  </script>
+  <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</body>
+</html>

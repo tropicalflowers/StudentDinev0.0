@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en" class="light">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Campus Food • Manager</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Poppins:wght@400;600;800&family=Rubik:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <nav class="nav">
+    <div class="row">
+      <div class="brand">
+        <div class="logo"></div>
+        <div>Campus Food<span class="kbd">beta</span></div>
+      </div>
+      <div class="menu">
+        <div class="dropdown" data-dd="order">
+          <button>🍽️ ORDER FOOD ▾</button>
+          <div class="dropdown-panel">
+            <a href="#" data-action="open-gallery">Browse restaurants</a>
+            <a href="#" data-action="previous-orders">Previous orders</a>
+            <a href="#" data-action="popular-spots">Popular spots</a>
+            <a href="#" data-action="book-table">Book a table</a>
+            <a href="#" data-action="coupons">Coupons</a>
+            <a href="#" data-action="wallet">Wallet</a>
+            <a href="#" data-action="payment-modes">Payment modes</a>
+          </div>
+        </div>
+        <div class='dropdown' data-dd='manage'>
+          <button>🧰 MANAGE ▾</button>
+          <div class='dropdown-panel'>
+            <a href='#' data-action='manage' data-scope='day'>Day-Scholar</a>
+            <a href='#' data-action='manage' data-scope='hostel'>Hosteller</a>
+            <a href='#' data-action='manage' data-scope='staff'>Staff</a>
+          </div>
+        </div>
+        <a href="#" data-action="info">Information</a>
+        <a href="#" data-action="howto">How to order</a>
+        <button id="modeToggle">☀️/🌙</button>
+        <a href="#" data-action="login-again">Logout</a>
+        <a href="../index.html" data-action="switch-role">🔄 Switch Role</a>
+        <a href="#" data-action="about">About creators</a>
+        <div id="google_translate_element"></div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <section class="hero">
+      <div class="hero-card">
+        <div class="role-pill">🛠️ <strong>Manager</strong> mode</div>
+        <h1>Campus Food Management</h1>
+        <p>Run campus dining with insights & control.</p>
+        <div class="cta">
+          <button class="btn" id="ctaStartOrder">Start ordering</button>
+          <button class="btn secondary" id="ctaManage" onclick="window.location.href='restaurant-management.html'">🏪 Manage Restaurants</button>
+          <button class="btn secondary" onclick="window.location.href='operations.html'">📊 Operations Dashboard</button>
+        </div>
+        <div class="banner" style="margin-top:14px">
+          Tip: Use the <b>Translate</b> drop-down on the right to view content in Hindi, French, Punjabi or Japanese.
+        </div>
+      </div>
+      <div class="hero-card">
+        <h3>What this website does</h3>
+        <ul>
+          <li>Order from 24 curated campus restaurants and cafés.</li>
+          <li>Smart cart & multi-step payments flow.</li>
+          <li>View previous orders, coupons and wallet.</li>
+          <li>Managers: Open or close restaurants, edit menus, and manage staff.</li>
+        </ul>
+        <p class="small">Pretty placeholders are ready for images — just set the <code>src</code> on <code>&lt;img&gt;</code> tags later.</p>
+      </div>
+    </section>
+
+    
+
+    <section class="section">
+      <h2>Benefits</h2>
+      <div class="grid">
+        <div class="card"><div class="title">⚡ Fast</div><p class="small">Skip queues, order in a few taps.</p></div>
+        <div class="card"><div class="title">🎯 Accurate</div><p class="small">Clear menus with descriptions & prices.</p></div>
+        <div class="card"><div class="title">🪄 Helpful</div><p class="small">Coupons, wallet, and previous orders.</p></div>
+        <div class="card"><div class="title">🔒 Secure</div><p class="small">Role-based access & re-login.</p></div>
+      </div>
+    </section>
+
+    <footer>© 2025 Campus Food • All rights reserved.</footer>
+  </div>
+  <script src="../auth.js"></script>
+  <script src="app.js"></script>
+  <script type="text/javascript">
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({pageLanguage: 'en', includedLanguages:'hi,fr,pa,ja'}, 'google_translate_element');
+    }
+  </script>
+  <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</body>
+</html>

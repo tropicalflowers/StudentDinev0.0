@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register • Student Dine Portal</title>
+  <link rel="stylesheet" href="../style.css" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--txt);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    /* Top Navigation with Search */
+    .top-nav {
+      background: var(--card);
+      border-bottom: 1px solid color-mix(in srgb, var(--txt) 10%, transparent);
+      padding: 16px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .brand {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      font-weight: 700;
+      font-size: 18px;
+      white-space: nowrap;
+    }
+
+    .logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--pri), var(--pri-2));
+    }
+
+    .search-bar-wrapper {
+      flex: 1 1 400px;
+      max-width: 600px;
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background: color-mix(in srgb, var(--txt) 5%, transparent);
+      border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
+      border-radius: 24px;
+      padding: 10px 16px;
+      gap: 8px;
+    }
+
+    .search-bar input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--txt);
+      font-size: 14px;
+      outline: none;
+    }
+
+    .search-bar input::placeholder {
+      color: color-mix(in srgb, var(--txt) 40%, transparent);
+    }
+
+    .search-bar-icon {
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .nav-right {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      white-space: nowrap;
+    }
+
+    .nav-btn {
+      background: transparent;
+      border: none;
+      color: var(--txt);
+      font-size: 14px;
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+
+    .nav-btn:hover {
+      background: color-mix(in srgb, var(--txt) 10%, transparent);
+    }
+
+    /* Main Content */
+    .main-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 30px 20px;
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 30px;
+    }
+
+    /* Auth Card */
+
+    .auth-card {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 40px;
+      border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
+      height: fit-content;
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .auth-header h1 {
+      font-size: 28px;
+      margin: 0 0 8px;
+      font-weight: 800;
+    }
+
+    .auth-header p {
+      font-size: 14px;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
+      border-radius: 12px;
+      background: transparent;
+      color: var(--txt);
+      font-size: 14px;
+      font-weight: 600;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus {
+      border-color: var(--pri);
+    }
+
+    .form-group input::placeholder {
+      color: color-mix(in srgb, var(--txt) 30%, transparent);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--pri), var(--pri-2));
+      color: white;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+    }
+
+    .divider {
+      text-align: center;
+      color: var(--muted);
+      position: relative;
+      margin: 20px 0;
+      font-size: 12px;
+    }
+
+    .divider::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: color-mix(in srgb, var(--txt) 10%, transparent);
+      z-index: 0;
+    }
+
+    .divider span {
+      background: var(--card);
+      padding: 0 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .auth-footer {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 13px;
+    }
+
+    .auth-footer a {
+      color: var(--pri);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .auth-footer a:hover {
+      text-decoration: underline;
+    }
+
+    .back-link {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 12px;
+    }
+
+    .back-link a {
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    .back-link a:hover {
+      color: var(--txt);
+    }
+
+    /* Menu Items Grid */
+    .menu-section {
+      background: var(--card);
+      border-radius: 20px;
+      border: 1px solid color-mix(in srgb, var(--txt) 12%, transparent);
+      padding: 20px;
+      height: fit-content;
+    }
+
+    .menu-section h3 {
+      font-size: 16px;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+
+    .menu-items {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      max-height: 600px;
+      overflow-y: auto;
+    }
+
+    .menu-item {
+      padding: 12px;
+      background: color-mix(in srgb, var(--txt) 2%, transparent);
+      border-radius: 12px;
+      border: 1px solid color-mix(in srgb, var(--txt) 8%, transparent);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .menu-item:hover {
+      background: color-mix(in srgb, var(--pri) 10%, transparent);
+      border-color: var(--pri);
+    }
+
+    .menu-item-name {
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 2px;
+    }
+
+    .menu-item-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .menu-item-price {
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .alert {
+      padding: 12px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      display: none;
+      font-size: 13px;
+    }
+
+    .alert.show {
+      display: block;
+    }
+
+    .alert-success {
+      background: color-mix(in srgb, #22c55e 15%, transparent);
+      color: #86efac;
+      border: 1px solid color-mix(in srgb, #22c55e 30%, transparent);
+    }
+
+    .alert-error {
+      background: color-mix(in srgb, #ef4444 15%, transparent);
+      color: #fca5a5;
+      border: 1px solid color-mix(in srgb, #ef4444 30%, transparent);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 20px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    /* Role Selector */
+    .role-selector {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .role-option {
+      cursor: pointer;
+    }
+
+    .role-option input {
+      display: none;
+    }
+
+    .role-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px 12px;
+      border: 2px solid color-mix(in srgb, var(--txt) 12%, transparent);
+      border-radius: 12px;
+      background: transparent;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .role-option input:checked + .role-card {
+      border-color: var(--pri);
+      background: color-mix(in srgb, var(--pri) 10%, transparent);
+    }
+
+    .role-card:hover {
+      border-color: color-mix(in srgb, var(--pri) 50%, transparent);
+    }
+
+    .role-icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .role-title {
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--txt);
+    }
+
+    .role-desc {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* Password Input with Toggle */
+    .password-input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .password-input-wrapper input {
+      padding-right: 44px;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 8px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+    }
+
+    .toggle-password:hover {
+      opacity: 1;
+    }
+
+    .eye-icon {
+      font-size: 16px;
+    }
+
+    /* Field Errors */
+    .field-error {
+      display: block;
+      font-size: 11px;
+      color: #ef4444;
+      margin-top: 4px;
+      min-height: 16px;
+    }
+
+    /* Password Strength Indicator */
+    .password-strength {
+      display: flex;
+      gap: 4px;
+      margin-top: 8px;
+      height: 4px;
+    }
+
+    .password-strength .strength-bar {
+      flex: 1;
+      height: 100%;
+      border-radius: 2px;
+      background: color-mix(in srgb, var(--txt) 15%, transparent);
+      transition: background 0.2s;
+    }
+
+    .password-strength.weak .strength-bar:nth-child(1) {
+      background: #ef4444;
+    }
+
+    .password-strength.medium .strength-bar:nth-child(1),
+    .password-strength.medium .strength-bar:nth-child(2) {
+      background: #f59e0b;
+    }
+
+    .password-strength.strong .strength-bar:nth-child(1),
+    .password-strength.strong .strength-bar:nth-child(2),
+    .password-strength.strong .strength-bar:nth-child(3) {
+      background: #22c55e;
+    }
+
+    .password-strength.very-strong .strength-bar {
+      background: #22c55e;
+    }
+
+    /* Input validation states */
+    .form-group input.error {
+      border-color: #ef4444;
+    }
+
+    .form-group input.valid {
+      border-color: #22c55e;
+    }
+
+    /* Button loading state */
+    .btn-primary:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-loader {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-loader::before {
+      content: '';
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+      .main-content {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-container {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .search-bar-wrapper {
+        max-width: 100%;
+      }
+
+      .auth-card {
+        padding: 24px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .nav-container {
+        flex-wrap: wrap;
+      }
+
+      .brand {
+        flex: 1 1 100%;
+        order: 0;
+      }
+
+      .search-bar-wrapper {
+        flex: 1 1 100%;
+        order: 2;
+        max-width: 100%;
+      }
+
+      .nav-right {
+        flex: 1 1 100%;
+        order: 3;
+        justify-content: center;
+      }
+
+      .auth-card {
+        padding: 20px;
+      }
+
+      .auth-header h1 {
+        font-size: 24px;
+      }
+
+      .search-bar input {
+        font-size: 13px;
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <!-- Top Navigation -->
+  <div class="top-nav">
+    <div class="nav-container">
+      <div class="brand">
+        <div class="logo"></div>
+        <span>Student Dine Portal</span>
+      </div>
+      <div class="search-bar-wrapper">
+        <div class="search-bar">
+          <span class="search-bar-icon">🔍</span>
+          <input 
+            type="text" 
+            id="searchInput" 
+            placeholder="Search menu items, restaurants..."
+          />
+        </div>
+      </div>
+      <div class="nav-right">
+        <button class="nav-btn">📍 Help</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Register Form -->
+    <div class="auth-card">
+      <div class="auth-header">
+        <h1>Create Account</h1>
+        <p>Join Student Dine Portal</p>
+      </div>
+
+      <div class="alert alert-success" id="successMsg"></div>
+      <div class="alert alert-error" id="errorMsg"></div>
+
+      <form id="registerForm" novalidate>
+        <div class="form-group">
+          <label for="name">Full Name</label>
+          <input 
+            type="text" 
+            id="name" 
+            name="name" 
+            placeholder="Your full name"
+            autocomplete="name"
+            required 
+          />
+          <span class="field-error" id="nameError"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input 
+            type="email" 
+            id="email" 
+            name="email" 
+            placeholder="your@campus.edu"
+            autocomplete="email"
+            required 
+          />
+          <span class="field-error" id="emailError"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="rollNumber">Roll Number / Student ID</label>
+          <input 
+            type="text" 
+            id="rollNumber" 
+            name="rollNumber" 
+            placeholder="e.g., CS2024001"
+            autocomplete="off"
+            required 
+          />
+          <span class="field-error" id="rollNumberError"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="role">I am a</label>
+          <div class="role-selector">
+            <label class="role-option">
+              <input type="radio" name="role" value="student" checked />
+              <span class="role-card">
+                <span class="role-icon">📚</span>
+                <span class="role-title">Day Scholar</span>
+                <span class="role-desc">Order food on campus</span>
+              </span>
+            </label>
+            <label class="role-option">
+              <input type="radio" name="role" value="hosteller" />
+              <span class="role-card">
+                <span class="role-icon">🏠</span>
+                <span class="role-title">Hosteller</span>
+                <span class="role-desc">Access mess facilities</span>
+              </span>
+            </label>
+            <label class="role-option">
+              <input type="radio" name="role" value="manager" />
+              <span class="role-card">
+                <span class="role-icon">👔</span>
+                <span class="role-title">Manager</span>
+                <span class="role-desc">Manage dining operations</span>
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="password-input-wrapper">
+            <input 
+              type="password" 
+              id="password" 
+              name="password" 
+              placeholder="Min 6 characters"
+              autocomplete="new-password"
+              required 
+            />
+            <button type="button" class="toggle-password" aria-label="Toggle password visibility">
+              <span class="eye-icon">👁️</span>
+            </button>
+          </div>
+          <span class="field-error" id="passwordError"></span>
+          <div class="password-strength" id="passwordStrength"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="passwordConfirm">Confirm Password</label>
+          <div class="password-input-wrapper">
+            <input 
+              type="password" 
+              id="passwordConfirm" 
+              name="passwordConfirm" 
+              placeholder="Re-enter your password"
+              autocomplete="new-password"
+              required 
+            />
+            <button type="button" class="toggle-password" aria-label="Toggle password visibility">
+              <span class="eye-icon">👁️</span>
+            </button>
+          </div>
+          <span class="field-error" id="passwordConfirmError"></span>
+        </div>
+
+        <button type="submit" class="btn-primary" id="submitBtn">
+          <span class="btn-text">Create Account</span>
+          <span class="btn-loader" style="display: none;">Creating...</span>
+        </button>
+      </form>
+
+      <div class="divider"><span>OR</span></div>
+
+      <div class="auth-footer">
+        Already have an account? <a href="login.html">Sign in</a>
+      </div>
+
+      <div class="back-link">
+        <a href="../index.html">← Back to Home</a>
+      </div>
+    </div>
+
+    <!-- Menu Browse Section -->
+    <div class="menu-section">
+      <h3>📋 Featured Menu</h3>
+      <div class="menu-items" id="browseMenu">
+        <div class="empty-state">Loading menu items...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../data.js"></script>
+  <script src="../auth.js"></script>
+  <script src="../cart.js"></script>
+  <script>
+    // Load menu items on page load
+    async function loadMenuItems() {
+      const browseMenu = document.getElementById('browseMenu');
+      const items = await CampusFoodDB.getMenu();
+      
+      if (!items || items.length === 0) {
+        browseMenu.innerHTML = '<div class="empty-state">No menu items available</div>';
+        return;
+      }
+
+      browseMenu.innerHTML = items.map(item => `
+        <div class="menu-item">
+          <div class="menu-item-name">${item.name}</div>
+          <div class="menu-item-info">
+            <span>${item.restaurantName}</span>
+            <span class="menu-item-price">₹${item.price}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Search functionality
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', async (e) => {
+      const query = e.target.value.trim().toLowerCase();
+      const browseMenu = document.getElementById('browseMenu');
+      
+      if (!query) {
+        loadMenuItems();
+        return;
+      }
+
+      const items = await CampusFoodDB.getMenu({ search: query });
+      
+      if (items.length === 0) {
+        browseMenu.innerHTML = '<div class="empty-state">No items found matching your search</div>';
+        return;
+      }
+
+      browseMenu.innerHTML = items.map(item => `
+        <div class="menu-item">
+          <div class="menu-item-name">${item.name}</div>
+          <div class="menu-item-info">
+            <span>${item.restaurantName}</span>
+            <span class="menu-item-price">₹${item.price}</span>
+          </div>
+        </div>
+      `).join('');
+    });
+
+    // Register form handler with comprehensive validation
+    const registerForm = document.getElementById('registerForm');
+    const successMsg = document.getElementById('successMsg');
+    const errorMsg = document.getElementById('errorMsg');
+    const submitBtn = document.getElementById('submitBtn');
+
+    // Field references
+    const nameInput = document.getElementById('name');
+    const emailInput = document.getElementById('email');
+    const rollNumberInput = document.getElementById('rollNumber');
+    const passwordInput = document.getElementById('password');
+    const passwordConfirmInput = document.getElementById('passwordConfirm');
+
+    // Error elements
+    const nameError = document.getElementById('nameError');
+    const emailError = document.getElementById('emailError');
+    const rollNumberError = document.getElementById('rollNumberError');
+    const passwordError = document.getElementById('passwordError');
+    const passwordConfirmError = document.getElementById('passwordConfirmError');
+    const passwordStrength = document.getElementById('passwordStrength');
+
+    // Initialize password strength bars
+    passwordStrength.innerHTML = '<div class="strength-bar"></div><div class="strength-bar"></div><div class="strength-bar"></div><div class="strength-bar"></div>';
+
+    // Real-time validation
+    nameInput.addEventListener('blur', () => validateField('name'));
+    emailInput.addEventListener('blur', () => validateField('email'));
+    rollNumberInput.addEventListener('blur', () => validateField('rollNumber'));
+    passwordInput.addEventListener('input', () => {
+      validateField('password');
+      updatePasswordStrength(passwordInput.value);
+      if (passwordConfirmInput.value) validateField('passwordConfirm');
+    });
+    passwordConfirmInput.addEventListener('blur', () => validateField('passwordConfirm'));
+
+    // Password visibility toggles
+    document.querySelectorAll('.toggle-password').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const wrapper = btn.closest('.password-input-wrapper');
+        const input = wrapper.querySelector('input');
+        const icon = btn.querySelector('.eye-icon');
+        
+        if (input.type === 'password') {
+          input.type = 'text';
+          icon.textContent = '🙈';
+        } else {
+          input.type = 'password';
+          icon.textContent = '👁️';
+        }
+      });
+    });
+
+    // Field validation function
+    function validateField(field) {
+      let isValid = true;
+      
+      switch(field) {
+        case 'name':
+          const name = nameInput.value.trim();
+          if (!name) {
+            nameError.textContent = 'Full name is required';
+            nameInput.classList.add('error');
+            nameInput.classList.remove('valid');
+            isValid = false;
+          } else if (name.length < 2) {
+            nameError.textContent = 'Name must be at least 2 characters';
+            nameInput.classList.add('error');
+            nameInput.classList.remove('valid');
+            isValid = false;
+          } else {
+            nameError.textContent = '';
+            nameInput.classList.remove('error');
+            nameInput.classList.add('valid');
+          }
+          break;
+
+        case 'email':
+          const email = emailInput.value.trim();
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!email) {
+            emailError.textContent = 'Email is required';
+            emailInput.classList.add('error');
+            emailInput.classList.remove('valid');
+            isValid = false;
+          } else if (!emailRegex.test(email)) {
+            emailError.textContent = 'Please enter a valid email address';
+            emailInput.classList.add('error');
+            emailInput.classList.remove('valid');
+            isValid = false;
+          } else {
+            emailError.textContent = '';
+            emailInput.classList.remove('error');
+            emailInput.classList.add('valid');
+          }
+          break;
+
+        case 'rollNumber':
+          const rollNumber = rollNumberInput.value.trim();
+          const rollRegex = /^[A-Za-z0-9]{4,20}$/;
+          if (!rollNumber) {
+            rollNumberError.textContent = 'Roll number is required';
+            rollNumberInput.classList.add('error');
+            rollNumberInput.classList.remove('valid');
+            isValid = false;
+          } else if (!rollRegex.test(rollNumber)) {
+            rollNumberError.textContent = 'Must be 4-20 alphanumeric characters';
+            rollNumberInput.classList.add('error');
+            rollNumberInput.classList.remove('valid');
+            isValid = false;
+          } else {
+            rollNumberError.textContent = '';
+            rollNumberInput.classList.remove('error');
+            rollNumberInput.classList.add('valid');
+          }
+          break;
+
+        case 'password':
+          const password = passwordInput.value;
+          if (!password) {
+            passwordError.textContent = 'Password is required';
+            passwordInput.classList.add('error');
+            passwordInput.classList.remove('valid');
+            isValid = false;
+          } else if (password.length < 6) {
+            passwordError.textContent = 'Password must be at least 6 characters';
+            passwordInput.classList.add('error');
+            passwordInput.classList.remove('valid');
+            isValid = false;
+          } else {
+            passwordError.textContent = '';
+            passwordInput.classList.remove('error');
+            passwordInput.classList.add('valid');
+          }
+          break;
+
+        case 'passwordConfirm':
+          const confirmPassword = passwordConfirmInput.value;
+          if (!confirmPassword) {
+            passwordConfirmError.textContent = 'Please confirm your password';
+            passwordConfirmInput.classList.add('error');
+            passwordConfirmInput.classList.remove('valid');
+            isValid = false;
+          } else if (confirmPassword !== passwordInput.value) {
+            passwordConfirmError.textContent = 'Passwords do not match';
+            passwordConfirmInput.classList.add('error');
+            passwordConfirmInput.classList.remove('valid');
+            isValid = false;
+          } else {
+            passwordConfirmError.textContent = '';
+            passwordConfirmInput.classList.remove('error');
+            passwordConfirmInput.classList.add('valid');
+          }
+          break;
+      }
+      
+      return isValid;
+    }
+
+    // Password strength indicator
+    function updatePasswordStrength(password) {
+      let strength = 0;
+      
+      if (password.length >= 6) strength++;
+      if (password.length >= 8) strength++;
+      if (/[A-Z]/.test(password) && /[a-z]/.test(password)) strength++;
+      if (/[0-9]/.test(password)) strength++;
+      if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+      passwordStrength.className = 'password-strength';
+      
+      if (password.length === 0) {
+        passwordStrength.className = 'password-strength';
+      } else if (strength <= 1) {
+        passwordStrength.classList.add('weak');
+      } else if (strength <= 2) {
+        passwordStrength.classList.add('medium');
+      } else if (strength <= 3) {
+        passwordStrength.classList.add('strong');
+      } else {
+        passwordStrength.classList.add('very-strong');
+      }
+    }
+
+    // Set loading state
+    function setLoading(loading) {
+      const btnText = submitBtn.querySelector('.btn-text');
+      const btnLoader = submitBtn.querySelector('.btn-loader');
+      
+      if (loading) {
+        submitBtn.disabled = true;
+        btnText.style.display = 'none';
+        btnLoader.style.display = 'inline-flex';
+      } else {
+        submitBtn.disabled = false;
+        btnText.style.display = 'inline';
+        btnLoader.style.display = 'none';
+      }
+    }
+
+    // Form submission
+    registerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      // Validate all fields
+      const isNameValid = validateField('name');
+      const isEmailValid = validateField('email');
+      const isRollNumberValid = validateField('rollNumber');
+      const isPasswordValid = validateField('password');
+      const isPasswordConfirmValid = validateField('passwordConfirm');
+
+      if (!isNameValid || !isEmailValid || !isRollNumberValid || !isPasswordValid || !isPasswordConfirmValid) {
+        showError('Please fix the errors above');
+        return;
+      }
+
+      const name = nameInput.value.trim();
+      const email = emailInput.value.trim();
+      const rollNumber = rollNumberInput.value.trim();
+      const password = passwordInput.value;
+      const passwordConfirm = passwordConfirmInput.value;
+      const role = document.querySelector('input[name="role"]:checked').value;
+
+      setLoading(true);
+      hideMessages();
+
+      const result = await Auth.register({ 
+        name, 
+        email, 
+        rollNumber,
+        password, 
+        passwordConfirm,
+        role 
+      });
+
+      setLoading(false);
+
+      if (result.success) {
+        showSuccess('Account created successfully! Redirecting...');
+        // Clear form
+        registerForm.reset();
+        setTimeout(() => {
+          const user = Auth.getCurrentUser();
+          if (user?.role === 'manager') {
+            window.location.href = '../manager/operations.html';
+          } else if (user?.role === 'hosteller') {
+            window.location.href = '../hosteller/index.html';
+          } else {
+            window.location.href = '../store.html';
+          }
+        }, 1500);
+      } else {
+        showError(result.message || 'Registration failed. Please try again.');
+      }
+    });
+
+    function showSuccess(msg) {
+      successMsg.textContent = msg;
+      successMsg.classList.add('show');
+      errorMsg.classList.remove('show');
+      // Scroll to message
+      successMsg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function showError(msg) {
+      errorMsg.textContent = msg;
+      errorMsg.classList.add('show');
+      successMsg.classList.remove('show');
+      // Scroll to message
+      errorMsg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function hideMessages() {
+      successMsg.classList.remove('show');
+      errorMsg.classList.remove('show');
+    }
+
+    // Load menu on page load
+    loadMenuItems();
+  </script>
+</body>
+</html>
