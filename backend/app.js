@@ -17,44 +17,21 @@ const errorHandler = require('./middleware/errorHandler');
 const app = express();
 
 // ── Middleware ──────────────────────────────────────────────
-// CORS configuration - Allow frontend to talk to backend
-const allowedOrigins = [
-  'http://localhost:8000',
-  'http://localhost:3001',
-  'http://127.0.0.1:8000',
-  'http://127.0.0.1:3001',
-  'https://studentdine.vercel.app'
-];
 
+// Simple and stable CORS configuration
 app.use(cors({
-  origin: function (origin, callback) {
-
-    // Allow requests with no origin
-    if (!origin) return callback(null, true);
-
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-
-      // Allow localhost during development
-      if (
-        origin &&
-        (
-          origin.includes('localhost') ||
-          origin.includes('127.0.0.1')
-        )
-      ) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    }
-  },
-
+  origin: [
+    'http://localhost:8000',
+    'http://localhost:3001',
+    'http://127.0.0.1:8000',
+    'http://127.0.0.1:3001',
+    'https://studentdine.vercel.app'
+  ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
+  credentials: true
 }));
+
 // Parse incoming JSON requests
 app.use(express.json());
 
@@ -62,25 +39,35 @@ app.use(express.json());
 app.use(loggerMiddleware);
 
 // ── Routes ──────────────────────────────────────────────────
-app.use('/api/auth',    authRoutes);
-app.use('/api/menu',    menuRoutes);
-app.use('/api/orders',  orderRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/menu', menuRoutes);
+app.use('/api/orders', orderRoutes);
 app.use('/api/coupons', couponRoutes);
-app.use('/api/mess',    messRoutes);
+app.use('/api/mess', messRoutes);
 app.use('/api/manager', managerRoutes);
 app.use('/api/restaurants', restaurantRoutes);
-app.use('/api/staff',   staffRoutes);
+app.use('/api/staff', staffRoutes);
 app.use('/api/features', featuresRoutes);
-
 
 // ── Health check ────────────────────────────────────────────
 app.get('/', (req, res) => {
   res.json({ message: 'Student Dine API is running!' });
 });
 
+// Optional test route for debugging
+app.get('/test', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Backend is working properly'
+  });
+});
+
 // ── 404 Handler ─────────────────────────────────────────────
 app.use((req, res) => {
-  res.status(404).json({ success: false, message: 'Route not found' });
+  res.status(404).json({
+    success: false,
+    message: 'Route not found'
+  });
 });
 
 // ── Global Error Handler ────────────────────────────────────
